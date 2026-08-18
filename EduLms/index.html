@@ -429,13 +429,13 @@
                 <input type="text" id="licKeyInput" placeholder="SIIT-XXXX-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false">
             </div>
 
-            <button class="lic-btn lic-btn-primary" onclick="License.activate()">Activate License</button>
+            <button class="lic-btn lic-btn-primary" onclick="LIC.activate()">Activate License</button>
 
             <div class="lic-status" id="licStatus"></div>
 
             <div class="lic-divider">OR</div>
 
-            <button class="lic-btn" style="background:#334155;color:#e8ecf4;" onclick="License.showExpired()">Enter as Demo (limited)</button>
+            <button class="lic-btn" style="background:#334155;color:#e8ecf4;" onclick="LIC.showExpired()">Enter as Demo (limited)</button>
 
             <div class="lic-info-box" style="margin-top:18px;">
                 <strong>How to get a license:</strong><br>
@@ -452,7 +452,7 @@
                 <div class="lic-expired-icon">🔒</div>
                 <h1>License Expired</h1>
                 <p>Your license has expired or been revoked.<br>All application data has been wiped for security.<br>Contact the administrator for a new license.</p>
-                <button class="lic-btn lic-btn-primary" onclick="License.showActivate()" style="max-width:300px;margin:0 auto;">Enter New License</button>
+                <button class="lic-btn lic-btn-primary" onclick="LIC.showActivate()" style="max-width:300px;margin:0 auto;">Enter New License</button>
             </div>
         </div>
     </div>
@@ -694,8 +694,8 @@
             </div>
         </div>
         <div style="display:flex;gap:8px;margin-bottom:14px;">
-            <button class="btn btn-primary" onclick="License.generate()">Generate License Key</button>
-            <button class="btn btn-ghost" onclick="License.revoke()">Revoke by Fingerprint</button>
+            <button class="btn btn-primary" onclick="LIC.generate()">Generate License Key</button>
+            <button class="btn btn-ghost" onclick="LIC.revoke()">Revoke by Fingerprint</button>
         </div>
         <div class="gen-key" id="adminGenKey"></div>
 
@@ -1015,7 +1015,7 @@ const LIC = {
         bars.forEach(id => {
             const el = document.getElementById(id);
             if (el) {
-                el.innerHTML = `<div class="lic-bar ${cls}" onclick="License.showInfo()"><span class="lic-bar-dot"></span>${text}</div>`;
+                el.innerHTML = `<div class="lic-bar ${cls}" onclick="LIC.showInfo()"><span class="lic-bar-dot"></span>${text}</div>`;
             }
         });
     },
@@ -1588,7 +1588,7 @@ const commands = [
     { name: 'Toggle Theme', action: toggleTheme },
     { name: 'Run Code', action: () => IDE.run() },
     { name: 'New File', action: () => IDE.newFile() },
-    { name: 'License Info', action: () => License.showInfo() },
+    { name: 'License Info', action: () => LIC.showInfo() },
     { name: 'Login / Logout', action: () => { S.isLoggedIn ? Auth.logout() : openModal('authModal'); } },
 ];
 const CMD = {
