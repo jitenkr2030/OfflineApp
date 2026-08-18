@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DentaCare - Clinic Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--primary:#0ea5e9;--primary-h:#0284c7;--primary-s:rgba(14,165,233,.1);--bg:#0c1222;--sf:#131c30;--card:#182240;--tx:#e4eaf6;--tm:#7a8ba8;--bd:#243050;--ok:#10b981;--wr:#f59e06;--dn:#ef4444;--pk:#ec4899;--cy:#06b6d4;--rd:10px;--sh:0 4px 20px rgba(0,0,0,.3);--code-bg:#0a0e1a;--terminal-bg:#000;--terminal-text:#00ff66}
+[data-theme="light"]{--primary:#0284c7;--primary-h:#0369a1;--primary-s:rgba(2,132,199,.08);--bg:#f0f4f8;--sf:#fff;--card:#fff;--tx:#1a202c;--tm:#64748b;--bd:#e2e8f0;--ok:#059669;--wr:#d97706;--dn:#dc2626;--pk:#db2777;--cy:#0891b2;--sh:0 4px 20px rgba(0,0,0,.06)}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'DM Sans',sans-serif}
+body{background:var(--bg);color:var(--tx);display:flex;height:100vh;overflow:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+/* License Screen */
+#licScr{position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#0c1222,#1a0a2e,#0c1222);display:flex;align-items:center;justify-content:center;color:#e4eaf6}
+#licScr.hide{display:none}.lic-c{width:440px;max-width:92vw;background:rgba(24,34,64,.95);border:1px solid #243050;border-radius:16px;padding:36px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.lic-hd{text-align:center;margin-bottom:24px}.lic-ic{width:56px;height:56px;background:linear-gradient(135deg,#0ea5e9,#ec4899);border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:12px}
+.lic-f{margin-bottom:14px}.lic-f label{display:block;font-size:.82rem;font-weight:600;color:#94a3b8;margin-bottom:6px}
+.lic-f input{width:100%;padding:11px 14px;border:1px solid #334155;border-radius:8px;background:#0f172a;color:#e4eaf6;font-family:'JetBrains Mono',monospace;font-size:.88rem;outline:none}
+.lic-f input[readonly]{background:#0a0e1a;color:#7a8ba5;font-size:.78rem}
+.lic-bt{width:100%;padding:12px;border:none;border-radius:8px;font-weight:600;font-size:.9rem;cursor:pointer;font-family:inherit;color:#fff}
+.lic-bt.p{background:linear-gradient(135deg,#0ea5e9,#6366f1)}.lic-bt.p:hover{filter:brightness(1.1)}
+.lic-st{text-align:center;margin-top:14px;font-size:.82rem;font-weight:500}.lic-st.ok{color:#34d399}.lic-st.er{color:#fbbf24}
+.lic-dv{display:flex;align-items:center;gap:12px;margin:18px 0;color:#475569;font-size:.78rem}.lic-dv::before,.lic-dv::after{content:'';flex:1;height:1px;background:#253046}
+.lic-info{background:rgba(14,165,233,.08);border:1px solid rgba(14,165,233,.2);border-radius:8px;padding:12px;font-size:.78rem;color:#94a3b8;line-height:1.5}
+.lic-info code{background:rgba(0,0,0,.3);padding:1px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.74rem;color:#0ea5e9}
+#licExp{display:none;text-align:center}.lic-exp-ic{font-size:4rem;margin-bottom:16px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.95)}}
+#licExp h1{font-size:1.5rem;color:#ef4444;margin-bottom:8px}#licExp p{color:#7a8ba5;font-size:.88rem;margin-bottom:20px;line-height:1.6}
+/* Sidebar */
+.sb{width:260px;min-width:260px;background:var(--sf);border-right:1px solid var(--bd);display:flex;flex-direction:column}
+.brand{padding:18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--bd)}
+.brand-ic{width:36px;height:36px;background:linear-gradient(135deg,#0ea5e9,#ec4899);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.brand-t{font-weight:700;font-size:.95rem;color:var(--primary)}
+.nav{list-style:none;padding:14px 10px;flex:1;overflow-y:auto}
+.nav li{padding:11px 14px;margin-bottom:3px;border-radius:8px;cursor:pointer;font-weight:500;font-size:.86rem;color:var(--tm);display:flex;align-items:center;gap:10px;transition:all .15s}
+.nav li:hover,.nav li.act{background:var(--primary-s);color:var(--primary)}.nav li.act{font-weight:600}
+.sess{padding:14px;background:var(--bg);border-top:1px solid var(--bd);font-size:.78rem}
+.badge{display:inline-block;padding:2px 10px;font-size:.72rem;font-weight:700;border-radius:5px;color:#fff}
+/* Main */
+.mn{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.hdr{padding:12px 22px;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center}
+.hdr h2{font-size:1.05rem;font-weight:700}.hdr-ac{display:flex;align-items:center;gap:8px}
+.sv-ind{font-size:.75rem;color:var(--tm);display:flex;align-items:center;gap:5px}
+.sv-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block}.sv-dot.sv{background:var(--wr);animation:pulse .6s infinite}
+.cnt{flex:1;overflow:hidden}
+.vw{display:none;height:100%;overflow-y:auto;padding:22px}.vw.act{display:flex;flex-direction:column}
+/* Buttons */
+.btn{border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-size:.84rem;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{filter:brightness(1.1)}.btn-p{background:var(--primary);color:#fff}.btn-ok{background:var(--ok);color:#fff}.btn-wr{background:var(--wr);color:#000}.btn-dn{background:var(--dn);color:#fff}.btn-gh{background:transparent;border:1px solid var(--bd);color:var(--tx)}.btn-sm{padding:5px 10px;font-size:.76rem}.btn-xs{padding:3px 8px;font-size:.7rem;border-radius:5px}
+/* Inputs */
+input[type="text"],input[type="password"],input[type="number"],input[type="date"],input[type="email"],input[type="tel"],select,textarea.fc{width:100%;padding:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;margin-bottom:10px;font-size:.88rem;font-family:inherit;outline:none;transition:border .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--primary)}textarea.fc{resize:vertical;line-height:1.5}
+label.lbl{display:block;font-size:.84rem;font-weight:600;margin-bottom:5px;color:var(--tm)}
+/* Cards */
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--rd);padding:22px;margin-bottom:16px;box-shadow:var(--sh)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:20px}
+.st-c{background:var(--card);border:1px solid var(--bd);border-radius:var(--rd);padding:18px;text-align:center;position:relative;overflow:hidden}
+.st-c::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.st-c:nth-child(1)::before{background:var(--primary)}.st-c:nth-child(2)::before{background:var(--ok)}.st-c:nth-child(3)::before{background:var(--wr)}.st-c:nth-child(4)::before{background:var(--pk)}.st-c:nth-child(5)::before{background:var(--cy)}
+.st-c h3{font-size:1.5rem;font-weight:700;margin-bottom:2px}.st-c p{color:var(--tm);font-size:.82rem}
+/* Tables */
+.tbl-wrap{border:1px solid var(--bd);border-radius:8px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.86rem}
+th{text-align:left;padding:10px 14px;background:var(--sf);border-bottom:1px solid var(--bd);font-weight:600;color:var(--tm)}
+td{padding:10px 14px;border-bottom:1px solid var(--bd)}tr:hover td{background:var(--primary-s)}
+/* Status tags */
+.tag{font-size:.68rem;padding:3px 8px;border-radius:4px;font-weight:600;display:inline-block}
+.tag-pend{background:rgba(245,158,6,.15);color:var(--wr)}.tag-conf{background:rgba(14,165,233,.15);color:var(--primary)}.tag-done{background:rgba(16,185,129,.15);color:var(--ok)}.tag-cancel{background:rgba(239,68,68,.12);color:var(--dn)}.tag-noshow{background:rgba(148,163,184,.15);color:var(--tm)}
+.tag-paid{background:rgba(16,185,129,.15);color:var(--ok)}.tag-part{background:rgba(245,158,6,.15);color:var(--wr)}.tag-unpaid{background:rgba(239,68,68,.12);color:var(--dn)}
+/* Slot grid */
+.slot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin:12px 0}
+.slot{padding:10px;border-radius:8px;text-align:center;font-size:.78rem;font-weight:600;cursor:pointer;border:2px solid transparent;transition:all .15s}
+.slot.avail{background:rgba(16,185,129,.12);color:var(--ok);border-color:rgba(16,185,129,.3)}.slot.avail:hover{border-color:var(--ok);transform:scale(1.03)}
+.slot.booked{background:rgba(239,68,68,.1);color:var(--dn);border-color:rgba(239,68,68,.2);cursor:not-allowed;opacity:.6}
+.slot.sel{background:var(--primary);color:#fff;border-color:var(--primary);transform:scale(1.05)}
+.slot-label{font-size:.68rem;color:var(--tm);margin-top:2px}
+/* Modal */
+.mdl{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1500;justify-content:center;align-items:center}
+.mdl.open{display:flex}.mdl-box{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:24px;max-width:560px;width:92%;box-shadow:var(--sh);max-height:85vh;overflow-y:auto}
+/* Booking steps */
+.steps{display:flex;gap:8px;margin-bottom:18px}
+.step{flex:1;height:4px;border-radius:2px;background:var(--bd);transition:background .3s}.step.done{background:var(--ok)}.step.active{background:var(--primary)}
+/* Print slip */
+.print-slip{background:#fff;color:#000;padding:30px;border-radius:8px;font-size:14px;max-width:400px;margin:0 auto}
+.print-slip h2{text-align:center;margin-bottom:4px;font-size:18px}.print-slip .clinic-info{text-align:center;color:#666;font-size:12px;margin-bottom:16px}
+.print-slip .divider{border-top:2px dashed #ccc;margin:12px 0}
+.print-slip table{width:100%;font-size:13px}.print-slip td{padding:4px 0;border:none}.print-slip td:first-child{color:#666;width:40%}
+.print-slip .ref{text-align:center;font-size:20px;font-weight:700;letter-spacing:2px;margin:12px 0;color:#0ea5e9}
+.print-slip .footer{text-align:center;font-size:11px;color:#999;margin-top:16px}
+/* Charts */
+.charts-g{display:grid;grid-template-columns:1fr 1fr;gap:16px}.chart-c{background:var(--card);border:1px solid var(--bd);border-radius:var(--rd);padding:18px}.chart-c h4{font-size:.9rem;margin-bottom:12px;font-weight:600}
+/* Toast */
+.tw{position:fixed;bottom:20px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:8px}
+.tst{padding:12px 18px;border-radius:10px;font-size:.84rem;font-weight:600;color:#fff;opacity:0;transform:translateY(12px);transition:all .3s;pointer-events:none;max-width:340px}
+.tst.show{opacity:1;transform:translateY(0)}.tst.ok{background:#059669}.tst.er{background:#dc2626}.tst.inf{background:var(--primary)}.tst.wr{background:#d97706}
+/* Admin panel */
+#admPnl{position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center}
+#admPnl.open{display:flex}.adm-b{width:680px;max-width:95vw;max-height:90vh;background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:28px;overflow-y:auto}
+.adm-t{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:14px}.adm-t th{text-align:left;padding:8px 10px;background:var(--bg);border-bottom:1px solid var(--bd);font-weight:600;color:var(--tm)}.adm-t td{padding:8px 10px;border-bottom:1px solid var(--bd)}
+.gen-k{font-family:'JetBrains Mono',monospace;background:var(--bg);padding:8px 12px;border-radius:6px;font-size:.8rem;color:var(--ok);margin-top:12px;word-break:break-all;display:none;border:1px solid var(--bd)}
+/* Lic bar */
+.lic-bar{display:flex;align-items:center;gap:8px;padding:5px 10px;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer}
+.lic-bar.act{background:rgba(16,185,129,.12);color:var(--ok)}.lic-bar.wrn{background:rgba(245,158,6,.12);color:var(--wr)}
+.lic-bar-dot{width:7px;height:7px;border-radius:50%;display:inline-block}.lic-bar.act .lic-bar-dot{background:var(--ok)}.lic-bar.wrn .lic-bar-dot{background:var(--wr);animation:pulse 1s infinite}
+/* Responsive */
+@media(max-width:900px){.sb{width:56px;min-width:56px}.brand-t,.nav li span,.sess{display:none}.nav li{justify-content:center;padding:12px}.charts-g{grid-template-columns:1fr}}
+/* CMD palette */
+.cmd-o{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;justify-content:center;padding-top:15vh}
+.cmd-o.open{display:flex}.cmd-b{width:460px;max-height:360px;background:var(--card);border:1px solid var(--bd);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.cmd-b input{padding:14px 16px;border:none;border-bottom:1px solid var(--bd);background:transparent;color:var(--tx);font-size:.95rem;outline:none}
+.cmd-r{overflow-y:auto;flex:1}.cmd-i{padding:10px 16px;cursor:pointer;font-size:.86rem;display:flex;justify-content:space-between;transition:background .1s}
+.cmd-i:hover,.cmd-i.sel{background:var(--primary-s)}
+</style>
+</head>
+<body>
+
+<!-- LICENSE SCREEN -->
+<div id="licScr"><div class="lic-c" id="licC">
+<div id="licAct">
+<div class="lic-hd"><div class="lic-ic">🦷</div><h2>DentaCare Management</h2><p style="color:#7a8ba5;font-size:.82rem;margin-top:4px">License Activation Required</p></div>
+<div class="lic-f"><label>Machine Fingerprint</label><input type="text" id="licFP" readonly></div>
+<div class="lic-f"><label>License Key</label><input type="text" id="licKey" placeholder="DENT-XXXX-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false"></div>
+<button class="lic-bt p" onclick="Lic.activate()">Activate License</button>
+<div class="lic-st" id="licSt"></div>
+<div class="lic-dv">OR</div>
+<button class="lic-bt" style="background:#334155;color:#e4eaf6" onclick="Lic.showExp()">Demo Mode</button>
+<div class="lic-info" style="margin-top:18px"><strong>How to activate:</strong><br>1. Copy your Machine Fingerprint<br>2. Send it to the administrator<br>3. Receive a license key<br>4. Paste key and click Activate</div>
+</div>
+<div id="licExp"><div style="text-align:center"><div class="lic-exp-ic">🔒</div><h1>License Expired</h1><p>All data has been wiped.<br>Contact administrator for a new license.</p><button class="lic-bt p" onclick="Lic.showAct()" style="max-width:300px;margin:0 auto">Enter New License</button></div></div>
+</div></div>
+
+<!-- MAIN APP -->
+<div id="mainApp" style="display:none;width:100%;height:100%">
+
+<!-- SIDEBAR -->
+<aside class="sb"><div>
+<div class="brand"><div class="brand-ic">🦷</div><span class="brand-t">DentaCare</span></div>
+<ul class="nav" id="nav">
+<li class="act" data-v="dash">📊 <span>Dashboard</span></li>
+<li data-v="book">📅 <span>Book Appointment</span></li>
+<li data-v="appts">🗓️ <span>Appointments</span></li>
+<li data-v="patients">👤 <span>Patients</span></li>
+<li data-v="payments">💰 <span>Payments</span></li>
+<li data-v="reports">📈 <span>Reports</span></li>
+<li data-v="settings">⚙️ <span>Settings</span></li>
+</ul></div>
+<div class="sess"><div id="licBarSess"></div></div></aside>
+
+<!-- MAIN -->
+<div class="mn">
+<header class="hdr">
+<h2 id="pgT">Dashboard</h2>
+<div class="hdr-ac">
+<div class="sv-ind" id="svInd"><span class="sv-dot"></span> Saved</div>
+<div id="licBarHdr"></div>
+<button class="btn btn-gh btn-sm" onclick="CMD.open()">⌘</button>
+<button class="btn btn-gh btn-sm" onclick="UI.toggleTheme()">🌗</button>
+</div></header>
+<div class="cnt">
+
+<!-- DASHBOARD -->
+<div id="v-dash" class="vw act">
+<div class="stats">
+<div class="st-c"><h3 id="stAppt">0</h3><p>Today Appointments</p></div>
+<div class="st-c"><h3 id="stPend">0</h3><p>Pending</p></div>
+<div class="st-c"><h3 id="stPatients">0</h3><p>Total Patients</p></div>
+<div class="st-c"><h3 id="stRev">0</h3><p>Revenue (month)</p></div>
+<div class="st-c"><h3 id="stOcc">0%</h3><p>Occupancy Today</p></div>
+</div>
+<div style="display:grid;grid-template-columns:1.5fr 1fr;gap:16px">
+<div class="card"><h3 style="margin-bottom:14px">Today Schedule</h3><div id="todayList"></div></div>
+<div class="card"><h3 style="margin-bottom:14px">Upcoming</h3><div id="upcomingList"></div></div>
+</div>
+</div>
+
+<!-- BOOK APPOINTMENT -->
+<div id="v-book" class="vw">
+<div class="card" style="max-width:700px;margin:0 auto">
+<h2 style="margin-bottom:14px">📅 Book New Appointment</h2>
+<div class="steps" id="bookSteps"><div class="step active"></div><div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div></div>
+<div id="bookContent"></div>
+</div></div>
+
+<!-- APPOINTMENTS -->
+<div id="v-appts" class="vw">
+<div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+<h3>All Appointments</h3>
+<div style="display:flex;gap:8px">
+<select id="apptFilter" onchange="Appts.render()" style="width:auto;margin-bottom:0"><option value="all">All Status</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select>
+<input type="date" id="apptDateF" onchange="Appts.render()" style="width:auto;margin-bottom:0">
+<button class="btn btn-gh btn-sm" onclick="Appts.exportCSV()">⬇ CSV</button>
+<button class="btn btn-p btn-sm" onclick="Nav.go('book')">+ New</button>
+</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Ref</th><th>Patient</th><th>Phone</th><th>Dentist</th><th>Treatment</th><th>Date</th><th>Time</th><th>Status</th><th>Actions</th></tr></thead><tbody id="apptBody"></tbody></table></div>
+</div></div>
+
+<!-- PATIENTS -->
+<div id="v-patients" class="vw">
+<div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+<h3>Patient Database</h3>
+<div style="display:flex;gap:8px">
+<input type="text" id="patSearch" placeholder="Search..." oninput="Pats.render()" style="width:200px;margin-bottom:0">
+<button class="btn btn-gh btn-sm" onclick="Pats.importCSV()">⬆ Import CSV</button>
+<button class="btn btn-gh btn-sm" onclick="Pats.exportCSV()">⬇ Export CSV</button>
+<button class="btn btn-p btn-sm" onclick="Pats.openForm()">+ Add Patient</button>
+</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Email</th><th>Gender</th><th>DOB</th><th>Visits</th><th>Actions</th></tr></thead><tbody id="patBody"></tbody></table></div>
+</div></div>
+
+<!-- PAYMENTS -->
+<div id="v-payments" class="vw">
+<div class="stats" style="margin-bottom:16px">
+<div class="st-c"><h3 id="payTotal">0</h3><p>Total Revenue</p></div>
+<div class="st-c"><h3 id="payPaid">0</h3><p>Paid</p></div>
+<div class="st-c"><h3 id="payPend">0</h3><p>Pending</p></div>
+<div class="st-c"><h3 id="payPart">0</h3><p>Partial</p></div>
+</div>
+<div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+<h3>Payment Records</h3>
+<div style="display:flex;gap:8px">
+<select id="payFilter" onchange="Pays.render()" style="width:auto;margin-bottom:0"><option value="all">All</option><option value="paid">Paid</option><option value="pending">Pending</option><option value="partial">Partial</option></select>
+<button class="btn btn-gh btn-sm" onclick="Pays.exportCSV()">⬇ CSV</button>
+<button class="btn btn-p btn-sm" onclick="Pays.openForm()">+ Record Payment</button>
+</div></div>
+<div class="tbl-wrap"><table><thead><tr><th>Ref</th><th>Patient</th><th>Treatment</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Method</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody id="payBody"></tbody></table></div>
+</div></div>
+
+<!-- REPORTS -->
+<div id="v-reports" class="vw">
+<div class="charts-g" style="margin-bottom:16px">
+<div class="chart-c"><h4>Appointments by Status</h4><canvas id="chAppt"></canvas></div>
+<div class="chart-c"><h4>Revenue Trend (Last 7 Days)</h4><canvas id="chRev"></canvas></div>
+</div>
+<div class="charts-g">
+<div class="chart-c"><h4>Popular Treatments</h4><canvas id="chTreat"></canvas></div>
+<div class="chart-c"><h4>Dentist Workload</h4><canvas id="chDent"></canvas></div>
+</div></div>
+
+<!-- SETTINGS -->
+<div id="v-settings" class="vw">
+<div class="card" style="max-width:600px">
+<h3 style="margin-bottom:14px">⚙️ Clinic Settings</h3>
+<label class="lbl">Clinic Name</label><input type="text" id="setClinic">
+<label class="lbl">Phone</label><input type="text" id="setPhone">
+<label class="lbl">Address</label><textarea class="fc" id="setAddr" rows="2"></textarea>
+<label class="lbl">Email</label><input type="text" id="setEmail">
+<label class="lbl">WhatsApp Number (intl format, no +)</label><input type="text" id="setWA" placeholder="66812345678">
+<label class="lbl">Slot Duration (minutes)</label><select id="setSlot"><option value="30">30 minutes</option><option value="15">15 minutes</option><option value="60">60 minutes</option></select>
+<hr style="border:0;border-top:1px solid var(--bd);margin:16px 0">
+<h3 style="margin-bottom:14px">👨‍⚕️ Dentists</h3>
+<div id="dentList"></div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<input type="text" id="newDentName" placeholder="Dr. Name" style="flex:1"><input type="text" id="newDentSpec" placeholder="Specialization" style="flex:1"><button class="btn btn-p btn-sm" onclick="Cfg.addDentist()">+ Add</button>
+</div>
+<hr style="border:0;border-top:1px solid var(--bd);margin:16px 0">
+<h3 style="margin-bottom:14px">💊 Treatments</h3>
+<div id="treatList"></div>
+<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+<input type="text" id="newTreatName" placeholder="Treatment name" style="flex:2;min-width:150px"><input type="number" id="newTreatPrice" placeholder="Price" style="flex:1;min-width:80px"><select id="newTreatSlots" style="flex:1;min-width:80px"><option value="1">30 min</option><option value="2">60 min</option><option value="3">90 min</option></select><button class="btn btn-p btn-sm" onclick="Cfg.addTreatment()">+ Add</button>
+</div>
+<hr style="border:0;border-top:1px solid var(--bd);margin:16px 0">
+<h3 style="margin-bottom:14px">🕐 Working Hours</h3>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<div><label class="lbl">Morning Start</label><input type="text" id="setMStart" value="09:00"></div>
+<div><label class="lbl">Morning End</label><input type="text" id="setMEnd" value="12:00"></div>
+<div><label class="lbl">Afternoon Start</label><input type="text" id="setAStart" value="13:00"></div>
+<div><label class="lbl">Afternoon End</label><input type="text" id="setAEnd" value="17:00"></div>
+</div>
+<div style="margin-top:16px"><button class="btn btn-wr" onclick="Cfg.save()" style="width:100%">Save Settings</button></div>
+</div></div>
+
+</div></div></div>
+
+<!-- MODALS -->
+<div class="mdl" id="patModal"><div class="mdl-box"><h3 id="patFormTitle" style="margin-bottom:14px">Add Patient</h3><input type="hidden" id="patEditId"><label class="lbl">Full Name *</label><input type="text" id="patName"><label class="lbl">Phone *</label><input type="tel" id="patPhone"><label class="lbl">Email</label><input type="email" id="patEmail"><label class="lbl">Date of Birth</label><input type="date" id="patDOB"><label class="lbl">Gender</label><select id="patGender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select><label class="lbl">Address</label><textarea class="fc" id="patAddr" rows="2"></textarea><label class="lbl">Medical History / Allergies</label><textarea class="fc" id="patMed" rows="2"></textarea><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-gh" onclick="UI.closeMdl('patModal')">Cancel</button><button class="btn btn-ok" onclick="Pats.save()">Save Patient</button></div></div></div>
+
+<div class="mdl" id="payModal"><div class="mdl-box"><h3 style="margin-bottom:14px">Record Payment</h3><input type="hidden" id="payEditId"><label class="lbl">Appointment Ref</label><select id="payAppt"></select><label class="lbl">Amount *</label><input type="number" id="payAmt" placeholder="0.00"><label class="lbl">Payment Method</label><select id="payMethod"><option>Cash</option><option>Credit Card</option><option>Bank Transfer</option><option>Insurance</option><option>Other</option></select><label class="lbl">Status</label><select id="payStatus"><option value="paid">Paid</option><option value="partial">Partial</option><option value="pending">Pending</option></select><label class="lbl">Notes</label><textarea class="fc" id="payNotes" rows="2"></textarea><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-gh" onclick="UI.closeMdl('payModal')">Cancel</button><button class="btn btn-ok" onclick="Pays.save()">Save Payment</button></div></div></div>
+
+<div class="mdl" id="slipModal"><div class="mdl-box" style="max-width:440px"><div id="slipContent"></div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn btn-gh" onclick="UI.closeMdl('slipModal')">Close</button><button class="btn btn-p" onclick="Slip.print()">🖨️ Print</button><button class="btn btn-ok" onclick="Slip.whatsapp()">📱 WhatsApp</button></div></div></div>
+
+<div class="mdl" id="csvModal"><div class="mdl-box"><h3 style="margin-bottom:14px">Import Patients from CSV</h3><p style="font-size:.84rem;color:var(--tm);margin-bottom:14px">CSV columns: name, phone, email, dob, gender, address, medical</p><input type="file" id="csvFile" accept=".csv"><div style="display:flex;gap:8px;margin-top:14px"><button class="btn btn-gh" onclick="UI.closeMdl('csvModal')">Cancel</button><button class="btn btn-ok" onclick="Pats.processCSV()">Import</button></div></div></div>
+
+<div class="mdl" id="exportModal"><div class="mdl-box"><h3 style="margin-bottom:14px">📦 Export / Import Data</h3><div style="display:flex;flex-direction:column;gap:10px"><button class="btn btn-p" onclick="DataIO.exportAll()">⬇ Export All Data (JSON)</button><button class="btn btn-gh" onclick="document.getElementById('importFile').click()">⬆ Import Data (JSON)</button><input type="file" id="importFile" accept=".json" style="display:none" onchange="DataIO.importAll(event)"><button class="btn btn-gh" onclick="Pats.exportCSV()">⬇ Export Patients (CSV)</button><button class="btn btn-gh" onclick="Appts.exportCSV()">⬇ Export Appointments (CSV)</button><button class="btn btn-gh" onclick="Pays.exportCSV()">⬇ Export Payments (CSV)</button></div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn btn-gh" onclick="UI.closeMdl('exportModal')">Close</button></div></div></div>
+
+<!-- ADMIN LICENSE PANEL -->
+<div id="admPnl"><div class="adm-b"><h2 style="margin-bottom:6px">🔑 License Generator (Admin)</h2><p style="color:var(--tm);font-size:.84rem;margin-bottom:18px">Access via Ctrl+Shift+L</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px"><div><label class="lbl">Machine Fingerprint</label><input type="text" id="admFP" placeholder="Paste fingerprint"></div><div><label class="lbl">Duration (days)</label><input type="number" id="admDays" value="30" min="1" max="3650"></div></div><div style="display:flex;gap:8px;margin-bottom:14px"><button class="btn btn-p" onclick="Lic.generate()">Generate Key</button><button class="btn btn-gh" onclick="Lic.revoke()">Revoke</button></div><div class="gen-k" id="admGenK"></div><div class="lic-dv">Active Licenses</div><table class="adm-t"><thead><tr><th>Fingerprint</th><th>Activated</th><th>Expires</th><th>Days Left</th></tr></thead><tbody id="admLicBody"></tbody></table><div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="btn btn-gh" onclick="document.getElementById('admPnl').classList.remove('open')">Close</button></div></div></div>
+
+<!-- CMD PALETTE -->
+<div class="cmd-o" id="cmdO"><div class="cmd-b"><input type="text" id="cmdIn" placeholder="Command..." oninput="CMD.filt()" onkeydown="CMD.key(event)"><div class="cmd-r" id="cmdR"></div></div></div>
+<div class="tw" id="tw"></div>
+
+<script>
+"use strict";
+
+/* ============ SECTION A: LICENSE SYSTEM (Same as EduLMS) ============ */
+const Lic={
+SECRET:'DENTACARE_SECRET_xK9$mP2v@qR7nZ4w',
+INTERVAL:30000,STOR:'dc_lic_v1',PREFIX:'dc',
+async fp(){
+const c=[];c.push(navigator.userAgent||'');c.push(navigator.language||'');c.push(navigator.platform||'');c.push(String(navigator.hardwareConcurrency||0));c.push(String(screen.width));c.push(String(screen.height));c.push(String(screen.colorDepth));c.push(Intl.DateTimeFormat().resolvedOptions().timeZone||'');
+try{const cv=document.createElement('canvas');cv.width=200;cv.height=50;const x=cv.getContext('2d');x.textBaseline='top';x.font='14px Arial';x.fillStyle='#f60';x.fillRect(125,1,62,20);x.fillStyle='#069';x.fillText('DentaCare-FP',2,15);c.push(cv.toDataURL())}catch(e){c.push('c-e')}
+try{const g=document.createElement('canvas').getContext('webgl');const d=g.getExtension('WEBGL_debug_renderer_info');if(d){c.push(g.getParameter(d.UNMASKED_VENDOR_WEBGL)||'');c.push(g.getParameter(d.UNMASKED_RENDERER_WEBGL)||'')}}catch(e){c.push('g-e')}
+try{const a=new(window.AudioContext||window.webkitAudioContext)();c.push(String(a.sampleRate));a.close()}catch(e){c.push('a-e')}
+const h=await Lic.sha(c.join('|||'));return h.substring(0,32).toUpperCase()},
+async sha(m){const b=new TextEncoder().encode(m);const h=await crypto.subtle.digest('SHA-256',b);return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,'0')).join('')},
+simpleH(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);h=h>>>0}return h.toString(36).toUpperCase()},
+async genKey(fp,days){
+const ex=new Date();ex.setDate(ex.getDate()+days);const ed=Math.floor(ex.getTime()/864e5);
+const es=ed.toString(36).toUpperCase().padStart(4,'0');const fp8=fp.substring(0,8);
+const sig=await Lic.sha(ed+':'+fp+':'+Lic.SECRET);const sg=sig.substring(0,8).toUpperCase();
+const pl=es+fp8+sg;return{key:'DENT-'+pl.substring(0,4)+'-'+pl.substring(4,8)+'-'+pl.substring(8,12)+'-'+pl.substring(12,16),exp:ex.toISOString(),ed}},
+async valKey(key,fp){
+try{key=key.trim().toUpperCase();if(!key.startsWith('DENT-'))return{v:false,r:'Invalid format'};
+const p=key.replace('DENT-','').split('-');if(p.length!==4)return{v:false,r:'Invalid format'};
+const pl=p.join('');if(pl.length!==16)return{v:false,r:'Invalid length'};
+const es=pl.substring(0,4),fp8=pl.substring(4,12),sg=pl.substring(12,20);
+const ed=parseInt(es,36);if(isNaN(ed))return{v:false,r:'Invalid'};
+if(fp8!==fp.substring(0,8))return{v:false,r:'Different machine'};
+const expSg=(await Lic.sha(ed+':'+fp+':'+Lic.SECRET)).substring(0,8).toUpperCase();
+if(sg!==expSg)return{v:false,r:'Invalid signature'};
+const exMs=ed*864e5;if(Date.now()>exMs)return{v:false,r:'Expired',expired:true,exp:new Date(exMs).toISOString()};
+return{v:true,exp:new Date(exMs).toISOString(),expMs:exMs,dLeft:Math.ceil((exMs-Date.now())/864e5)}}
+catch(e){return{v:false,r:'Error: '+e.message}}},
+getStored(){try{return JSON.parse(localStorage.getItem(Lic.STOR))}catch(e){return null}},
+store(key,fp,val){const d={key,fp,actAt:new Date().toISOString(),exp:val.exp,expMs:val.expMs,th:Lic.simpleH(JSON.stringify({key,fp,expMs:val.expMs})+Lic.SECRET)};localStorage.setItem(Lic.STOR,JSON.stringify(d))},
+checkTamper(d){if(!d)return true;return d.th!==Lic.simpleH(JSON.stringify({key:d.key,fp:d.fp,expMs:d.expMs})+Lic.SECRET)},
+wipe(){const k=[];for(let i=0;i<localStorage.length;i++){const n=localStorage.key(i);if(n&&(n.startsWith('dc')||n.startsWith('siit')))k.push(n)}k.forEach(x=>localStorage.removeItem(x));sessionStorage.clear()},
+lock(r){console.warn('[LIC]LOCK:',r);Lic.wipe();localStorage.setItem(Lic.STOR+'_lk','1');document.getElementById('mainApp').style.display='none';const s=document.getElementById('licScr');s.classList.remove('hide');s.style.display='flex';Lic.showExp();T('License expired. Data wiped.','er')},
+showAct(){document.getElementById('licAct').style.display='';document.getElementById('licExp').style.display='none'},
+showExp(){document.getElementById('licAct').style.display='none';document.getElementById('licExp').style.display=''},
+bar(){const s=Lic.getStored();if(!s)return;const ml=s.expMs-Date.now(),dl=Math.ceil(ml/864e5);
+let cl='act',tx=dl+'d left';if(dl<=3){cl='wrn';tx=dl+'d left ⚠️'}
+const h='<div class="lic-bar '+cl+'"><span class="lic-bar-dot"></span>License: '+tx+'</div>';
+['licBarSess','licBarHdr'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML=h})},
+async activate(){
+const fp=document.getElementById('licFP').value,key=document.getElementById('licKey').value.trim(),st=document.getElementById('licSt');
+if(!key){st.textContent='Enter key';st.className='lic-st er';return}st.textContent='Validating...';st.className='lic-st';
+const r=await Lic.valKey(key,fp);if(r.v){Lic.store(key,fp,r);st.textContent='Activated! '+r.dLeft+' days';st.className='lic-st ok';setTimeout(()=>Lic.unlock(),1000)}else{st.textContent=r.r;st.className='lic-st er'}},
+unlock(){document.getElementById('licScr').classList.add('hide');document.getElementById('licScr').style.display='none';document.getElementById('mainApp').style.display='flex';Lic.startCheck();Lic.bar();if(typeof AppInit==='function')AppInit()},
+timer:null,startCheck(){if(Lic.timer)clearInterval(Lic.timer);Lic.timer=setInterval(async()=>{const ok=await Lic.check();if(!ok)clearInterval(Lic.timer);else Lic.bar()},Lic.INTERVAL)},
+async check(){const s=Lic.getStored();if(!s)return false;if(Lic.checkTamper(s)){Lic.lock('Tampered');return false}const fp=await Lic.fp();if(s.fp!==fp){Lic.lock('Diff machine');return false}if(Date.now()>s.expMs){Lic.lock('Expired');return false}return true},
+async generate(){const fp=document.getElementById('admFP').value.trim(),days=parseInt(document.getElementById('admDays').value)||30;
+if(!fp||fp.length<8){T('Enter fingerprint','er');return}const r=await Lic.genKey(fp,days);const el=document.getElementById('admGenK');el.style.display='block';el.innerHTML='<strong>Key:</strong><br><span style="font-size:1rem;color:var(--ok)">'+r.key+'</span><br><small style="color:var(--tm)">Expires: '+new Date(r.exp).toLocaleDateString()+' ('+days+'d)</small><br><button class="btn btn-p btn-xs" onclick="navigator.clipboard.writeText(\''+r.key+'\');T(\'Copied!\',\'ok\')">Copy</button>';
+let reg=JSON.parse(localStorage.getItem('dc_reg')||'[]');reg.push({fp,key:r.key,exp:r.exp,at:new Date().toISOString()});localStorage.setItem('dc_reg',JSON.stringify(reg));Adm.render()},
+revoke(){const fp=document.getElementById('admFP').value.trim();if(!fp){T('Enter fingerprint','er');return}let reg=JSON.parse(localStorage.getItem('dc_reg')||'[]');reg=reg.filter(r=>r.fp!==fp);localStorage.setItem('dc_reg',JSON.stringify(reg));Adm.render();T('Revoked','inf')}
+};
+const Adm={open(){document.getElementById('admPnl').classList.add('open');Adm.render()},render(){const tb=document.getElementById('admLicBody');const reg=JSON.parse(localStorage.getItem('dc_reg')||'[]');if(!reg.length){tb.innerHTML='<tr><td colspan="4" style="padding:12px;text-align:center;color:var(--tm)">None</td></tr>';return}tb.innerHTML='';reg.forEach(r=>{const dl=Math.max(0,Math.ceil((new Date(r.exp).getTime()-Date.now())/864e5));const tr=document.createElement('tr');tr.innerHTML='<td style="font-family:JetBrains Mono,monospace;font-size:.74rem">'+r.fp.substring(0,16)+'...</td><td>'+new Date(r.at).toLocaleDateString()+'</td><td>'+new Date(r.exp).toLocaleDateString()+'</td><td style="color:'+(dl>7?'var(--ok)':dl>0?'var(--wr)':'var(--dn)')+';font-weight:600">'+dl+'d</td>';tb.appendChild(tr)})}};
+
+/* ============ SECTION B: DATA & DEFAULTS ============ */
+const DEF_DENTS=[{id:1,name:'Dr. Smith',spec:'General Dentistry'},{id:2,name:'Dr. Johnson',spec:'Orthodontics'},{id:3,name:'Dr. Williams',spec:'Endodontics'},{id:4,name:'Dr. Brown',spec:'Pediatric Dentistry'}];
+const DEF_TREATS=[{id:1,name:'Consultation',price:500,slots:1},{id:2,name:'Teeth Cleaning',price:1200,slots:1},{id:3,name:'Dental Filling',price:1500,slots:1},{id:4,name:'Tooth Extraction',price:2000,slots:1},{id:5,name:'Root Canal',price:5000,slots:2},{id:6,name:'Dental Crown',price:8000,slots:2},{id:7,name:'Teeth Whitening',price:3000,slots:1},{id:8,name:'Orthodontic Braces',price:25000,slots:2},{id:9,name:'Dental Implant',price:30000,slots:3},{id:10,name:'X-Ray',price:300,slots:1},{id:11,name:'Gum Treatment',price:2500,slots:1},{id:12,name:'Emergency',price:1000,slots:1}];
+function defDB(){return{cfg:{name:'DentaCare Dental Clinic',phone:'02-123-4567',addr:'123 Sukhumvit Road, Bangkok',email:'info@dentacare.com',wa:'66812345678',slotMin:30,mStart:'09:00',mEnd:'12:00',aStart:'13:00',aEnd:'17:00'},dents:DEF_DENTS,treats:DEF_TREATS,patients:[],appointments:[],payments:[],annc:[]}}
+function loadDB(){try{return JSON.parse(localStorage.getItem('dcDB'))||defDB()}catch(e){return defDB()}}
+function saveDB(){localStorage.setItem('dcDB',JSON.stringify(DB));showSV()}
+function showSV(){const e=document.getElementById('svInd');if(!e)return;e.innerHTML='<span class="sv-dot sv"></span> Saving...';setTimeout(()=>{e.innerHTML='<span class="sv-dot"></span> Saved'},500)}
+function genRef(){return 'REF-'+Date.now().toString(36).toUpperCase().substring(5)}
+function genPatId(){return 'P-'+(DB.patients.length+1).toString().padStart(4,'0')}
+function fmtDate(d){return new Date(d).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})}
+function fmtMoney(n){return Number(n).toLocaleString('en-US',{minimumFractionDigits:0})}
+function today(){return new Date().toISOString().split('T')[0]}
+
+let DB=loadDB();
+
+/* ============ SECTION C: UI FRAMEWORK ============ */
+function T(m,t='inf'){const w=document.getElementById('tw');const d=document.createElement('div');d.className='tst '+t;d.textContent=m;w.appendChild(d);requestAnimationFrame(()=>d.classList.add('show'));setTimeout(()=>{d.classList.remove('show');setTimeout(()=>d.remove(),300)},2500)}
+const UI={
+toggleTheme(){const t=document.documentElement.getAttribute('data-theme');document.documentElement.setAttribute('data-theme',t==='light'?'dark':'light')},
+openMdl(id){document.getElementById(id).classList.add('open')},
+closeMdl(id){document.getElementById(id).classList.remove('open')}
+};
+
+/* ============ SECTION D: NAVIGATION ============ */
+const vTitles={dash:'Dashboard',book:'Book Appointment',appts:'Appointments',patients:'Patients',payments:'Payments',reports:'Reports',settings:'Settings'};
+const Nav={
+go(vid,el){
+document.querySelectorAll('.vw').forEach(v=>v.classList.remove('act'));
+document.querySelectorAll('.nav li').forEach(l=>l.classList.remove('act'));
+document.getElementById('v-'+vid).classList.add('act');
+if(el)el.classList.add('act');
+document.getElementById('pgT').textContent=vTitles[vid]||vid;
+if(vid==='dash')Dash.render();
+if(vid==='book')Book.init();
+if(vid==='appts')Appts.render();
+if(vid==='patients')Pats.render();
+if(vid==='payments')Pays.render();
+if(vid==='reports')Rpts.render();
+if(vid==='settings')Cfg.render();
+}
+};
+document.querySelectorAll('.nav li').forEach(li=>{li.addEventListener('click',()=>Nav.go(li.dataset.v,li))});
+
+/* ============ SECTION E: DASHBOARD ============ */
+const Dash={
+render(){
+const todayS=today();const appts=DB.appointments.filter(a=>a.date===todayS);
+const pend=appts.filter(a=>a.status==='pending').length;
+const rev=DB.payments.filter(p=>p.date.startsWith(todayS.substring(0,7))&&p.status==='paid').reduce((s,p)=>s+p.amount,0);
+const slots=Dash.totalSlots();const occ=slots>0?Math.round(appts.length/slots*100):0;
+document.getElementById('stAppt').textContent=appts.length;
+document.getElementById('stPend').textContent=pend;
+document.getElementById('stPatients').textContent=DB.patients.length;
+document.getElementById('stRev').textContent=fmtMoney(rev)+' ฿';
+document.getElementById('stOcc').textContent=occ+'%';
+
+const tl=document.getElementById('todayList');
+if(!appts.length){tl.innerHTML='<p style="color:var(--tm);font-size:.86rem">No appointments today</p>'}
+else{tl.innerHTML='';appts.sort((a,b)=>a.time.localeCompare(b.time)).forEach(a=>{tl.innerHTML+='<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:1px solid var(--bd)"><div><strong>'+a.time+'</strong> - '+a.patientName+'<br><span style="font-size:.78rem;color:var(--tm)">'+a.dentist+' · '+a.treatment+'</span></div><span class="tag tag-'+a.status.substring(0,4)+'">'+a.status+'</span></div>'})}
+
+const ul=document.getElementById('upcomingList');
+const upc=DB.appointments.filter(a=>a.date>todayS&&a.status!=='cancelled').sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).slice(0,8);
+if(!upc.length){ul.innerHTML='<p style="color:var(--tm);font-size:.86rem">No upcoming</p>'}
+else{ul.innerHTML='';upc.forEach(a=>{ul.innerHTML+='<div style="padding:8px 0;border-bottom:1px solid var(--bd);font-size:.84rem"><strong>'+fmtDate(a.date)+'</strong> '+a.time+'<br>'+a.patientName+' · '+a.treatment+'</div>'})}
+
+const apptToday=appts.length;const totalApptToday=appts.length+DB.appointments.filter(a=>a.date===todayS&&a.status==='cancelled').length;
+},
+totalSlots(){const c=DB.cfg;const slots=[];function addSlots(start,end){let[h,m]=start.split(':').map(Number);const[eh,em]=end.split(':').map(Number);while(h<eh||(h===eh&&m<em)){slots.push(String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'));m+=c.slotMin;if(m>=60){h++;m-=60}}}addSlots(c.mStart,c.mEnd);addSlots(c.aStart,c.aEnd);return slots.length*DB.dents.length}
+};
+
+/* ============ SECTION F: BOOKING SYSTEM ============ */
+const Book={step:0,data:{},init(){Book.step=0;Book.data={patientId:null,patientName:'',patientPhone:'',dentist:'',treatment:'',date:'',time:'',notes:'',slots:1};Book.renderStep()},
+renderStep(){
+const sc=document.getElementById('bookContent');const steps=document.querySelectorAll('#bookSteps .step');
+steps.forEach((s,i)=>{s.className='step'+(i<Book.step?' done':'')+(i===Book.step?' active':'')});
+if(Book.step===0)Book.stepPatient(sc);
+else if(Book.step===1)Book.stepDate(sc);
+else if(Book.step===2)Book.stepDentist(sc);
+else if(Book.step===3)Book.stepTreatment(sc);
+else if(Book.step===4)Book.stepSlot(sc);
+},
+stepPatient(sc){
+let h='<h3 style="margin-bottom:12px">Step 1: Select Patient</h3>';
+h+='<div style="display:flex;gap:8px;margin-bottom:12px"><select id="bookPatSel" onchange="Book.selectPat()" style="flex:1"><option value="">-- Existing Patient --</option>';
+DB.patients.forEach(p=>{h+='<option value="'+p.id+'">'+p.name+' ('+p.phone+')</option>'});
+h+='<option value="new">+ New Patient</option></select></div>';
+h+='<div id="bookPatFields"><label class="lbl">Patient Name *</label><input type="text" id="bookPN" value="'+Book.data.patientName+'">';
+h+='<label class="lbl">Phone *</label><input type="tel" id="bookPP" value="'+Book.data.patientPhone+'">';
+h+='<label class="lbl">Email</label><input type="email" id="bookPE" value="'+(Book.data.patientEmail||'')+'"></div>';
+h+='<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px"><button class="btn btn-p" onclick="Book.next()">Next →</button></div>';
+sc.innerHTML=h;
+},
+selectPat(){
+const v=document.getElementById('bookPatSel').value;
+if(v==='new'||v===''){document.getElementById('bookPatFields').style.display='';return}
+const p=DB.patients.find(x=>x.id===v);if(p){Book.data.patientId=p.id;Book.data.patientName=p.name;Book.data.patientPhone=p.phone;Book.data.patientEmail=p.email||'';
+document.getElementById('bookPN').value=p.name;document.getElementById('bookPP').value=p.phone;document.getElementById('bookPE').value=p.email||''}
+},
+stepDate(sc){
+let h='<h3 style="margin-bottom:12px">Step 2: Select Date</h3>';
+h+='<input type="date" id="bookDate" value="'+(Book.data.date||today())+'" min="'+today()+'" onchange="Book.data.date=this.value">';
+h+='<div style="display:flex;justify-content:space-between;margin-top:14px"><button class="btn btn-gh" onclick="Book.prev()">← Back</button><button class="btn btn-p" onclick="Book.next()">Next →</button></div>';
+sc.innerHTML=h;
+},
+stepDentist(sc){
+let h='<h3 style="margin-bottom:12px">Step 3: Select Dentist</h3><div style="display:flex;flex-direction:column;gap:8px">';
+DB.dents.forEach(d=>{const sel=Book.data.dentist===d.name?'border-color:var(--primary);background:var(--primary-s)':'';
+h+='<div style="padding:14px;border:2px solid var(--bd);border-radius:10px;cursor:pointer;transition:all .15s;'+sel+'" onclick="Book.data.dentist=\''+d.name+'\';Book.renderStep()">';
+h+='<strong>'+d.name+'</strong><br><span style="font-size:.82rem;color:var(--tm)">'+d.spec+'</span></div>'});
+h+='</div><div style="display:flex;justify-content:space-between;margin-top:14px"><button class="btn btn-gh" onclick="Book.prev()">← Back</button><button class="btn btn-p" onclick="Book.next()">Next →</button></div>';
+sc.innerHTML=h;
+},
+stepTreatment(sc){
+let h='<h3 style="margin-bottom:12px">Step 4: Select Treatment</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+DB.treats.forEach(t=>{const sel=Book.data.treatment===t.name?'border-color:var(--primary);background:var(--primary-s)':'';
+h+='<div style="padding:12px;border:2px solid var(--bd);border-radius:10px;cursor:pointer;'+sel+'" onclick="Book.data.treatment=\''+t.name+'\';Book.data.slots='+t.slots+';Book.data.price='+t.price+';Book.renderStep()">';
+h+='<strong>'+t.name+'</strong><br><span style="font-size:.78rem;color:var(--tm)">'+fmtMoney(t.price)+' ฿ · '+(t.slots*DB.cfg.slotMin)+' min</span></div>'});
+h+='</div>';
+h+='<label class="lbl" style="margin-top:12px">Notes</label><textarea class="fc" id="bookNotes" rows="2" placeholder="Special instructions...">'+(Book.data.notes||'')+'</textarea>';
+h+='<div style="display:flex;justify-content:space-between;margin-top:14px"><button class="btn btn-gh" onclick="Book.prev()">← Back</button><button class="btn btn-p" onclick="Book.next()">Next →</button></div>';
+sc.innerHTML=h;
+},
+stepSlot(sc){
+const date=Book.data.date||today();const dent=Book.data.dentist;
+const taken=DB.appointments.filter(a=>a.date===date&&a.dentist===dent&&a.status!=='cancelled').map(a=>a.time);
+const c=DB.cfg;const slots=[];
+function genSlots(start,end){let[h,m]=start.split(':').map(Number);const[eh,em]=end.split(':').map(Number);while(h<eh||(h===eh&&m<em)){const st=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');m+=c.slotMin;const eh2=h,em2=m;if(m>=60){h++;m-=60}const et=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');slots.push({start:st,end:et});if(h>eh||(h===eh&&m>=em))break}}genSlots(c.mStart,c.mEnd);genSlots(c.aStart,c.aEnd);
+
+let h='<h3 style="margin-bottom:8px">Step 5: Select Time Slot</h3>';
+h+='<p style="font-size:.82rem;color:var(--tm);margin-bottom:4px">'+fmtDate(date)+' · '+dent+' · '+Book.data.treatment+'</p>';
+h+='<p style="font-size:.78rem;color:var(--tm);margin-bottom:12px">Green = Available · Red = Booked · Blue = Selected</p>';
+h+='<div class="slot-grid">';
+slots.forEach(s=>{
+const isTaken=taken.includes(s.start);
+const isSel=Book.data.time===s.start;
+if(isTaken)h+='<div class="slot booked">'+s.start+'<div class="slot-label">Booked</div></div>';
+else if(isSel)h+='<div class="slot sel">'+s.start+'<div class="slot-label">Selected</div></div>';
+else h+='<div class="slot avail" onclick="Book.data.time=\''+s.start+'\';Book.renderStep()">'+s.start+'<div class="slot-label">'+s.end+'</div></div>';
+});
+h+='</div>';
+h+='<div style="display:flex;justify-content:space-between;margin-top:14px"><button class="btn btn-gh" onclick="Book.prev()">← Back</button>';
+h+='<button class="btn btn-ok" onclick="Book.confirm()" '+(Book.data.time?'':'disabled style="opacity:.5"')+'>✓ Confirm Booking</button></div>';
+sc.innerHTML=h;
+},
+next(){
+if(Book.step===0){
+const n=document.getElementById('bookPN').value.trim();const p=document.getElementById('bookPP').value.trim();
+if(!n||!p){T('Enter name and phone','er');return}
+Book.data.patientName=n;Book.data.patientPhone=p;Book.data.patientEmail=document.getElementById('bookPE')?.value?.trim()||'';
+const sel=document.getElementById('bookPatSel').value;
+if(sel&&sel!=='new'){Book.data.patientId=sel}else{Book.data.patientId=null}
+}
+if(Book.step===1){const d=document.getElementById('bookDate').value;if(!d){T('Select a date','er');return}Book.data.date=d}
+if(Book.step===2){if(!Book.data.dentist){T('Select a dentist','er');return}}
+if(Book.step===3){if(!Book.data.treatment){T('Select a treatment','er');return}Book.data.notes=document.getElementById('bookNotes')?.value||''}
+Book.step++;Book.renderStep()},
+prev(){if(Book.step>0){Book.step--;Book.renderStep()}},
+confirm(){
+if(!Book.data.time){T('Select a time slot','er');return}
+// Create or update patient
+let patId=Book.data.patientId;
+if(!patId){const np={id:genPatId(),name:Book.data.patientName,phone:Book.data.patientPhone,email:Book.data.patientEmail,dob:'',gender:'',addr:'',med:'',createdAt:new Date().toISOString()};
+DB.patients.push(np);patId=np.id}
+// Create appointment
+const ref=genRef();
+const appt={id:ref,patientId:patId,patientName:Book.data.patientName,patientPhone:Book.data.patientPhone,dentist:Book.data.dentist,treatment:Book.data.treatment,date:Book.data.date,time:Book.data.time,slots:Book.data.slots,notes:Book.data.notes,status:'pending',price:Book.data.price||0,createdAt:new Date().toISOString()};
+DB.appointments.push(appt);
+// Create pending payment
+const pay={id:'PAY-'+Date.now().toString(36).toUpperCase().substring(5),apptRef:ref,patientId:patId,patientName:Book.data.patientName,treatment:Book.data.treatment,amount:Book.data.price||0,paid:0,balance:Book.data.price||0,method:'',status:'pending',notes:'',date:today(),createdAt:new Date().toISOString()};
+DB.payments.push(pay);
+saveDB();
+// Show slip
+Slip.show(appt);T('Booking confirmed!','ok');
+Book.step=0;Book.data={}}
+};
+
+/* ============ SECTION G: BOOKING SLIP ============ */
+const Slip={
+appt:null,
+show(a){
+Slip.appt=a;const c=DB.cfg;const treat=DB.treats.find(t=>t.name===a.treatment);
+const h='<div class="print-slip" id="printableSlip">'+
+'<h2>🦷 '+c.name+'</h2>'+
+'<div class="clinic-info">'+c.addr+'<br>Tel: '+c.phone+' · '+c.email+'</div>'+
+'<div class="divider"></div>'+
+'<div style="text-align:center;font-weight:700;font-size:16px;margin-bottom:12px">BOOKING CONFIRMATION</div>'+
+'<div class="ref">'+a.id+'</div>'+
+'<table><tr><td>Patient</td><td><strong>'+a.patientName+'</strong></td></tr>'+
+'<tr><td>Phone</td><td>'+a.patientPhone+'</td></tr>'+
+'<tr><td>Dentist</td><td>'+a.dentist+'</td></tr>'+
+'<tr><td>Treatment</td><td>'+a.treatment+'</td></tr>'+
+'<tr><td>Date</td><td><strong>'+fmtDate(a.date)+'</strong></td></tr>'+
+'<tr><td>Time</td><td><strong>'+a.time+'</strong> ('+((a.slots||1)*c.slotMin)+' min)</td></tr>'+
+'<tr><td>Est. Cost</td><td><strong>'+fmtMoney(a.price||0)+' ฿</strong></td></tr>'+
+'<tr><td>Status</td><td>'+a.status.toUpperCase()+'</td></tr>'+
+(a.notes?'<tr><td>Notes</td><td>'+a.notes+'</td></tr>':'')+
+'</table>'+
+'<div class="divider"></div>'+
+'<div class="footer">Please arrive 10 minutes early.<br>To reschedule, please call us.<br>Thank you for choosing '+c.name+'!</div></div>';
+document.getElementById('slipContent').innerHTML=h;UI.openMdl('slipModal')},
+print(){const w=window.open('','','width=440,height=700');w.document.write('<html><head><title>Booking Slip</title><style>body{font-family:Arial,sans-serif;padding:20px;margin:0}</style></head><body>'+document.getElementById('printableSlip').innerHTML+'</body></html>');w.document.close();w.print()},
+whatsapp(){
+const a=Slip.appt;if(!a)return;const c=DB.cfg;
+let phone=a.patientPhone.replace(/^0/,c.wa.substring(0,2));
+const msg=encodeURIComponent('━━━━━━━━━━━━━━━━━━\n🦷 APPOINTMENT CONFIRMED\n━━━━━━━━━━━━━━━━━━\n\n🏥 '+c.name+'\n📅 Date: '+fmtDate(a.date)+'\n🕐 Time: '+a.time+' ('+((a.slots||1)*c.slotMin)+' min)\n👨‍⚕️ Dentist: '+a.dentist+'\n💊 Treatment: '+a.treatment+'\n\n👤 Patient: '+a.patientName+'\n📱 Phone: '+a.patientPhone+'\n\n💰 Est. Cost: '+fmtMoney(a.price||0)+' ฿\n📋 Ref: '+a.id+'\n\n━━━━━━━━━━━━━━━━━━\nPlease arrive 10 minutes early.\nTo reschedule call: '+c.phone+'\n━━━━━━━━━━━━━━━━━━');
+window.open('https://wa.me/'+phone+'?text='+msg,'_blank');T('Opening WhatsApp...','ok')}
+};
+
+/* ============ SECTION H: APPOINTMENTS ============ */
+const Appts={
+render(){
+const filter=document.getElementById('apptFilter').value;const dateF=document.getElementById('apptDateF').value;
+let list=[...DB.appointments];
+if(filter!=='all')list=list.filter(a=>a.status===filter);
+if(dateF)list=list.filter(a=>a.date===dateF);
+list.sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
+const tb=document.getElementById('apptBody');
+if(!list.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--tm);padding:20px">No appointments found</td></tr>';return}
+tb.innerHTML='';
+list.forEach(a=>{
+const tr=document.createElement('tr');
+tr.innerHTML='<td style="font-family:JetBrains Mono,monospace;font-size:.78rem">'+a.id+'</td><td><strong>'+a.patientName+'</strong></td><td>'+a.patientPhone+'</td><td>'+a.dentist+'</td><td>'+a.treatment+'</td><td>'+fmtDate(a.date)+'</td><td>'+a.time+'</td><td><span class="tag tag-'+a.status.substring(0,4)+'">'+a.status+'</span></td><td><select style="width:auto;margin:0;font-size:.76rem;padding:3px" onchange="Appts.setStatus(\''+a.id+'\',this.value)"><option value="'+a.status+'" selected>'+a.status+'</option><option value="confirmed">confirmed</option><option value="completed">completed</option><option value="cancelled">cancelled</option><option value="no-show">no-show</option></select> <button class="btn btn-gh btn-xs" onclick="Slip.show(DB.appointments.find(x=>x.id===\''+a.id+'\'))">Slip</button></td>';
+tb.appendChild(tr)})},
+setStatus(id,status){const a=DB.appointments.find(x=>x.id===id);if(a){a.status=status;saveDB();Appts.render();T('Updated to '+status,'ok')}},
+exportCSV(){
+let csv='Ref,Patient,Phone,Dentist,Treatment,Date,Time,Status,Price\n';
+DB.appointments.forEach(a=>{csv+='"'+a.id+'","'+a.patientName+'","'+a.patientPhone+'","'+a.dentist+'","'+a.treatment+'","'+a.date+'","'+a.time+'","'+a.status+'",'+a.price+'\n'});
+dl('appointments.csv',csv,'text/csv');T('Exported','ok')}
+};
+
+/* ============ SECTION I: PATIENTS ============ */
+const Pats={
+render(){
+const q=document.getElementById('patSearch')?.value?.toLowerCase()||'';
+let list=DB.patients;if(q)list=list.filter(p=>p.name.toLowerCase().includes(q)||p.phone.includes(q)||p.email.toLowerCase().includes(q));
+const tb=document.getElementById('patBody');tb.innerHTML='';
+if(!list.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--tm);padding:20px">No patients</td></tr>';return}
+list.forEach(p=>{
+const visits=DB.appointments.filter(a=>a.patientId===p.id).length;
+const tr=document.createElement('tr');
+tr.innerHTML='<td style="font-family:JetBrains Mono,monospace;font-size:.78rem">'+p.id+'</td><td><strong>'+p.name+'</strong></td><td>'+p.phone+'</td><td>'+(p.email||'-')+'</td><td>'+(p.gender||'-')+'</td><td>'+(p.dob?fmtDate(p.dob):'-')+'</td><td>'+visits+'</td><td><button class="btn btn-gh btn-xs" onclick="Pats.openForm(\''+p.id+'\')">Edit</button> <button class="btn btn-dn btn-xs" onclick="Pats.del(\''+p.id+'\')">✕</button></td>';
+tb.appendChild(tr)})},
+openForm(id){
+const p=id?DB.patients.find(x=>x.id===id):null;
+document.getElementById('patEditId').value=id||'';
+document.getElementById('patFormTitle').textContent=p?'Edit Patient':'Add Patient';
+document.getElementById('patName').value=p?p.name:'';
+document.getElementById('patPhone').value=p?p.phone:'';
+document.getElementById('patEmail').value=p?(p.email||''):'';
+document.getElementById('patDOB').value=p?(p.dob||''):'';
+document.getElementById('patGender').value=p?(p.gender||''):'';
+document.getElementById('patAddr').value=p?(p.addr||''):'';
+document.getElementById('patMed').value=p?(p.med||''):'';
+UI.openMdl('patModal')},
+save(){
+const eid=document.getElementById('patEditId').value;
+const name=document.getElementById('patName').value.trim();
+const phone=document.getElementById('patPhone').value.trim();
+if(!name||!phone){T('Name and phone required','er');return}
+const data={name,phone,email:document.getElementById('patEmail').value.trim(),dob:document.getElementById('patDOB').value,gender:document.getElementById('patGender').value,addr:document.getElementById('patAddr').value.trim(),med:document.getElementById('patMed').value.trim()};
+if(eid){const p=DB.patients.find(x=>x.id===eid);if(p)Object.assign(p,data)}
+else{data.id=genPatId();data.createdAt=new Date().toISOString();DB.patients.push(data)}
+saveDB();UI.closeMdl('patModal');Pats.render();T('Patient saved','ok')},
+del(id){if(!confirm('Delete patient?'))return;DB.patients=DB.patients.filter(p=>p.id!==id);saveDB();Pats.render();T('Deleted','inf')},
+exportCSV(){
+let csv='ID,Name,Phone,Email,DOB,Gender,Address,Medical History\n';
+DB.patients.forEach(p=>{csv+='"'+p.id+'","'+p.name+'","'+p.phone+'","'+(p.email||'')+'","'+(p.dob||'')+'","'+(p.gender||'')+'","'+(p.addr||'')+'","'+(p.med||'')+'"\n'});
+dl('patients.csv',csv,'text/csv');T('Exported','ok')},
+importCSV(){UI.openMdl('csvModal')},
+processCSV(){
+const f=document.getElementById('csvFile').files[0];if(!f){T('Select a file','er');return}
+const r=new FileReader();
+r.onload=e=>{
+const lines=e.target.result.split('\n').filter(l=>l.trim());
+const header=lines[0].toLowerCase();
+const startIdx=header.includes('name')?1:0;
+for(let i=startIdx;i<lines.length;i++){
+const cols=parseCSVLine(lines[i]);if(cols.length<2)continue;
+const np={id:genPatId(),name:cols[0]||'',phone:cols[1]||'',email:cols[2]||'',dob:cols[3]||'',gender:cols[4]||'',addr:cols[5]||'',med:cols[6]||'',createdAt:new Date().toISOString()};
+if(np.name&&np.phone)DB.patients.push(np)}
+saveDB();UI.closeMdl('csvModal');Pats.render();T('Imported '+((lines.length-1))+' patients','ok')};
+r.readAsText(f)}
+};
+
+function parseCSVLine(line){
+const r=[];let c='',inQ=false;
+for(let i=0;i<line.length;i++){const ch=line[i];
+if(ch==='"'){inQ=!inQ}else if(ch===','&&!inQ){r.push(c.trim());c=''}else{c+=ch}}
+r.push(c.trim());return r}
+
+/* ============ SECTION J: PAYMENTS ============ */
+const Pays={
+render(){
+const filter=document.getElementById('payFilter').value;
+let list=[...DB.payments];
+if(filter!=='all')list=list.filter(p=>p.status===filter);
+list.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+const tb=document.getElementById('payBody');tb.innerHTML='';
+const totals={total:0,paid:0,pend:0,part:0};
+DB.payments.forEach(p=>{totals.total+=p.amount;if(p.status==='paid')totals.paid+=p.paid;else if(p.status==='pending')totals.pend+=p.balance;else if(p.status==='partial')totals.part+=p.paid});
+document.getElementById('payTotal').textContent=fmtMoney(totals.total)+' ฿';
+document.getElementById('payPaid').textContent=fmtMoney(totals.paid)+' ฿';
+document.getElementById('payPend').textContent=fmtMoney(totals.pend)+' ฿';
+document.getElementById('payPart').textContent=fmtMoney(totals.part)+' ฿';
+if(!list.length){tb.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--tm);padding:20px">No payments</td></tr>';return}
+list.forEach(p=>{
+const bal=p.amount-p.paid;
+const tr=document.createElement('tr');
+tr.innerHTML='<td style="font-family:JetBrains Mono,monospace;font-size:.78rem">'+p.id+'</td><td>'+p.patientName+'</td><td>'+p.treatment+'</td><td>'+fmtMoney(p.amount)+' ฿</td><td>'+fmtMoney(p.paid)+' ฿</td><td>'+fmtMoney(bal)+' ฿</td><td>'+(p.method||'-')+'</td><td><span class="tag tag-'+p.status+'">'+p.status+'</span></td><td>'+fmtDate(p.date)+'</td><td><button class="btn btn-gh btn-xs" onclick="Pays.openForm(\''+p.id+'\')">Edit</button></td>';
+tb.appendChild(tr)})},
+openForm(id){
+const p=id?DB.payments.find(x=>x.id===id):null;
+document.getElementById('payEditId').value=id||'';
+const sel=document.getElementById('payAppt');sel.innerHTML='';
+DB.appointments.filter(a=>a.status!=='cancelled').forEach(a=>{const o=document.createElement('option');o.value=a.id;o.textContent=a.id+' - '+a.patientName+' - '+a.treatment;sel.appendChild(o)});
+if(p){sel.value=p.apptRef||'';document.getElementById('payAmt').value=p.amount;document.getElementById('payMethod').value=p.method||'Cash';document.getElementById('payStatus').value=p.status;document.getElementById('payNotes').value=p.notes||''}
+else{document.getElementById('payAmt').value='';document.getElementById('payMethod').value='Cash';document.getElementById('payStatus').value='paid';document.getElementById('payNotes').value=''}
+UI.openMdl('payModal')},
+save(){
+const eid=document.getElementById('payEditId').value;
+const apptRef=document.getElementById('payAppt').value;
+const amount=parseFloat(document.getElementById('payAmt').value)||0;
+const method=document.getElementById('payMethod').value;
+const status=document.getElementById('payStatus').value;
+const notes=document.getElementById('payNotes').value;
+if(amount<=0){T('Enter amount','er');return}
+const appt=DB.appointments.find(a=>a.id===apptRef);
+const paid=status==='paid'?amount:status==='partial'?Math.round(amount*0.5):0;
+if(eid){const p=DB.payments.find(x=>x.id===eid);if(p){p.amount=amount;p.paid=paid;p.balance=amount-paid;p.method=method;p.status=status;p.notes=notes}}
+else{DB.payments.push({id:'PAY-'+Date.now().toString(36).toUpperCase().substring(5),apptRef,patientId:appt?.patientId||'',patientName:appt?.patientName||'Unknown',treatment:appt?.treatment||'',amount,paid,balance:amount-paid,method,status,notes,date:today(),createdAt:new Date().toISOString()})}
+saveDB();UI.closeMdl('payModal');Pays.render();T('Payment saved','ok')},
+exportCSV(){
+let csv='ID,Patient,Treatment,Amount,Paid,Balance,Method,Status,Date\n';
+DB.payments.forEach(p=>{csv+='"'+p.id+'","'+p.patientName+'","'+p.treatment+'",'+p.amount+','+p.paid+','+(p.amount-p.paid)+',"'+p.method+'","'+p.status+'","'+p.date+'"\n'});
+dl('payments.csv',csv,'text/csv');T('Exported','ok')}
+};
+
+/* ============ SECTION K: REPORTS ============ */
+let chA=null,chR=null,chT=null,chD=null;
+const Rpts={
+render(){
+if(chA)chA.destroy();if(chR)chR.destroy();if(chT)chT.destroy();if(chD)chD.destroy();
+// Status chart
+const st={pending:0,confirmed:0,completed:0,cancelled:0,'no-show':0};
+DB.appointments.forEach(a=>{if(st[a.status]!==undefined)st[a.status]++});
+chA=new Chart(document.getElementById('chAppt'),{type:'doughnut',data:{labels:Object.keys(st),datasets:[{data:Object.values(st),backgroundColor:['#f59e06','#0ea5e9','#10b981','#ef4444','#94a3b8'],borderWidth:0}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{padding:12,color:'#7a8ba8'}}}}});
+// Revenue chart
+const days=[];const rev=[];
+for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const ds=d.toISOString().split('T')[0];days.push(d.toLocaleDateString('en-US',{weekday:'short'}));rev.push(DB.payments.filter(p=>p.date===ds&&p.status==='paid').reduce((s,p)=>s+p.paid,0))}
+chR=new Chart(document.getElementById('chRev'),{type:'line',data:{labels:days,datasets:[{label:'Revenue (฿)',data:rev,borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.1)',fill:true,tension:.4,pointRadius:4}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,.05)'}},x:{grid:{display:false}}}}});
+// Treatments chart
+const treats={};DB.appointments.forEach(a=>{treats[a.treatment]=(treats[a.treatment]||0)+1});
+const tKeys=Object.keys(treats).sort((a,b)=>treats[b]-treats[a]).slice(0,6);
+chT=new Chart(document.getElementById('chTreat'),{type:'bar',data:{labels:tKeys,datasets:[{data:tKeys.map(k=>treats[k]),backgroundColor:'#0ea5e9',borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,.05)'}},x:{grid:{display:false}}}}});
+// Dentist chart
+const dents={};DB.appointments.forEach(a=>{dents[a.dentist]=(dents[a.dentist]||0)+1});
+chD=new Chart(document.getElementById('chDent'),{type:'bar',data:{labels:Object.keys(dents),datasets:[{data:Object.values(dents),backgroundColor:['#0ea5e9','#ec4899','#10b981','#f59e06','#6366f1'],borderRadius:6}]},options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,grid:{color:'rgba(255,255,255,.05)'}},y:{grid:{display:false}}}}});
+}
+};
+
+/* ============ SECTION L: SETTINGS ============ */
+const Cfg={
+render(){
+document.getElementById('setClinic').value=DB.cfg.name;
+document.getElementById('setPhone').value=DB.cfg.phone;
+document.getElementById('setAddr').value=DB.cfg.addr;
+document.getElementById('setEmail').value=DB.cfg.email;
+document.getElementById('setWA').value=DB.cfg.wa;
+document.getElementById('setSlot').value=DB.cfg.slotMin;
+document.getElementById('setMStart').value=DB.cfg.mStart;
+document.getElementById('setMEnd').value=DB.cfg.mEnd;
+document.getElementById('setAStart').value=DB.cfg.aStart;
+document.getElementById('setAEnd').value=DB.cfg.aEnd;
+Cfg.renderDents();Cfg.renderTreats()},
+save(){
+DB.cfg.name=document.getElementById('setClinic').value;
+DB.cfg.phone=document.getElementById('setPhone').value;
+DB.cfg.addr=document.getElementById('setAddr').value;
+DB.cfg.email=document.getElementById('setEmail').value;
+DB.cfg.wa=document.getElementById('setWA').value;
+DB.cfg.slotMin=parseInt(document.getElementById('setSlot').value)||30;
+DB.cfg.mStart=document.getElementById('setMStart').value;
+DB.cfg.mEnd=document.getElementById('setMEnd').value;
+DB.cfg.aStart=document.getElementById('setAStart').value;
+DB.cfg.aEnd=document.getElementById('setAEnd').value;
+saveDB();T('Settings saved','ok')},
+renderDents(){
+const el=document.getElementById('dentList');el.innerHTML='';
+DB.dents.forEach(d=>{el.innerHTML+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid var(--bd)"><span><strong>'+d.name+'</strong> <span style="color:var(--tm);font-size:.82rem">'+d.spec+'</span></span><button class="btn btn-dn btn-xs" onclick="Cfg.delDent('+d.id+')">✕</button></div>'})},
+addDentist(){const n=document.getElementById('newDentName').value.trim();const s=document.getElementById('newDentSpec').value.trim();if(!n){T('Enter name','er');return}DB.dents.push({id:Date.now(),name:n,spec:s||'General'});saveDB();Cfg.renderDents();document.getElementById('newDentName').value='';document.getElementById('newDentSpec').value='';T('Dentist added','ok')},
+delDent(id){DB.dents=DB.dents.filter(d=>d.id!==id);saveDB();Cfg.renderDents()},
+renderTreats(){
+const el=document.getElementById('treatList');el.innerHTML='';
+DB.treats.forEach(t=>{el.innerHTML+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid var(--bd)"><span><strong>'+t.name+'</strong> <span style="color:var(--tm);font-size:.82rem">'+fmtMoney(t.price)+' ฿ · '+(t.slots*DB.cfg.slotMin)+' min</span></span><button class="btn btn-dn btn-xs" onclick="Cfg.delTreat('+t.id+')">✕</button></div>'})},
+addTreatment(){const n=document.getElementById('newTreatName').value.trim();const p=parseFloat(document.getElementById('newTreatPrice').value)||0;const s=parseInt(document.getElementById('newTreatSlots').value)||1;if(!n){T('Enter name','er');return}DB.treats.push({id:Date.now(),name:n,price:p,slots:s});saveDB();Cfg.renderTreats();document.getElementById('newTreatName').value='';document.getElementById('newTreatPrice').value='';T('Treatment added','ok')},
+delTreat(id){DB.treats=DB.treats.filter(t=>t.id!==id);saveDB();Cfg.renderTreats()}
+};
+
+/* ============ SECTION M: DATA EXPORT/IMPORT ============ */
+function dl(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click()}
+
+const DataIO={
+exportAll(){
+const data={db:DB,exportedAt:new Date().toISOString()};
+dl('dentacare_backup_'+today()+'.json',JSON.stringify(data,null,2),'application/json');T('Exported','ok')},
+importAll(e){
+const f=e.target.files[0];if(!f)return;
+const r=new FileReader();
+r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.db){DB=d.db;saveDB();Nav.go('dash',document.querySelector('.nav li'));T('Data imported!','ok')}}catch(err){T('Invalid file','er')}};
+r.readAsText(f);e.target.value=''}
+};
+
+/* ============ SECTION N: COMMAND PALETTE ============ */
+const cmds=[
+{name:'Dashboard',action:()=>Nav.go('dash',document.querySelectorAll('.nav li')[0])},
+{name:'Book Appointment',action:()=>Nav.go('book',document.querySelectorAll('.nav li')[1])},
+{name:'Appointments',action:()=>Nav.go('appts',document.querySelectorAll('.nav li')[2])},
+{name:'Patients',action:()=>Nav.go('patients',document.querySelectorAll('.nav li')[3])},
+{name:'Payments',action:()=>Nav.go('payments',document.querySelectorAll('.nav li')[4])},
+{name:'Reports',action:()=>Nav.go('reports',document.querySelectorAll('.nav li')[5])},
+{name:'Settings',action:()=>Nav.go('settings',document.querySelectorAll('.nav li')[6])},
+{name:'Toggle Theme',action:UI.toggleTheme},
+{name:'Add Patient',action:()=>Pats.openForm()},
+{name:'Record Payment',action:()=>Pays.openForm()},
+{name:'Export All Data',action:()=>DataIO.exportAll()},
+{name:'Export Patients CSV',action:()=>Pats.exportCSV()},
+{name:'Export Appointments CSV',action:()=>Appts.exportCSV()},
+{name:'Export Payments CSV',action:()=>Pays.exportCSV()},
+{name:'Import Patients CSV',action:()=>Pats.importCSV()}
+];
+const CMD={si:0,open(){document.getElementById('cmdO').classList.add('open');const i=document.getElementById('cmdIn');i.value='';i.focus();CMD.si=0;CMD.filt()},close(){document.getElementById('cmdO').classList.remove('open')},filt(){CMD.si=0;CMD.render(document.getElementById('cmdIn').value.toLowerCase())},render(q){const c=document.getElementById('cmdR');c.innerHTML='';const f=cmds.filter(x=>x.name.toLowerCase().includes(q));f.forEach((cmd,i)=>{const d=document.createElement('div');d.className='cmd-i'+(i===CMD.si?' sel':'');d.innerHTML='<span>'+cmd.name+'</span>';d.onclick=()=>{CMD.close();cmd.action()};c.appendChild(d)})},key(e){const items=document.querySelectorAll('.cmd-i');if(e.key==='Escape')CMD.close();else if(e.key==='ArrowDown'){e.preventDefault();CMD.si=Math.min(CMD.si+1,items.length-1);items.forEach((it,i)=>it.classList.toggle('sel',i===CMD.si))}else if(e.key==='ArrowUp'){e.preventDefault();CMD.si=Math.max(CMD.si-1,0);items.forEach((it,i)=>it.classList.toggle('sel',i===CMD.si))}else if(e.key==='Enter'&&items.length){CMD.close();items[CMD.si]?.click()}}};
+document.getElementById('cmdO').addEventListener('click',e=>{if(e.target.id==='cmdO')CMD.close()});
+
+/* ============ SECTION O: GLOBAL SHORTCUTS ============ */
+document.addEventListener('keydown',e=>{
+if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();CMD.open()}
+if(e.key==='Escape'){document.querySelectorAll('.mdl.open').forEach(m=>m.classList.remove('open'));CMD.close();document.getElementById('admPnl').classList.remove('open')}
+if(e.ctrlKey&&e.shiftKey&&e.key==='L'){e.preventDefault();Adm.open()}
+});
+
+/* ============ SECTION P: INITIALIZATION ============ */
+async function AppInit(){
+DB=loadDB();Nav.go('dash',document.querySelector('.nav li'));
+}
+(async function boot(){
+const fp=await Lic.fp();document.getElementById('licFP').value=fp;
+if(localStorage.getItem(Lic.STOR+'_lk')==='1'){Lic.showExp();return}
+const ok=await Lic.check();if(ok)Lic.unlock();else{document.getElementById('licScr').style.display='flex'}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>FullStack Academy — Web Development LMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closetag.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/comment/comment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldgutter.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/brace-fold.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/xml-fold.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldgutter.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--primary:#8b5cf6;--primary-h:#7c3aed;--primary-s:rgba(139,92,246,.12);--bg:#0a0a1a;--sf:#111128;--card:#161638;--tx:#e8ecf4;--tm:#7a85a8;--bd:#252550;--ok:#10b981;--wr:#f59e06;--dn:#ef4444;--pk:#ec4899;--cy:#06b6d4;--or:#f97316;--rd:10px;--sh:0 4px 24px rgba(0,0,0,.35)}
+[data-theme="light"]{--primary:#7c3aed;--primary-h:#6d28d9;--primary-s:rgba(124,58,237,.08);--bg:#f5f3ff;--sf:#ffffff;--card:#ffffff;--tx:#1e1b4b;--tm:#6b7280;--bd:#e5e7eb;--ok:#059669;--wr:#d97706;--dn:#dc2626;--pk:#db2777;--cy:#0891b2;--or:#ea580c;--sh:0 4px 24px rgba(0,0,0,.06)}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'DM Sans',system-ui,sans-serif}
+body{background:var(--bg);color:var(--tx);display:flex;height:100vh;overflow:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+/* License Screen */
+#licScr{position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#0a0a1a,#1a0a2e,#0a0a1a);display:flex;align-items:center;justify-content:center}
+#licScr.hide{display:none}.lic-c{width:440px;max-width:92vw;background:rgba(22,22,56,.95);border:1px solid #252550;border-radius:16px;padding:36px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.lic-hd{text-align:center;margin-bottom:24px}.lic-ic{width:56px;height:56px;background:linear-gradient(135deg,#8b5cf6,#06b6d4);border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:12px}
+.lic-f{margin-bottom:14px}.lic-f label{display:block;font-size:.82rem;font-weight:600;color:#94a3b8;margin-bottom:6px}
+.lic-f input{width:100%;padding:11px 14px;border:1px solid #334155;border-radius:8px;background:#0f0f2a;color:#e8ecf4;font-family:'JetBrains Mono',monospace;font-size:.88rem;outline:none}
+.lic-f input[readonly]{background:#0a0a1a;color:#7a85a8;font-size:.78rem}
+.lic-bt{width:100%;padding:12px;border:none;border-radius:8px;font-weight:600;font-size:.9rem;cursor:pointer;font-family:inherit;color:#fff}
+.lic-bt.p{background:linear-gradient(135deg,#8b5cf6,#06b6d4)}.lic-bt.p:hover{filter:brightness(1.1)}
+.lic-st{text-align:center;margin-top:14px;font-size:.82rem}.lic-st.ok{color:#34d399}.lic-st.er{color:#fbbf24}
+.lic-dv{display:flex;align-items:center;gap:12px;margin:18px 0;color:#475569;font-size:.78rem}.lic-dv::before,.lic-dv::after{content:'';flex:1;height:1px;background:#252550}
+.lic-info{background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:8px;padding:12px;font-size:.78rem;color:#94a3b8;line-height:1.5}
+.lic-info code{background:rgba(0,0,0,.3);padding:1px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.74rem;color:#8b5cf6}
+#licExp{display:none;text-align:center}.lic-exp-ic{font-size:4rem;margin-bottom:16px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.95)}}
+/* Sidebar */
+.sb{width:268px;min-width:268px;background:var(--sf);border-right:1px solid var(--bd);display:flex;flex-direction:column}
+.brand{padding:18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--bd)}
+.brand-ic{width:36px;height:36px;background:linear-gradient(135deg,#8b5cf6,#06b6d4);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;color:#fff;font-weight:700}
+.brand-t{font-weight:700;font-size:.95rem;color:var(--primary)}
+.nav{list-style:none;padding:14px 10px;flex:1;overflow-y:auto}
+.nav li{padding:11px 14px;margin-bottom:3px;border-radius:8px;cursor:pointer;font-weight:500;font-size:.86rem;color:var(--tm);display:flex;align-items:center;gap:10px;transition:all .15s}
+.nav li:hover,.nav li.act{background:var(--primary-s);color:var(--primary)}.nav li.act{font-weight:600}
+.sess{padding:14px;background:var(--bg);border-top:1px solid var(--bd);font-size:.78rem}
+.badge{display:inline-block;padding:2px 10px;font-size:.72rem;font-weight:700;border-radius:5px;color:#fff}
+/* Main */
+.mn{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.hdr{padding:12px 22px;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center}
+.hdr h2{font-size:1.05rem;font-weight:700}.hdr-ac{display:flex;align-items:center;gap:8px}
+.sv-ind{font-size:.75rem;color:var(--tm);display:flex;align-items:center;gap:5px}
+.sv-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block}.sv-dot.sv{background:var(--wr);animation:pulse .6s infinite}
+.cnt{flex:1;overflow:hidden}
+.vw{display:none;height:100%;overflow-y:auto;padding:22px}.vw.act{display:flex;flex-direction:column}
+/* Buttons */
+.btn{border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-size:.84rem;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{filter:brightness(1.1)}.btn-p{background:var(--primary);color:#fff}.btn-ok{background:var(--ok);color:#fff}.btn-wr{background:var(--wr);color:#000}.btn-dn{background:var(--dn);color:#fff}.btn-gh{background:transparent;border:1px solid var(--bd);color:var(--tx)}.btn-cy{background:var(--cy);color:#fff}.btn-or{background:var(--or);color:#fff}
+.btn-sm{padding:5px 10px;font-size:.76rem}.btn-xs{padding:3px 8px;font-size:.7rem;border-radius:5px}
+input[type="text"],input[type="password"],input[type="number"],input[type="date"],input[type="email"],select,textarea.fc{width:100%;padding:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;margin-bottom:10px;font-size:.88rem;font-family:inherit;outline:none;transition:border .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--primary)}textarea.fc{resize:vertical;line-height:1.5}
+label.lbl{display:block;font-size:.84rem;font-weight:600;margin-bottom:5px;color:var(--tm)}
+/* Cards */
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--rd);padding:22px;margin-bottom:16px;box-shadow:var(--sh)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:20px}
+.st-c{background:var(--card);border:1px solid var(--bd);border-radius:var(--rd);padding:18px;text-align:center;position:relative;overflow:hidden}
+.st-c::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.st-c:nth-child(1)::before{background:var(--primary)}.st-c:nth-child(2)::before{background:var(--ok)}.st-c:nth-child(3)::before{background:var(--wr)}.st-c:nth-child(4)::before{background:var(--pk)}.st-c:nth-child(5)::before{background:var(--cy)}
+.st-c h3{font-size:1.5rem;font-weight:700;margin-bottom:2px}.st-c p{color:var(--tm);font-size:.82rem}
+/* IDE / Editor */
+.ide-wrap{display:flex;height:100%;overflow:hidden}
+.live-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.code-tabs{display:flex;background:var(--sf);border-bottom:1px solid var(--bd)}
+.code-tab{padding:8px 16px;font-size:.78rem;font-weight:600;cursor:pointer;color:var(--tm);border-bottom:2px solid transparent;transition:all .12s}
+.code-tab:hover{color:var(--tx)}.code-tab.act{color:var(--primary);border-bottom-color:var(--primary)}
+.editors-wrap{flex:1;display:flex;overflow:hidden}
+.editor-pane{flex:1;display:none;overflow:hidden}.editor-pane.act{display:block}
+.editor-pane .CodeMirror{height:100%;font-size:13px;font-family:'JetBrains Mono',monospace}
+.preview-panel{flex:1;display:flex;flex-direction:column;background:#fff;border-left:1px solid var(--bd)}
+.preview-header{padding:6px 14px;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;font-size:.78rem}
+.preview-frame{flex:1;border:none;background:#fff}
+.preview-bar{display:flex;gap:4px}
+.preview-device{padding:3px 8px;border-radius:4px;cursor:pointer;font-size:.7rem;border:1px solid var(--bd);background:transparent;color:var(--tm);transition:all .12s}
+.preview-device.act{background:var(--primary);color:#fff;border-color:var(--primary)}
+/* Module cards */
+.module-card{background:var(--sf);border:1px solid var(--bd);padding:16px;border-radius:var(--rd);display:flex;justify-content:space-between;align-items:center;transition:all .15s;gap:14px}
+.module-card:hover{border-color:var(--primary);box-shadow:0 0 0 1px var(--primary)}
+.module-card.locked{opacity:.55;pointer-events:none}
+.module-num{width:30px;height:30px;background:var(--primary);color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0}
+.module-num.locked-icon{background:var(--tm)}
+.tag{font-size:.68rem;padding:2px 7px;border-radius:4px;font-weight:600}
+.tag-easy{background:rgba(16,185,129,.15);color:var(--ok)}.tag-mid{background:rgba(245,158,6,.15);color:var(--wr)}.tag-hard{background:rgba(239,68,68,.12);color:var(--dn)}
+.tag-time{background:rgba(139,92,246,.12);color:var(--primary)}
+.bookmark-btn{cursor:pointer;font-size:1.1rem;background:none;border:none;padding:4px}
+/* Quiz */
+.quiz-option{display:flex;align-items:center;gap:10px;font-size:.86rem;cursor:pointer;padding:10px 14px;background:var(--card);border:1px solid var(--bd);border-radius:8px}
+.quiz-option:hover{border-color:var(--primary)}.quiz-option input{accent-color:var(--primary)}
+.quiz-timer{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1rem;padding:4px 12px;border-radius:6px}
+.quiz-timer.ok{background:rgba(16,185,129,.15);color:var(--ok)}.quiz-timer.warn{background:rgba(245,158,6,.15);color:var(--wr)}.quiz-timer.danger{background:rgba(239,68,68,.15);color:var(--dn);animation:pulse .6s infinite}
+/* Badges */
+.badges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
+.badge-card{text-align:center;padding:14px 8px;border:1px solid var(--bd);border-radius:var(--rd);background:var(--sf)}
+.badge-card.unlocked{border-color:var(--wr);background:rgba(245,158,6,.05)}
+.badge-card.locked{opacity:.45;filter:grayscale(1)}
+.badge-icon{font-size:1.8rem;margin-bottom:4px;display:block}.badge-name{font-size:.76rem;font-weight:600}
+/* Charts */
+.charts-g{display:grid;grid-template-columns:1fr 1fr;gap:16px}.chart-c{background:var(--card);border:1px solid var(--bd);border-radius:var(--rd);padding:18px}.chart-c h4{font-size:.9rem;margin-bottom:12px;font-weight:600}
+/* Modal */
+.mdl{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1500;justify-content:center;align-items:center}
+.mdl.open{display:flex}.mdl-box{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:24px;max-width:500px;width:92%;box-shadow:var(--sh);max-height:85vh;overflow-y:auto}
+/* Toast */
+.tw{position:fixed;bottom:20px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:8px}
+.tst{padding:12px 18px;border-radius:10px;font-size:.84rem;font-weight:600;color:#fff;opacity:0;transform:translateY(12px);transition:all .3s;pointer-events:none;max-width:340px}
+.tst.show{opacity:1;transform:translateY(0)}.tst.ok{background:#059669}.tst.er{background:#dc2626}.tst.inf{background:var(--primary)}.tst.wr{background:#d97706}
+/* Admin panel */
+#admPnl{position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center}
+#admPnl.open{display:flex}.adm-b{width:680px;max-width:95vw;max-height:90vh;background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:28px;overflow-y:auto}
+.adm-t{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:14px}.adm-t th{text-align:left;padding:8px 10px;background:var(--bg);border-bottom:1px solid var(--bd);font-weight:600;color:var(--tm)}.adm-t td{padding:8px 10px;border-bottom:1px solid var(--bd)}
+.gen-k{font-family:'JetBrains Mono',monospace;background:var(--bg);padding:8px 12px;border-radius:6px;font-size:.8rem;color:var(--ok);margin-top:12px;word-break:break-all;display:none;border:1px solid var(--bd)}
+.lic-bar{display:flex;align-items:center;gap:8px;padding:5px 10px;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer}
+.lic-bar.act{background:rgba(16,185,129,.12);color:var(--ok)}.lic-bar.wrn{background:rgba(245,158,6,.12);color:var(--wr)}
+.lic-bar-dot{width:7px;height:7px;border-radius:50%;display:inline-block}.lic-bar.act .lic-bar-dot{background:var(--ok)}.lic-bar.wrn .lic-bar-dot{background:var(--wr);animation:pulse 1s infinite}
+/* Streak */
+.streak-flame{font-size:1.2rem;animation:flicker 1s infinite alternate}
+@keyframes flicker{0%{transform:scale(1)}100%{transform:scale(1.15) rotate(5deg)}}
+/* Note area */
+.note-area{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:12px;color:var(--tx);font-size:.85rem;min-height:80px;resize:vertical;width:100%;font-family:inherit;outline:none}
+/* Command palette */
+.cmd-o{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;justify-content:center;padding-top:15vh}
+.cmd-o.open{display:flex}.cmd-b{width:460px;max-height:360px;background:var(--card);border:1px solid var(--bd);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.cmd-b input{padding:14px 16px;border:none;border-bottom:1px solid var(--bd);background:transparent;color:var(--tx);font-size:.95rem;outline:none}
+.cmd-r{overflow-y:auto;flex:1}.cmd-i{padding:10px 16px;cursor:pointer;font-size:.86rem;display:flex;justify-content:space-between;transition:background .1s}
+.cmd-i:hover,.cmd-i.sel{background:var(--primary-s)}
+/* Announcement */
+.ann-bar{background:linear-gradient(90deg,var(--primary),var(--cy));padding:10px 18px;border-radius:var(--rd);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;font-size:.85rem;font-weight:600;color:#fff}
+/* Responsive */
+@media(max-width:1100px){.ide-wrap{flex-direction:column}.preview-panel{border-left:none;border-top:1px solid var(--bd);height:300px}}
+@media(max-width:900px){.sb{width:56px;min-width:56px}.brand-t,.nav li span,.sess{display:none}.nav li{justify-content:center;padding:12px}.charts-g{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- LICENSE SCREEN -->
+<div id="licScr"><div class="lic-c">
+<div id="licAct">
+<div class="lic-hd"><div class="lic-ic">⚡</div><h2>FullStack Academy</h2><p style="color:#7a85a8;font-size:.82rem;margin-top:4px">License Activation Required</p></div>
+<div class="lic-f"><label>Machine Fingerprint</label><input type="text" id="licFP" readonly></div>
+<div class="lic-f"><label>License Key</label><input type="text" id="licKey" placeholder="FSTK-XXXX-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false"></div>
+<button class="lic-bt p" onclick="Lic.activate()">Activate License</button>
+<div class="lic-st" id="licSt"></div>
+<div class="lic-dv">OR</div>
+<button class="lic-bt" style="background:#334155;color:#e8ecf4" onclick="Lic.showExp()">Demo Mode</button>
+<div class="lic-info" style="margin-top:18px"><strong>How to activate:</strong><br>1. Copy your Machine Fingerprint<br>2. Send it to the administrator<br>3. Receive a license key<br>4. Paste key and click Activate</div>
+</div>
+<div id="licExp"><div style="text-align:center"><div class="lic-exp-ic">🔒</div><h1 style="color:#ef4444;font-size:1.5rem;margin-bottom:8px">License Expired</h1><p style="color:#7a85a8;font-size:.88rem;margin-bottom:20px">All data wiped. Contact admin for a new license.</p><button class="lic-bt p" onclick="Lic.showAct()" style="max-width:300px;margin:0 auto">Enter New License</button></div></div>
+</div></div>
+
+<!-- MAIN APP -->
+<div id="mainApp" style="display:none;width:100%;height:100%">
+<aside class="sb"><div>
+<div class="brand"><div class="brand-ic">⚡</div><span class="brand-t">FullStack Academy</span></div>
+<ul class="nav" id="nav">
+<li class="act" data-v="dash">📊 <span>Dashboard</span></li>
+<li data-v="ide">💻 <span>Live Editor</span></li>
+<li data-v="courses">📚 <span>Curriculum</span></li>
+<li data-v="reports">📈 <span>Analytics</span></li>
+<li data-v="achievements">🏆 <span>Achievements</span></li>
+<li id="navInstr" style="display:none" data-v="instructor">🛠️ <span>Instructor</span></li>
+</ul></div>
+<div class="sess"><div id="dispName" style="font-weight:600">Guest</div><div id="roleBadge" style="margin-top:4px"><span class="badge" style="background:var(--dn)">Logged Out</span></div><div id="licBarSess" style="margin-top:8px"></div></div></aside>
+
+<div class="mn">
+<header class="hdr"><h2 id="pgT">Dashboard</h2><div class="hdr-ac"><div class="sv-ind" id="svInd"><span class="sv-dot"></span> Saved</div><div id="licBarHdr"></div><button class="btn btn-gh btn-sm" onclick="CMD.open()">⌘</button><button class="btn btn-gh btn-sm" onclick="UI.togTheme()">🌗</button><button class="btn btn-ok btn-sm" id="authBtn">🔐 Login</button></div></header>
+<div class="cnt">
+
+<!-- DASHBOARD -->
+<div id="v-dash" class="vw act">
+<div id="annArea"></div>
+<div class="card"><h2 id="welcomeB">Welcome to FullStack Academy</h2><p style="color:var(--tm);margin:6px 0 14px">Learn HTML, CSS, JavaScript, React, Node.js and more — build real projects.</p><div id="authPr"></div></div>
+<div class="stats">
+<div class="st-c"><h3 id="sDone">0</h3><p>Modules Done</p></div>
+<div class="st-c"><h3 id="sScore">0%</h3><p>Accuracy</p></div>
+<div class="st-c"><h3 id="sTime">0m</h3><p>Time Active</p></div>
+<div class="st-c"><h3 id="sProjects">0</h3><p>Projects Built</p></div>
+<div class="st-c"><h3 id="sStreak">0</h3><p><span class="streak-flame">🔥</span> Streak</p></div>
+</div>
+<div class="card"><h3 style="margin-bottom:12px">Recent Achievements</h3><div id="dashBadges" class="badges-grid" style="grid-template-columns:repeat(auto-fill,minmax(110px,1fr))"></div></div>
+</div>
+
+<!-- LIVE EDITOR -->
+<div id="v-ide" class="vw" style="padding:0">
+<div class="ide-wrap">
+<div class="live-area">
+<div class="code-tabs">
+<div class="code-tab act" data-mode="htmlmixed" onclick="IDE.switchTab(0,this)">index.html</div>
+<div class="code-tab" data-mode="css" onclick="IDE.switchTab(1,this)">style.css</div>
+<div class="code-tab" data-mode="javascript" onclick="IDE.switchTab(2,this)">script.js</div>
+<div style="flex:1"></div>
+<button class="btn btn-ok btn-sm" onclick="IDE.runPreview()" style="margin:4px 8px">▶ Run</button>
+<button class="btn btn-gh btn-sm" onclick="IDE.resetCode()" style="margin:4px 0">↺ Reset</button>
+</div>
+<div class="editors-wrap">
+<div class="editor-pane act" id="paneHTML"><textarea id="edHTML"></textarea></div>
+<div class="editor-pane" id="paneCSS"><textarea id="edCSS"></textarea></div>
+<div class="editor-pane" id="paneJS"><textarea id="edJS"></textarea></div>
+</div>
+</div>
+<div class="preview-panel" id="previewPanel">
+<div class="preview-header">
+<span style="font-weight:600">Preview</span>
+<div class="preview-bar">
+<div class="preview-device act" onclick="IDE.resize(100,this)">🖥️</div>
+<div class="preview-device" onclick="IDE.resize(768,this)">📱 Tablet</div>
+<div class="preview-device" onclick="IDE.resize(375,this)">📱 Mobile</div>
+</div></div>
+<iframe id="previewFrame" class="preview-frame"></iframe>
+</div>
+</div></div>
+
+<!-- CURRICULUM -->
+<div id="v-courses" class="vw">
+<div id="courseListV"><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3>Full Stack Curriculum</h3></div><div id="modListW" style="display:flex;flex-direction:column;gap:10px"></div></div></div>
+<div id="lessonV" style="display:none"><div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+<button class="btn btn-gh btn-sm" onclick="Courses.back()">← Back</button>
+<div style="display:flex;gap:6px"><button class="btn btn-gh btn-sm" onclick="Courses.openInIDE()">💻 In Editor</button><button class="btn btn-gh btn-sm" id="bmLessonBtn" onclick="Courses.toggleBM()">🔖</button></div></div>
+<h2 id="lessonTitle" style="margin-bottom:10px"></h2>
+<div id="lessonBody" style="line-height:1.7;margin-bottom:18px"></div>
+<details style="margin-bottom:18px"><summary style="cursor:pointer;font-weight:600;font-size:.9rem;color:var(--primary);margin-bottom:8px">📝 My Notes</summary><textarea class="note-area" id="modNote" placeholder="Your notes..." oninput="Courses.saveNote()"></textarea></details>
+<div id="quizBox" style="background:var(--card);padding:18px;border-radius:var(--rd);border:1px solid var(--bd)">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div id="quizProg" style="font-size:.8rem;font-weight:700;color:var(--primary)"></div><div id="quizTimer" class="quiz-timer ok" style="display:none"></div></div>
+<h4 id="quizQ" style="margin-bottom:12px;line-height:1.4"></h4>
+<div id="quizOpts" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px"></div>
+<button class="btn btn-p" id="quizNextBtn" onclick="Quiz.next()">Next Question</button>
+</div></div></div>
+</div>
+
+<!-- REPORTS -->
+<div id="v-reports" class="vw"><div class="card"><h2>Learning Report</h2><p id="repSub" style="color:var(--tm);font-size:.85rem;margin:4px 0 14px"></p><div class="tbl-wrap" style="border:1px solid var(--bd);border-radius:8px;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.88rem"><thead><tr style="background:var(--sf);border-bottom:1px solid var(--bd)"><th style="padding:10px 14px;text-align:left">Module</th><th style="padding:10px 14px;text-align:left">Status</th><th style="padding:10px 14px;text-align:left">Grade</th><th style="padding:10px 14px;text-align:left">Time</th></tr></thead><tbody id="repBody"></tbody></table></div></div>
+<div class="charts-g"><div class="chart-c"><h4>Module Scores</h4><canvas id="chScores"></canvas></div><div class="chart-c"><h4>Completion</h4><canvas id="chComp"></canvas></div></div></div>
+
+<!-- ACHIEVEMENTS -->
+<div id="v-achievements" class="vw"><div class="card"><h2 style="margin-bottom:6px">🏆 Achievements</h2><p style="color:var(--tm);margin-bottom:16px">Complete challenges to unlock badges.</p><div id="achGrid" class="badges-grid"></div></div></div>
+
+<!-- INSTRUCTOR -->
+<div id="v-instructor" class="vw"><div class="card" style="border-color:var(--wr)">
+<h2>🛠️ Instructor Console</h2><p style="color:var(--tm);margin:4px 0 18px">Manage students and modules.</p>
+<h3 style="color:var(--primary);margin-bottom:10px">📋 Student Roster</h3>
+<div class="tbl-wrap" style="margin-bottom:22px"><table style="width:100%;border-collapse:collapse;font-size:.88rem"><thead><tr style="background:var(--sf);border-bottom:1px solid var(--bd)"><th style="padding:10px 14px;text-align:left">Name</th><th style="padding:10px 14px;text-align:left">ID</th><th style="padding:10px 14px;text-align:left">Progress</th><th style="padding:10px 14px;text-align:left">Time</th></tr></thead><tbody id="rosterBody"></tbody></table></div>
+<hr style="border:0;border-top:1px solid var(--bd);margin:18px 0">
+<h3 style="color:var(--primary);margin-bottom:10px">📢 Announcement</h3>
+<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:22px"><input type="text" id="annTitle" placeholder="Title"><textarea class="form-ctrl" id="annBody" rows="2" placeholder="Message..."></textarea><div style="display:flex;gap:8px;align-items:center"><select id="annPrio" style="width:auto;margin-bottom:0"><option value="info">Info</option><option value="warning">Warning</option></select><button class="btn btn-wr" onclick="Instr.postAnn()">Post</button></div></div>
+<hr style="border:0;border-top:1px solid var(--bd);margin:18px 0">
+<h3 style="color:var(--primary);margin-bottom:10px">📝 Module Editor</h3>
+<select id="instrModSel" onchange="Instr.modeChange()" style="margin-bottom:14px"><option value="new">+ Create New Module</option></select>
+<input type="hidden" id="editModId"><input type="text" id="editModTitle" placeholder="Module Title"><textarea class="fc" id="editModContent" rows="2" placeholder="Lesson..."></textarea><textarea class="fc" id="editModCode" rows="3" placeholder="Starter code..."></textarea>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px"><div><label class="lbl">Difficulty</label><select id="editModDiff"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></div><div><label class="lbl">Time (min)</label><input type="number" id="editModTime" value="15"></div><div><label class="lbl">Prereq (#)</label><input type="number" id="editModPrereq" placeholder="0"></div></div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><label style="font-weight:600;color:var(--primary)">Questions (min 5)</label><button class="btn btn-p btn-xs" onclick="Instr.addQ()">+ Add</button></div>
+<div id="qBuilder" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px"></div>
+<div style="display:flex;gap:8px"><button class="btn btn-wr" style="flex:1" onclick="Instr.save()">Publish</button><button class="btn btn-dn" id="instrDelBtn" style="display:none" onclick="Instr.del()">Delete</button></div>
+</div></div>
+
+</div></div></div>
+
+<!-- MODALS -->
+<div class="mdl" id="authModal"><div class="mdl-box"><h3>Student Login</h3><p style="color:var(--tm);font-size:.84rem;margin:6px 0 14px">Enter name and student ID.</p><label class="lbl">Full Name</label><input type="text" id="authName" placeholder="Alex Morgan"><label class="lbl">Student ID</label><input type="text" id="authId" placeholder="e.g. FSTK-001"><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px"><button class="btn btn-gh" onclick="UI.closeMdl('authModal')">Cancel</button><button class="btn btn-ok" onclick="Auth.login()">Login / Register</button></div></div></div>
+
+<div class="mdl" id="exportModal"><div class="mdl-box"><h3 style="margin-bottom:14px">📦 Export / Import Data</h3><div style="display:flex;flex-direction:column;gap:10px"><button class="btn btn-p" onclick="DataIO.export()">⬇ Export All Data (JSON)</button><button class="btn btn-gh" onclick="document.getElementById('importFile').click()">⬆ Import Data (JSON)</button><input type="file" id="importFile" accept=".json" style="display:none" onchange="DataIO.importF(event)"></div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn btn-gh" onclick="UI.closeMdl('exportModal')">Close</button></div></div></div>
+
+<!-- ADMIN PANEL -->
+<div id="admPnl"><div class="adm-b"><h2 style="margin-bottom:6px">🔑 License Generator (Admin)</h2><p style="color:var(--tm);font-size:.84rem;margin-bottom:18px">Press Ctrl+Shift+L</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px"><div><label class="lbl">Machine Fingerprint</label><input type="text" id="admFP" placeholder="Paste fingerprint"></div><div><label class="lbl">Duration (days)</label><input type="number" id="admDays" value="90" min="1" max="3650"></div></div><div style="display:flex;gap:8px;margin-bottom:14px"><button class="btn btn-p" onclick="Lic.generate()">Generate Key</button><button class="btn btn-gh" onclick="Lic.revoke()">Revoke</button></div><div class="gen-k" id="admGenK"></div><div class="lic-dv">Active Licenses</div><table class="adm-t"><thead><tr><th>Fingerprint</th><th>Activated</th><th>Expires</th><th>Days Left</th></tr></thead><tbody id="admLicBody"></tbody></table><div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="btn btn-gh" onclick="document.getElementById('admPnl').classList.remove('open')">Close</button></div></div></div>
+
+<!-- CMD PALETTE -->
+<div class="cmd-o" id="cmdO"><div class="cmd-b"><input type="text" id="cmdIn" placeholder="Command..." oninput="CMD.filt()" onkeydown="CMD.key(event)"><div class="cmd-r" id="cmdR"></div></div></div>
+<div class="tw" id="tw"></div>
+
+<script>
+"use strict";
+
+/* ======== LICENSE SYSTEM ======== */
+const Lic={SECRET:'FULLSTACK_SECRET_xK9$mP2v@qR7nZ4w',INTERVAL:30000,STOR:'fs_lic_v1',
+async fp(){const c=[];c.push(navigator.userAgent||'');c.push(navigator.language||'');c.push(navigator.platform||'');c.push(String(navigator.hardwareConcurrency||0));c.push(String(screen.width));c.push(String(screen.height));c.push(String(screen.colorDepth));c.push(Intl.DateTimeFormat().resolvedOptions().timeZone||'');try{const cv=document.createElement('canvas');cv.width=200;cv.height=50;const x=cv.getContext('2d');x.textBaseline='top';x.font='14px Arial';x.fillStyle='#f60';x.fillRect(125,1,62,20);x.fillStyle='#069';x.fillText('FullStack-FP',2,15);c.push(cv.toDataURL())}catch(e){c.push('c')}try{const g=document.createElement('canvas').getContext('webgl');const d=g.getExtension('WEBGL_debug_renderer_info');if(d){c.push(g.getParameter(d.UNMASKED_VENDOR_WEBGL)||'');c.push(g.getParameter(d.UNMASKED_RENDERER_WEBGL)||'')}}catch(e){c.push('g')}try{const a=new(window.AudioContext||window.webkitAudioContext)();c.push(String(a.sampleRate));a.close()}catch(e){c.push('a')}return(await Lic.sha(c.join('|||'))).substring(0,32).toUpperCase()},
+async sha(m){const b=new TextEncoder().encode(m);return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',b))).map(x=>x.toString(16).padStart(2,'0')).join('')},
+simpleH(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);h=h>>>0}return h.toString(36).toUpperCase()},
+async genKey(fp,days){const ex=new Date();ex.setDate(ex.getDate()+days);const ed=Math.floor(ex.getTime()/864e5);const es=ed.toString(36).toUpperCase().padStart(4,'0');const sg=(await Lic.sha(ed+':'+fp+':'+Lic.SECRET)).substring(0,8).toUpperCase();const pl=es+fp.substring(0,8)+sg;return{key:'FSTK-'+pl.substring(0,4)+'-'+pl.substring(4,8)+'-'+pl.substring(8,12)+'-'+pl.substring(12,16),exp:ex.toISOString(),ed}},
+async valKey(key,fp){try{key=key.trim().toUpperCase();if(!key.startsWith('FSTK-'))return{v:false,r:'Invalid'};const p=key.replace('FSTK-','').split('-');if(p.length!==4)return{v:false,r:'Invalid'};const pl=p.join('');if(pl.length!==16)return{v:false,r:'Invalid'};const ed=parseInt(pl.substring(0,4),36);if(isNaN(ed))return{v:false,r:'Invalid'};if(pl.substring(4,12)!==fp.substring(0,8))return{v:false,r:'Different machine'};const expSg=(await Lic.sha(ed+':'+fp+':'+Lic.SECRET)).substring(0,8).toUpperCase();if(pl.substring(12,20)!==expSg)return{v:false,r:'Invalid signature'};const exMs=ed*864e5;if(Date.now()>exMs)return{v:false,r:'Expired'};return{v:true,exp:new Date(exMs).toISOString(),expMs:exMs,dLeft:Math.ceil((exMs-Date.now())/864e5)}}catch(e){return{v:false,r:'Error'}}},
+getStored(){try{return JSON.parse(localStorage.getItem(Lic.STOR))}catch(e){return null}},
+store(key,fp,val){const d={key,fp,actAt:new Date().toISOString(),exp:val.exp,expMs:val.expMs,th:Lic.simpleH(JSON.stringify({key,fp,expMs:val.expMs})+Lic.SECRET)};localStorage.setItem(Lic.STOR,JSON.stringify(d))},
+checkTamper(d){if(!d)return true;return d.th!==Lic.simpleH(JSON.stringify({key:d.key,fp:d.fp,expMs:d.expMs})+Lic.SECRET)},
+wipe(){const k=[];for(let i=0;i<localStorage.length;i++){const n=localStorage.key(i);if(n&&(n.startsWith('fs')||n.startsWith('fsta')))k.push(n)}k.forEach(x=>localStorage.removeItem(x));sessionStorage.clear()},
+lock(r){console.warn('[LIC]LOCK:',r);Lic.wipe();localStorage.setItem(Lic.STOR+'_lk','1');document.getElementById('mainApp').style.display='none';const s=document.getElementById('licScr');s.classList.remove('hide');s.style.display='flex';Lic.showExp();T('License expired.','er')},
+showAct(){document.getElementById('licAct').style.display='';document.getElementById('licExp').style.display='none'},
+showExp(){document.getElementById('licAct').style.display='none';document.getElementById('licExp').style.display=''},
+bar(){const s=Lic.getStored();if(!s)return;const dl=Math.ceil((s.expMs-Date.now())/864e5);let cl='act',tx=dl+'d left';if(dl<=3){cl='wrn';tx=dl+'d ⚠️'}const h='<div class="lic-bar '+cl+'"><span class="lic-bar-dot"></span>License: '+tx+'</div>';['licBarSess','licBarHdr'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML=h})},
+async activate(){const fp=document.getElementById('licFP').value,key=document.getElementById('licKey').value.trim(),st=document.getElementById('licSt');if(!key){st.textContent='Enter key';st.className='lic-st er';return}st.textContent='Validating...';st.className='lic-st';const r=await Lic.valKey(key,fp);if(r.v){Lic.store(key,fp,r);st.textContent='Activated! '+r.dLeft+' days';st.className='lic-st ok';setTimeout(()=>Lic.unlock(),1000)}else{st.textContent=r.r;st.className='lic-st er'}},
+unlock(){document.getElementById('licScr').classList.add('hide');document.getElementById('licScr').style.display='none';document.getElementById('mainApp').style.display='flex';Lic.startCheck();Lic.bar();AppInit()},
+timer:null,startCheck(){if(Lic.timer)clearInterval(Lic.timer);Lic.timer=setInterval(async()=>{if(!(await Lic.check()))clearInterval(Lic.timer);else Lic.bar()},Lic.INTERVAL)},
+async check(){const s=Lic.getStored();if(!s)return false;if(Lic.checkTamper(s)){Lic.lock('Tampered');return false}if(s.fp!==(await Lic.fp())){Lic.lock('Diff machine');return false}if(Date.now()>s.expMs){Lic.lock('Expired');return false}return true},
+async generate(){const fp=document.getElementById('admFP').value.trim(),days=parseInt(document.getElementById('admDays').value)||90;if(!fp||fp.length<8){T('Enter fingerprint','er');return}const r=await Lic.genKey(fp,days);const el=document.getElementById('admGenK');el.style.display='block';el.innerHTML='<strong>Key:</strong><br><span style="font-size:1rem;color:var(--ok)">'+r.key+'</span><br><small style="color:var(--tm)">Expires: '+new Date(r.exp).toLocaleDateString()+' ('+days+'d)</small><br><button class="btn btn-p btn-xs" onclick="navigator.clipboard.writeText(\''+r.key+'\');T(\'Copied!\',\'ok\')">Copy</button>';let reg=JSON.parse(localStorage.getItem('fs_reg')||'[]');reg.push({fp,key:r.key,exp:r.exp,at:new Date().toISOString()});localStorage.setItem('fs_reg',JSON.stringify(reg));Adm.render()},
+revoke(){const fp=document.getElementById('admFP').value.trim();if(!fp){T('Enter fingerprint','er');return}let reg=JSON.parse(localStorage.getItem('fs_reg')||'[]');reg=reg.filter(r=>r.fp!==fp);localStorage.setItem('fs_reg',JSON.stringify(reg));Adm.render();T('Revoked','inf')}
+};
+const Adm={open(){document.getElementById('admPnl').classList.add('open');Adm.render()},render(){const tb=document.getElementById('admLicBody');const reg=JSON.parse(localStorage.getItem('fs_reg')||'[]');if(!reg.length){tb.innerHTML='<tr><td colspan="4" style="padding:12px;text-align:center;color:var(--tm)">None</td></tr>';return}tb.innerHTML='';reg.forEach(r=>{const dl=Math.max(0,Math.ceil((new Date(r.exp).getTime()-Date.now())/864e5));const tr=document.createElement('tr');tr.innerHTML='<td style="font-family:JetBrains Mono,monospace;font-size:.74rem">'+r.fp.substring(0,16)+'...</td><td>'+new Date(r.at).toLocaleDateString()+'</td><td>'+new Date(r.exp).toLocaleDateString()+'</td><td style="color:'+(dl>7?'var(--ok)':dl>0?'var(--wr)':'var(--dn)')+';font-weight:600">'+dl+'d</td>';tb.appendChild(tr)})}};
+
+/* ======== COURSE DATA (12 MODULES) ======== */
+const MODS=[
+{id:1,title:"Module 1: HTML5 Fundamentals",diff:"Beginner",time:15,prereq:null,
+content:"HTML is the backbone of every web page. Learn semantic tags, forms, tables, accessibility basics, and how to structure a proper HTML5 document with DOCTYPE, head, and body sections.",
+code:'<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>My First Page</title>\n</head>\n<body>\n  <header>\n    <h1>Welcome to Web Dev</h1>\n    <nav>\n      <a href="#about">About</a>\n      <a href="#contact">Contact</a>\n    </nav>\n  </header>\n  <main>\n    <section id="about">\n      <h2>About Me</h2>\n      <p>I am learning <strong>full stack</strong> development!</p>\n      <ul>\n        <li>HTML</li>\n        <li>CSS</li>\n        <li>JavaScript</li>\n      </ul>\n    </section>\n    <form>\n      <label for="name">Name:</label>\n      <input type="text" id="name" required>\n      <button type="submit">Submit</button>\n    </form>\n  </main>\n  <footer>\n    <p>&copy; 2025 FullStack Academy</p>\n  </footer>\n</body>\n</html>',
+questions:[
+{q:"Which tag defines the main content of a page?",options:["<div>","<main>","<body>","<section>"],correct:1,explain:"<main> is the semantic tag for primary content."},
+{q:"What does DOCTYPE html declare?",options:["HTML version","CSS version","JS version","Encoding"],correct:0,explain:"It tells the browser this is an HTML5 document."},
+{q:"Which input type shows a date picker?",options:["text","date","calendar","datetime"],correct:1,explain:'type="date" shows a native date picker.'},
+{q:"What attribute makes a form field required?",options:["mandatory","required","must","needed"],correct:1,explain:'The required attribute prevents submission if empty.'},
+{q:"Which tag is used for navigation links?",options:["<nav>","<menu>","<links>","<navigate>"],correct:0,explain:"<nav> is the semantic element for navigation."}
+]},
+{id:2,title:"Module 2: CSS3 Styling",diff:"Beginner",time:15,prereq:1,
+content:"CSS controls the visual presentation of HTML. Learn selectors, the box model, Flexbox, CSS Grid, animations, transitions, and responsive units like rem, vw, and vh.",
+code:'body {\n  font-family: Arial, sans-serif;\n  margin: 0;\n  background: #1a1a2e;\n  color: #eee;\n}\n\n.container {\n  max-width: 800px;\n  margin: 0 auto;\n  padding: 20px;\n}\n\n.card {\n  background: #16213e;\n  border-radius: 12px;\n  padding: 24px;\n  margin: 16px 0;\n  box-shadow: 0 4px 12px rgba(0,0,0,0.3);\n  transition: transform 0.2s ease;\n}\n\n.card:hover {\n  transform: translateY(-4px);\n}\n\n.flex-row {\n  display: flex;\n  gap: 16px;\n  flex-wrap: wrap;\n}\n\n.flex-row > * {\n  flex: 1 1 200px;\n}\n\n@keyframes fadeIn {\n  from { opacity: 0; transform: translateY(20px); }\n  to { opacity: 1; transform: translateY(0); }\n}\n\n.animate {\n  animation: fadeIn 0.6s ease forwards;\n}',
+questions:[
+{q:"Which property creates space inside an element?",options:["margin","padding","gap","spacing"],correct:1,explain:"Padding creates inner space; margin creates outer space."},
+{q:"What display value creates a flex container?",options:["flexible","flex","inline-flex","block-flex"],correct:1,explain:'display: flex creates a flex container.'},
+{q:"Which CSS property animates over time?",options:["animation","transition","transform","motion"],correct:1,explain:"transition animates property changes smoothly."},
+{q:"What does 1rem equal?",options:["16px always","Root font-size","Parent font-size","12px"],correct:1,explain:"1rem equals the root (html) element font-size."},
+{q:"Which Grid property defines columns?",options:["grid-columns","grid-template-columns","column-template","grid-cols"],correct:1,explain:"grid-template-columns defines the column structure."}
+]},
+{id:3,title:"Module 3: JavaScript Basics",diff:"Beginner",time:20,prereq:2,
+content:"JavaScript makes web pages interactive. Learn variables, data types, functions, DOM manipulation, event handling, arrays, and objects.",
+code:'// Variables\nconst name = "FullStack Student";\nlet score = 0;\n\n// DOM Manipulation\nconst heading = document.querySelector("h1");\nheading.textContent = "Hello, " + name + "!";\n\n// Event Handling\ndocument.querySelector("button")\n  .addEventListener("click", function() {\n    score++;\n    heading.textContent = "Score: " + score;\n  });\n\n// Arrays & Methods\nconst fruits = ["apple", "banana", "cherry"];\nfruits.push("date");\nconsole.log(fruits.map(f => f.toUpperCase()));\n\n// Objects\nconst student = {\n  name: "Alex",\n  grade: "A",\n  greet() {\n    return `Hi, I am ${this.name}`;\n  }\n};\nconsole.log(student.greet());',
+questions:[
+{q:"Which keyword declares a constant?",options:["var","let","const","define"],correct:2,explain:"const declares a variable that cannot be reassigned."},
+{q:"How do you select an element by ID?",options:["document.get()","document.querySelector('#id')","document.find('#id')","document.select('#id')"],correct:1,explain:"querySelector with # selects by ID."},
+{q:"Which array method adds to the end?",options:["push()","pop()","shift()","unshift()"],correct:0,explain:"push() adds elements to the end of an array."},
+{q:"What does addEventListener do?",options:["Creates an element","Attaches a function to an event","Removes an element","Styles an element"],correct:1,explain:"It runs a function when an event occurs."},
+{q:"Template literals use which character?",options:["Single quotes","Double quotes","Backticks","Parentheses"],correct:2,explain:"Backticks enable ${} interpolation."}
+]},
+{id:4,title:"Module 4: JavaScript Advanced",diff:"Intermediate",time:20,prereq:3,
+content:"Master ES6+ features: arrow functions, destructuring, spread operator, promises, async/await, Fetch API, modules, closures, and regular expressions.",
+code:'// Arrow Functions\nconst double = x => x * 2;\nconst add = (a, b) => a + b;\n\n// Destructuring\nconst { name, age } = { name: "Alex", age: 25 };\nconst [first, ...rest] = [1, 2, 3, 4];\n\n// Spread Operator\nconst arr1 = [1, 2];\nconst arr2 = [...arr1, 3, 4];\n\n// Async/Await + Fetch\nasync function getUsers() {\n  try {\n    const res = await fetch("https://api.example.com/users");\n    const data = await res.json();\n    console.log(data);\n  } catch (err) {\n    console.error("Error:", err);\n  }\n}\n\n// Closure\nfunction counter() {\n  let count = 0;\n  return () => ++count;\n}\nconst c = counter();\nconsole.log(c()); // 1\nconsole.log(c()); // 2\n\n// Promise\nconst wait = ms => new Promise(\n  resolve => setTimeout(resolve, ms)\n);\nasync function run() {\n  await wait(1000);\n  console.log("Done!");\n}',
+questions:[
+{q:"What does async/await simplify?",options:["Loops","Promises/callbacks","Variables","CSS"],correct:1,explain:"async/await makes promise chains readable."},
+{q:"What does the spread operator (...) do?",options:["Deletes items","Copies/expands arrays","Creates loops","Declares variables"],correct:1,explain:"Spread expands an array or object."},
+{q:"What is a closure?",options:["A loop","A function that remembers its scope","A CSS rule","An HTML tag"],correct:1,explain:"Closures retain access to outer scope variables."},
+{q:"Fetch API returns a?",options:["String","Array","Promise","Number"],correct:2,explain:"fetch() returns a Promise that resolves to a Response."},
+{q:"How to destructure a named property?",options:["const [x] = obj","const {x} = obj","const x = obj[]","const x <- obj"],correct:1,explain:"const {x} = obj extracts property x."}
+]},
+{id:5,title:"Module 5: Responsive Web Design",diff:"Intermediate",time:15,prereq:2,
+content:"Build websites that work on all devices. Learn mobile-first design, media queries, responsive images, viewport meta, and CSS framework concepts.",
+code:'/* Mobile First Approach */\n.container {\n  padding: 16px;\n  width: 100%;\n}\n\n.grid {\n  display: grid;\n  grid-template-columns: 1fr;\n  gap: 16px;\n}\n\n/* Tablet */\n@media (min-width: 768px) {\n  .container { padding: 24px; }\n  .grid { grid-template-columns: 1fr 1fr; }\n  .hide-mobile { display: block; }\n}\n\n/* Desktop */\n@media (min-width: 1024px) {\n  .container {\n    max-width: 1200px;\n    margin: 0 auto;\n    padding: 32px;\n  }\n  .grid { grid-template-columns: repeat(3, 1fr); }\n}\n\n/* Responsive Images */\nimg {\n  max-width: 100%;\n  height: auto;\n  display: block;\n}\n\n/* Responsive Typography */\nh1 { font-size: clamp(1.5rem, 4vw, 3rem); }\np  { font-size: clamp(0.9rem, 2vw, 1.1rem); }',
+questions:[
+{q:"What does mobile-first mean?",options:["Design for desktop first","Design for mobile first, scale up","Only for mobile","No responsive design"],correct:1,explain:"Mobile-first starts with mobile styles and adds complexity."},
+{q:"Which meta tag enables responsive design?",options:["viewport","responsive","mobile","screen"],correct:0,explain:'<meta name="viewport"> controls responsive behavior.'},
+{q:"What CSS function scales text fluidly?",options:["scale()","clamp()","fluid()","responsive()"],correct:1,explain:"clamp(min, preferred, max) scales text between limits."},
+{q:"Media queries use which @ rule?",options:["@import","@media","@screen","@responsive"],correct:1,explain:"@media applies styles at specific breakpoints."},
+{q:"max-width: 100% on images does what?",options:["Stretches image","Prevents overflow","Sets exact size","Crops image"],correct:1,explain:"It prevents images from exceeding their container."}
+]},
+{id:6,title:"Module 6: React.js Fundamentals",diff:"Intermediate",time:25,prereq:4,
+content:"React is a JavaScript library for building user interfaces. Learn components, JSX, props, state with useState, side effects with useEffect, and event handling.",
+code:'import React, { useState, useEffect } from "react";\n\nfunction App() {\n  const [count, setCount] = useState(0);\n  const [users, setUsers] = useState([]);\n\n  useEffect(() => {\n    fetch("https://jsonplaceholder.typicode.com/users")\n      .then(res => res.json())\n      .then(data => setUsers(data.slice(0, 5)));\n  }, []);\n\n  return (\n    <div style={{ padding: 20 }}>\n      <h1>Count: {count}</h1>\n      <button onClick={() => setCount(count + 1)}>\n        Increment\n      </button>\n      <button onClick={() => setCount(0)}>\n        Reset\n      </button>\n\n      <h2>Users</h2>\n      <ul>\n        {users.map(user => (\n          <li key={user.id}>\n            {user.name} - {user.email}\n          </li>\n        ))}\n      </ul>\n    </div>\n  );\n}\n\nexport default App;',
+questions:[
+{q:"What does useState return?",options:["A value only","[value, setter function]","An object","A promise"],correct:1,explain:"useState returns [currentState, setStateFunction]."},
+{q:"When does useEffect run with []?",options:["Every render","Only on mount","Never","On click"],correct:1,explain:"Empty dependency array means run once on mount."},
+{q:"What is JSX?",options:["A new language","JavaScript XML syntax","A CSS framework","A database"],correct:1,explain:"JSX lets you write HTML-like syntax in JavaScript."},
+{q:"Why use key in lists?",options:["For styling","For unique identification","For sorting","For counting"],correct:1,explain:"Keys help React identify which items changed."},
+{q:"How to pass data to a component?",options:["Through state","Through props","Through CSS","Through HTML"],correct:1,explain:"Props pass data from parent to child components."}
+]},
+{id:7,title:"Module 7: Node.js & Express.js",diff:"Intermediate",time:20,prereq:4,
+content:"Node.js runs JavaScript on the server. Express.js is the most popular web framework. Learn server setup, routing, middleware, request/response handling.",
+code:'const express = require("express");\nconst app = express();\nconst PORT = 3000;\n\n// Middleware\napp.use(express.json());\napp.use((req, res, next) => {\n  console.log(`${req.method} ${req.url}`);\n  next();\n});\n\n// In-memory data\nlet users = [\n  { id: 1, name: "Alex", email: "alex@mail.com" },\n  { id: 2, name: "Sam", email: "sam@mail.com" }\n];\n\n// GET all users\napp.get("/api/users", (req, res) => {\n  res.json(users);\n});\n\n// POST new user\napp.post("/api/users", (req, res) => {\n  const user = { id: Date.now(), ...req.body };\n  users.push(user);\n  res.status(201).json(user);\n});\n\n// DELETE user\napp.delete("/api/users/:id", (req, res) => {\n  users = users.filter(u => u.id != req.params.id);\n  res.json({ message: "Deleted" });\n});\n\napp.listen(PORT, () => {\n  console.log(`Server running on port ${PORT}`);\n});',
+questions:[
+{q:"What does express.json() middleware do?",options:["Serves HTML","Parses JSON request bodies","Creates database","Handles errors"],correct:1,explain:"express.json() parses incoming JSON payloads."},
+{q:"Which HTTP method creates a resource?",options:["GET","POST","PUT","DELETE"],correct:1,explain:"POST creates new resources on the server."},
+{q:"What does req.params contain?",options:["Query strings","URL parameters","Form data","Headers"],correct:1,explain:"req.params has route parameters like :id."},
+{q:"What status code means Created?",options:["200","201","404","500"],correct:1,explain:"201 Created is the standard response for successful creation."},
+{q:"What is middleware in Express?",options:["A database","Functions that process requests","A template engine","A testing tool"],correct:1,explain:"Middleware functions execute during request processing."}
+]},
+{id:8,title:"Module 8: Databases (MongoDB & SQL)",diff:"Intermediate",time:20,prereq:7,
+content:"Learn both SQL and NoSQL databases. SQL basics (SELECT, INSERT, UPDATE, DELETE), MongoDB with Mongoose, CRUD operations, and database design principles.",
+code:'// MongoDB with Mongoose\nconst mongoose = require("mongoose");\n\n// Schema Definition\nconst userSchema = new mongoose.Schema({\n  name: { type: String, required: true },\n  email: { type: String, unique: true },\n  age: { type: Number, min: 0 },\n  createdAt: { type: Date, default: Date.now }\n});\n\nconst User = mongoose.model("User", userSchema);\n\n// CRUD Operations\nasync function main() {\n  await mongoose.connect("mongodb://localhost/mydb");\n\n  // CREATE\n  const user = await User.create({\n    name: "Alex", email: "alex@mail.com", age: 25\n  });\n\n  // READ\n  const all = await User.find();\n  const one = await User.findOne({ name: "Alex" });\n\n  // UPDATE\n  await User.updateOne(\n    { name: "Alex" },\n    { $set: { age: 26 } }\n  );\n\n  // DELETE\n  await User.deleteOne({ name: "Alex" });\n}\n\n// SQL Equivalent:\n// CREATE TABLE users (id INT, name VARCHAR, email VARCHAR);\n// INSERT INTO users VALUES (1, \'Alex\', \'alex@mail.com\');\n// SELECT * FROM users WHERE name = \'Alex\';\n// UPDATE users SET age = 26 WHERE name = \'Alex\';\n// DELETE FROM users WHERE name = \'Alex\';',
+questions:[
+{q:"MongoDB is what type of database?",options:["SQL","NoSQL/Document","Graph","Key-Value only"],correct:1,explain:"MongoDB is a NoSQL document database using JSON-like docs."},
+{q:"Which SQL command retrieves data?",options:["INSERT","SELECT","UPDATE","DELETE"],correct:1,explain:"SELECT retrieves data from SQL tables."},
+{q:"What does mongoose.Schema define?",options:["Routes","Document structure","Server port","Styling"],correct:1,explain:"Schema defines the structure of MongoDB documents."},
+{q:"Which Mongoose method creates a document?",options:["find()","create()","update()","delete()"],correct:1,explain:"create() inserts a new document into the collection."},
+{q:"What does unique: true do in a schema?",options:["Makes field required","Prevents duplicate values","Indexes the field","Hides the field"],correct:1,explain:"unique: true ensures no two documents have the same value."}
+]},
+{id:9,title:"Module 9: REST API Design",diff:"Advanced",time:20,prereq:7,
+content:"Design professional RESTful APIs. Learn HTTP methods, status codes, endpoint naming, JWT authentication, input validation, and API documentation.",
+code:'const express = require("express");\nconst jwt = require("jsonwebtoken");\nconst app = express();\napp.use(express.json());\n\nconst SECRET = "my-secret-key";\n\n// Auth Middleware\nfunction auth(req, res, next) {\n  const token = req.headers.authorization?.split(" ")[1];\n  if (!token) return res.status(401).json({ error: "No token" });\n  try {\n    req.user = jwt.verify(token, SECRET);\n    next();\n  } catch {\n    res.status(403).json({ error: "Invalid token" });\n  }\n}\n\n// Login - returns JWT\napp.post("/api/login", (req, res) => {\n  const { username, password } = req.body;\n  if (username === "admin" && password === "pass") {\n    const token = jwt.sign(\n      { username, role: "admin" },\n      SECRET,\n      { expiresIn: "1h" }\n    );\n    res.json({ token });\n  } else {\n    res.status(401).json({ error: "Bad credentials" });\n  }\n});\n\n// Protected route\napp.get("/api/profile", auth, (req, res) => {\n  res.json({ user: req.user, message: "Protected data" });\n});\n\napp.listen(3000);',
+questions:[
+{q:"What does 401 Unauthorized mean?",options:["Server error","Authentication required","Page not found","Forbidden"],correct:1,explain:"401 means the client must authenticate first."},
+{q:"JWT stands for?",options:["Java Web Token","JSON Web Token","JavaScript Web Tool","JSON Web Type"],correct:1,explain:"JWT is a compact, URL-safe token format."},
+{q:"Which HTTP method updates a resource fully?",options:["POST","PATCH","PUT","UPDATE"],correct:2,explain:"PUT replaces the entire resource."},
+{q:"What does the auth middleware check?",options:["Database","Valid JWT token","Form data","Cookies only"],correct:1,explain:"Auth middleware verifies the JWT in the Authorization header."},
+{q:"REST API endpoints should use?",options:["Verbs","Nouns (resources)","Query strings only","HTML"],correct:1,explain:"REST endpoints represent resources (nouns), not actions."}
+]},
+{id:10,title:"Module 10: Git & Version Control",diff:"Beginner",time:15,prereq:null,
+content:"Git tracks changes in your code. Learn init, add, commit, push, pull, branching, merging, conflict resolution, and GitHub collaboration.",
+code:'# Git Basics\ngit init                    # Initialize repo\ngit add .                   # Stage all changes\ngit commit -m "First commit" # Commit staged changes\n\n# Remote Repository\ngit remote add origin https://github.com/user/repo.git\ngit push -u origin main     # Push to remote\ngit pull origin main         # Pull latest changes\n\n# Branching\ngit checkout -b feature-login   # Create + switch branch\ngit add .\ngit commit -m "Add login feature"\ngit checkout main               # Switch to main\ngit merge feature-login         # Merge branch\n\n# Conflict Resolution\ngit merge feature-branch\n# Edit conflicted files\n# <<<<<<< HEAD\n# Your changes\n# =======\n# Their changes\n# >>>>>>> feature-branch\ngit add .\ngit commit -m "Resolve conflict"\n\n# Useful Commands\ngit log --oneline           # View commit history\ngit status                  # Check current state\ngit diff                    # See unstaged changes\ngit stash                   # Temporarily save changes\ngit stash pop               # Restore stashed changes',
+questions:[
+{q:"What does git add do?",options:["Creates a file","Stages changes for commit","Deletes a file","Pushes to remote"],correct:1,explain:"git add stages changes to be included in the next commit."},
+{q:"How to create a new branch?",options:["git new branch","git checkout -b name","git branch create","git add branch"],correct:1,explain:"git checkout -b creates and switches to a new branch."},
+{q:"What does git pull do?",options:["Pushes code","Fetches and merges from remote","Deletes remote","Creates branch"],correct:1,explain:"git pull = git fetch + git merge."},
+{q:"What marks a merge conflict?",options:["***","###","<<<<<<<","ERROR"],correct:2,explain:"<<<<<<< marks the start of a conflict section."},
+{q:"What does git stash do?",options:["Deletes files","Temporarily saves uncommitted changes","Pushes to remote","Creates backup"],correct:1,explain:"git stash saves changes temporarily without committing."}
+]},
+{id:11,title:"Module 11: Deployment",diff:"Advanced",time:20,prereq:9,
+content:"Deploy your applications to the world. Learn Vercel, Netlify, Docker basics, environment variables, CI/CD pipelines, and domain setup.",
+code:'# Dockerfile\nFROM node:18-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nEXPOSE 3000\nCMD ["node", "server.js"]\n\n# docker-compose.yml\nversion: "3"\nservices:\n  web:\n    build: .\n    ports:\n      - "3000:3000"\n    environment:\n      - NODE_ENV=production\n      - DB_HOST=mongo\n    depends_on:\n      - mongo\n  mongo:\n    image: mongo:6\n    ports:\n      - "27017:27017"\n    volumes:\n      - mongo-data:/data/db\n\nvolumes:\n  mongo-data:\n\n# Environment Variables (.env)\n# PORT=3000\n# DB_URI=mongodb://localhost/mydb\n# JWT_SECRET=my-secret\n# NODE_ENV=production\n\n# GitHub Actions CI/CD (.github/workflows/deploy.yml)\n# name: Deploy\n# on:\n#   push:\n#     branches: [main]\n# jobs:\n#   deploy:\n#     runs-on: ubuntu-latest\n#     steps:\n#       - uses: actions/checkout@v3\n#       - run: npm install\n#       - run: npm test\n#       - run: npm run build',
+questions:[
+{q:"What does Docker do?",options:["Styles pages","Containers applications","Edits code","Tests apps"],correct:1,explain:"Docker packages apps into portable containers."},
+{q:"Where should secrets be stored?",options:["In code","Environment variables","Public repo","HTML files"],correct:1,explain:"Secrets go in .env files (never committed to Git)."},
+{q:"What is CI/CD?",options:["CSS framework","Continuous Integration/Deployment","Database tool","Testing library"],correct:1,explain:"CI/CD automates testing and deployment pipelines."},
+{q:"What does EXPOSE do in Dockerfile?",options:["Opens firewall","Documents which port the app uses","Starts server","Installs packages"],correct:1,explain:"EXPOSE documents the port but doesn't publish it."},
+{q:"Vercel is best for deploying?",options:["Databases","Static sites and Next.js","Docker containers","Mobile apps"],correct:1,explain:"Vercel specializes in frontend and Next.js deployment."}
+]},
+{id:12,title:"Module 12: Full Stack Project",diff:"Advanced",time:30,prereq:11,
+content:"Build a complete MERN stack application from scratch. Plan architecture, build the backend API, create the React frontend, connect everything, test, and deploy.",
+code:'// === BACKEND (server.js) ===\nconst express = require("express");\nconst cors = require("cors");\nconst app = express();\napp.use(cors());\napp.use(express.json());\n\nlet tasks = [];\n\napp.get("/api/tasks", (req, res) => res.json(tasks));\napp.post("/api/tasks", (req, res) => {\n  const task = { id: Date.now(), ...req.body, done: false };\n  tasks.push(task);\n  res.status(201).json(task);\n});\napp.patch("/api/tasks/:id", (req, res) => {\n  const task = tasks.find(t => t.id == req.params.id);\n  if (task) { task.done = !task.done; res.json(task); }\n  else res.status(404).json({ error: "Not found" });\n});\napp.delete("/api/tasks/:id", (req, res) => {\n  tasks = tasks.filter(t => t.id != req.params.id);\n  res.json({ message: "Deleted" });\n});\napp.listen(3000);\n\n// === FRONTEND (App.jsx) ===\nimport { useState, useEffect } from "react";\nfunction App() {\n  const [tasks, setTasks] = useState([]);\n  const [text, setText] = useState("");\n  useEffect(() => {\n    fetch("http://localhost:3000/api/tasks")\n      .then(r => r.json()).then(setTasks);\n  }, []);\n  const add = async () => {\n    const r = await fetch("http://localhost:3000/api/tasks", {\n      method: "POST",\n      headers: { "Content-Type": "application/json" },\n      body: JSON.stringify({ text })\n    });\n    setTasks([...tasks, await r.json()]);\n    setText("");\n  };\n  return (\n    <div>\n      <h1>Task Manager</h1>\n      <input value={text} onChange={e => setText(e.target.value)} />\n      <button onClick={add}>Add</button>\n      {tasks.map(t => (\n        <div key={t.id}>{t.text} {t.done ? "✅" : "⬜"}</div>\n      ))}\n    </div>\n  );\n}',
+questions:[
+{q:"MERN stack includes which technologies?",options:["MySQL, Express, React, Node","MongoDB, Express, React, Node","MongoDB, Ember, React, .NET","MEAN with React"],correct:1,explain:"MERN = MongoDB, Express, React, Node.js."},
+{q:"Why use cors() middleware?",options:["For security","Allow cross-origin requests","Parse JSON","Serve files"],correct:1,explain:"cors() enables requests from different origins."},
+{q:"What does useEffect with [] do in React?",options:["Runs every render","Runs once on mount","Never runs","Runs on click"],correct:1,explain:"Empty dependency array means run only on mount."},
+{q:"PATCH vs PUT difference?",options:["PATCH updates all fields","PATCH updates partial fields","No difference","PATCH deletes"],correct:1,explain:"PATCH partially updates; PUT fully replaces."},
+{q:"What is the purpose of the key prop?",options:["Encryption","Unique identification in lists","Styling","Routing"],correct:1,explain:"Keys help React track list items efficiently."}
+]}
+];
+
+const BADGES=[
+{id:'first',name:'First Steps',icon:'🎯',desc:'Log in',check:s=>s.isLoggedIn},
+{id:'html',name:'HTML Hero',icon:'🏗️',desc:'Complete Module 1',check:s=>s.progress[1]&&s.progress[1].completed},
+{id:'css',name:'CSS Master',icon:'🎨',desc:'Complete Module 2',check:s=>s.progress[2]&&s.progress[2].completed},
+{id:'js',name:'JS Ninja',icon:'⚡',desc:'Complete Module 4',check:s=>s.progress[4]&&s.progress[4].completed},
+{id:'react',name:'React Builder',icon:'⚛️',desc:'Complete Module 6',check:s=>s.progress[6]&&s.progress[6].completed},
+{id:'api',name:'API Architect',icon:'🔌',desc:'Complete Module 9',check:s=>s.progress[9]&&s.progress[9].completed},
+{id:'git',name:'Git Guru',icon:'🔀',desc:'Complete Module 10',check:s=>s.progress[10]&&s.progress[10].completed},
+{id:'half',name:'Halfway',icon:'⛰️',desc:'50% modules',check:s=>Object.values(s.progress).filter(p=>p.completed).length>=6},
+{id:'grad',name:'Graduate',icon:'🎓',desc:'All modules',check:s=>Object.values(s.progress).every(p=>p.completed)},
+{id:'quiz',name:'Perfect Score',icon:'💯',desc:'100% on quiz',check:s=>Object.values(s.progress).some(p=>p.pct===100)},
+{id:'streak',name:'3-Day Streak',icon:'🔥',desc:'3 day streak',check:s=>s.streak>=3},
+{id:'night',name:'Night Owl',icon:'🦉',desc:'Study past 10PM',check:s=>s.studiedLate}
+];
+
+/* ======== STATE ======== */
+function defS(){return{isLoggedIn:false,studentId:null,studentName:null,secondsActive:0,theme:'dark',progress:{},bookmarks:{},notes:{},streak:0,lastLogin:null,achievements:[],studiedLate:false,speedRun:false}}
+function loadS(){try{return JSON.parse(localStorage.getItem('fsSess'))||defS()}catch(e){return defS()}}
+let S=loadS();
+function save(){localStorage.setItem('fsSess',JSON.stringify(S));updateUI();showSV()}
+function showSV(){const e=document.getElementById('svInd');if(!e)return;e.innerHTML='<span class="sv-dot sv"></span> Saving...';setTimeout(()=>{e.innerHTML='<span class="sv-dot"></span> Saved'},500)}
+
+function T(m,t='inf'){const w=document.getElementById('tw');const d=document.createElement('div');d.className='tst '+t;d.textContent=m;w.appendChild(d);requestAnimationFrame(()=>d.classList.add('show'));setTimeout(()=>{d.classList.remove('show');setTimeout(()=>d.remove(),300)},2500)}
+const UI={togTheme(){const t=document.documentElement.getAttribute('data-theme');document.documentElement.setAttribute('data-theme',t==='light'?'dark':'light')},openMdl(id){document.getElementById(id).classList.add('open')},closeMdl(id){document.getElementById(id).classList.remove('open')}};
+
+/* ======== NAVIGATION ======== */
+const vT={dash:'Dashboard',ide:'Live Editor',courses:'Curriculum',reports:'Analytics',achievements:'Achievements',instructor:'Instructor'};
+function switchV(vid,el){document.querySelectorAll('.vw').forEach(v=>v.classList.remove('act'));document.querySelectorAll('.nav li').forEach(l=>l.classList.remove('act'));document.getElementById('v-'+vid).classList.add('act');if(el)el.classList.add('act');document.getElementById('pgT').textContent=vT[vid]||vid;
+if(vid==='dash')Dash.render();if(vid==='ide')IDE.init();if(vid==='courses')Courses.renderList();if(vid==='reports')Reports.render();if(vid==='achievements')Achiev.render();if(vid==='instructor')Instr.render()}
+document.querySelectorAll('.nav li').forEach(li=>{li.addEventListener('click',()=>switchV(li.dataset.v,li))});
+
+/* ======== UI UPDATE ======== */
+function updateUI(){
+document.getElementById('dispName').textContent=S.isLoggedIn?S.studentName:'Guest';
+const rb=document.getElementById('roleBadge'),nb=document.getElementById('navInstr'),ab=document.getElementById('authBtn');
+if(S.isLoggedIn){rb.innerHTML='<span class="badge" style="background:var(--ok)">Active</span>';nb.style.display='none';ab.textContent='🚪 Logout'}else{rb.innerHTML='<span class="badge" style="background:var(--dn)">Logged Out</span>';nb.style.display='none';ab.textContent='🔐 Login'}
+let done=0,passed=0,ev=0;Object.values(S.progress).forEach(p=>{if(p.completed)done++;if(p.score==='Passed')passed++;if(p.score!=='Pending')ev++});
+document.getElementById('sDone').textContent=done+'/'+MODS.length;document.getElementById('sScore').textContent=ev?Math.round(passed/ev*100)+'%':'0%';document.getElementById('sTime').textContent=Math.floor(S.secondsActive/60)+'m';document.getElementById('sProjects').textContent=Object.values(S.progress).filter(p=>p.completed&&p.score==='Passed').length;document.getElementById('sStreak').textContent=S.streak;
+document.getElementById('welcomeB').textContent=S.isLoggedIn?'Welcome back, '+S.studentName+'!':'Welcome to FullStack Academy';
+document.getElementById('authPr').innerHTML=S.isLoggedIn?'<button class="btn btn-dn" onclick="Auth.logout()">🚪 Logout</button>':'<button class="btn btn-ok" onclick="UI.openMdl(\'authModal\')">Log In</button>';
+if(S.isLoggedIn){BADGES.forEach(b=>{if(!S.achievements.includes(b.id)&&b.check(S)){S.achievements.push(b.id);T('🏆 '+b.name,'ok')}})}
+const db=document.getElementById('dashBadges');db.innerHTML='';BADGES.slice(0,8).forEach(b=>{const u=S.achievements.includes(b.id);db.innerHTML+='<div class="badge-card '+(u?'unlocked':'locked')+'"><span class="badge-icon">'+b.icon+'</span><div class="badge-name">'+b.name+'</div></div>'})}
+
+/* ======== AUTH ======== */
+document.getElementById('authBtn').onclick=()=>{S.isLoggedIn?Auth.logout():UI.openMdl('authModal')};
+const Auth={
+login(){const n=document.getElementById('authName').value.trim(),id=document.getElementById('authId').value.trim();if(!n||!id){T('Enter name and ID','er');return}
+S.isLoggedIn=true;S.studentId=id;S.studentName=n;MODS.forEach(m=>{if(!S.progress[m.id])S.progress[m.id]={completed:false,score:'Pending',pct:null,timeTaken:null}});
+const today=new Date().toDateString();if(S.lastLogin){const d=Math.floor((new Date(today)-new Date(S.lastLogin))/864e5);S.streak=d===1?S.streak+1:d>1?1:S.streak}else S.streak=1;S.lastLogin=today;if(new Date().getHours()>=22)S.studiedLate=true;
+save();UI.closeMdl('authModal');switchV('dash',document.querySelector('.nav li'));T('Welcome, '+n+'!','ok')},
+logout(){if(!confirm('Log out?'))return;S.isLoggedIn=false;S.studentId=null;S.studentName=null;save();switchV('dash',document.querySelector('.nav li'));T('Logged out','inf')}
+};
+
+/* ======== CODE EDITOR (LIVE PREVIEW) ======== */
+let cmEditors=[null,null,null],curTab=0;
+const defHTML='<!DOCTYPE html>\n<html>\n<head>\n  <title>My Page</title>\n</head>\n<body>\n  <h1>Hello World!</h1>\n  <p>Start editing to see live changes.</p>\n</body>\n</html>';
+const defCSS='body {\n  font-family: Arial, sans-serif;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  min-height: 100vh;\n  margin: 0;\n  background: linear-gradient(135deg, #667eea, #764ba2);\n  color: white;\n}\n\nh1 {\n  font-size: 3rem;\n  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);\n}\n\np {\n  font-size: 1.2rem;\n  opacity: 0.9;\n}';
+const defJS='console.log("Hello from FullStack Academy!");\n\ndocument.querySelector("h1")\n  .addEventListener("click", function() {\n    this.style.color = \n      this.style.color === "yellow" ? "white" : "yellow";\n  });';
+
+const IDE={
+init(){
+if(cmEditors[0])return;
+const cfg={lineNumbers:true,matchBrackets:true,autoCloseBrackets:true,styleActiveLine:true,indentUnit:2,tabSize:2,theme:'dracula',lineWrapping:false};
+cmEditors[0]=CodeMirror(document.getElementById('paneHTML'),{...cfg,mode:'htmlmixed',value:defHTML});
+cmEditors[1]=CodeMirror(document.getElementById('paneCSS'),{...cfg,mode:'css',value:defCSS});
+cmEditors[2]=CodeMirror(document.getElementById('paneJS'),{...cfg,mode:'javascript',value:defJS});
+cmEditors.forEach(cm=>{cm.on('change',()=>IDE.runPreview())});
+IDE.runPreview();
+},
+switchTab(i,el){curTab=i;document.querySelectorAll('.code-tab').forEach(t=>t.classList.remove('act'));if(el)el.classList.add('act');document.querySelectorAll('.editor-pane').forEach(p=>p.classList.remove('act'));document.getElementById(['paneHTML','paneCSS','paneJS'][i]).classList.add('act');setTimeout(()=>cmEditors[i]?.refresh(),10)},
+runPreview(){const html=cmEditors[0]?.getValue()||'';const css=cmEditors[1]?.getValue()||'';const js=cmEditors[2]?.getValue()||'';
+const full=html.replace('</head>','<style>'+css+'</style></head>').replace('</body>','<script>'+js+'<\/script></body>');
+const frame=document.getElementById('previewFrame');frame.srcdoc=full},
+resetCode(){cmEditors[0]?.setValue(defHTML);cmEditors[1]?.setValue(defCSS);cmEditors[2]?.setValue(defJS)},
+resize(w,el){document.querySelectorAll('.preview-device').forEach(d=>d.classList.remove('act'));if(el)el.classList.add('act');document.getElementById('previewPanel').style.maxWidth=w<1000?w+'px':'none'}
+};
+
+/* ======== CURRICULUM ======== */
+let activeMod=null,qTimer=null,qStart=0;
+const Courses={
+renderList(){const w=document.getElementById('modListW');w.innerHTML='';document.getElementById('courseListV').style.display='';document.getElementById('lessonV').style.display='none';
+MODS.forEach((m,idx)=>{const p=S.progress[m.id]||{completed:false,score:'Pending'};const ok=!m.prereq||S.progress[m.prereq]?.completed;const dc=m.diff==='Beginner'?'tag-easy':m.diff==='Intermediate'?'tag-mid':'tag-hard';const sc=p.completed?(p.score==='Passed'?'var(--ok)':'var(--dn)'):'var(--tm)';
+const card=document.createElement('div');card.className='module-card'+(ok?'':' locked');const bm=S.bookmarks[m.id];
+card.innerHTML='<div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0"><span class="module-num'+(ok?'':' locked-icon')+'">'+(ok?idx+1:'🔒')+'</span><div style="min-width:0"><div style="display:flex;gap:6px;flex-wrap:wrap"><h4 style="font-size:.92rem">'+m.title+'</h4><span class="tag '+dc+'">'+m.diff+'</span><span class="tag tag-time">⏱'+m.time+'m</span></div><div style="font-size:.72rem;font-weight:700;color:'+sc+';margin-top:3px">'+(p.completed?p.score:'Incomplete')+(p.pct!=null?' ('+p.pct+'%)':'')+'</div></div></div><div style="display:flex;gap:6px;flex-shrink:0"><button class="bookmark-btn" onclick="event.stopPropagation();Courses.toggleBMById('+m.id+')">'+(bm?'🔖':'🏷️')+'</button>'+(ok?'<button class="btn btn-p btn-sm" onclick="Courses.open('+m.id+')">Start →</button>':'')+'</div>';
+w.appendChild(card)})},
+toggleBMById(id){S.bookmarks[id]?delete S.bookmarks[id]:S.bookmarks[id]=true;save();Courses.renderList()},
+toggleBM(){if(!activeMod)return;Courses.toggleBMById(activeMod.id);document.getElementById('bmLessonBtn').textContent=S.bookmarks[activeMod.id]?'🔖':'🏷️'},
+open(id){if(!S.isLoggedIn){T('Log in first','er');UI.openMdl('authModal');return}activeMod=MODS.find(m=>m.id===id);if(!activeMod)return;
+document.getElementById('courseListV').style.display='none';document.getElementById('lessonV').style.display='';
+document.getElementById('lessonTitle').textContent=activeMod.title;
+document.getElementById('lessonBody').innerHTML='<p style="margin-bottom:12px">'+activeMod.content+'</p><pre style="background:var(--bg);padding:14px;border-radius:8px;color:#e2e8f0;font-family:JetBrains Mono,monospace;font-size:.82rem;overflow-x:auto;border:1px solid var(--bd);line-height:1.5"><code>'+activeMod.code.replace(/</g,'&lt;')+'</code></pre>';
+document.getElementById('bmLessonBtn').textContent=S.bookmarks[activeMod.id]?'🔖':'🏷️';document.getElementById('modNote').value=S.notes[activeMod.id]||'';Quiz.start()},
+back(){document.getElementById('courseListV').style.display='';document.getElementById('lessonV').style.display='none';Courses.renderList()},
+openInIDE(){if(!activeMod)return;switchV('ide',document.querySelectorAll('.nav li')[1]);setTimeout(()=>{if(cmEditors[0]){cmEditors[0].setValue(activeMod.code);IDE.runPreview()}},200)},
+saveNote(){if(!activeMod)return;S.notes[activeMod.id]=document.getElementById('modNote').value;save()}
+};
+
+const Quiz={
+qs:[],qi:0,score:0,answers:[],
+start(){if(!activeMod)return;Quiz.qs=activeMod.questions.map(q=>{const o=[...q.options];const c=o[q.correct];for(let i=o.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[o[i],o[j]]=[o[j],o[i]]}return{...q,options:o,correct:o.indexOf(c)}});
+Quiz.qi=0;Quiz.score=0;Quiz.answers=[];qStart=Date.now();
+if(qTimer)clearInterval(qTimer);const tLim=(activeMod.time||15)*60;const te=document.getElementById('quizTimer');te.style.display='';
+qTimer=setInterval(()=>{const el=Math.floor((Date.now()-qStart)/1000);const l=tLim-el;if(l<=0){clearInterval(qTimer);Quiz.finish();return}const m=Math.floor(l/60),s=l%60;te.textContent=m+':'+String(s).padStart(2,'0');te.className='quiz-timer '+(l>120?'ok':l>30?'warn':'danger')},1000);
+Quiz.renderQ()},
+renderQ(){if(Quiz.qi>=Quiz.qs.length){Quiz.finish();return}const q=Quiz.qs[Quiz.qi];document.getElementById('quizProg').textContent='Q'+(Quiz.qi+1)+'/'+Quiz.qs.length;document.getElementById('quizQ').textContent=q.q;const oc=document.getElementById('quizOpts');oc.innerHTML='';const L=['A','B','C','D'];q.options.forEach((o,i)=>{oc.innerHTML+='<label class="quiz-option"><input type="radio" name="qopt" value="'+i+'"> <strong>'+L[i]+'.</strong> '+o+'</label>'});document.getElementById('quizNextBtn').textContent=Quiz.qi===Quiz.qs.length-1?'Submit':'Next'},
+next(){const s=document.querySelector('input[name="qopt"]:checked');if(!s){T('Select answer','er');return}const ch=parseInt(s.value),q=Quiz.qs[Quiz.qi];Quiz.answers.push({chosen:ch,correct:q.correct,ok:ch===q.correct,q:q.q,opts:q.options,exp:q.explain});if(ch===q.correct)Quiz.score++;Quiz.qi++;Quiz.renderQ()},
+finish(){if(qTimer)clearInterval(qTimer);document.getElementById('quizTimer').style.display='none';const tot=Quiz.qs.length,pct=Math.round(Quiz.score/tot*100),passed=pct>=60,tTaken=Math.floor((Date.now()-qStart)/1000);
+S.progress[activeMod.id]={completed:true,score:passed?'Passed':'Failed',pct,timeTaken:tTaken};if(tTaken<120&&passed)S.speedRun=true;save();
+const L=['A','B','C','D'];let h='<div style="text-align:center;margin-bottom:16px"><h3 style="color:'+(passed?'var(--ok)':'var(--dn)')+'">'+(passed?'Passed!':'Failed')+'</h3><p style="font-size:1.1rem;font-weight:700">'+Quiz.score+'/'+tot+' ('+pct+'%)</p><p style="color:var(--tm);font-size:.84rem">Time: '+Math.floor(tTaken/60)+'m'+tTaken%60+'s</p></div><div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">';
+Quiz.answers.forEach((a,i)=>{h+='<div style="padding:10px;border-radius:8px;border:1px solid '+(a.ok?'var(--ok)':'var(--dn)')+';background:'+(a.ok?'rgba(16,185,129,.06)':'rgba(239,68,68,.06)')+'"><div style="font-weight:600;font-size:.86rem">'+(i+1)+'. '+a.q+'</div><div style="font-size:.82rem">You: '+L[a.chosen]+'. '+a.opts[a.chosen]+' '+(a.ok?'✅':'❌')+'</div>'+(!a.ok?'<div style="font-size:.82rem;color:var(--tm)">Answer: '+L[a.correct]+'. '+a.opts[a.correct]+'</div>':'')+(a.exp?'<div style="font-size:.78rem;color:var(--tm)">💡 '+a.exp+'</div>':'')+'</div>'});
+h+='</div><div style="text-align:center"><button class="btn btn-p" onclick="Courses.back()">← Modules</button></div>';document.getElementById('quizBox').innerHTML=h}
+};
+
+/* ======== REPORTS ======== */
+let chS=null,chC=null;
+const Reports={render(){const sub=document.getElementById('repSub'),tb=document.getElementById('repBody');tb.innerHTML='';if(!S.isLoggedIn){sub.textContent='Log in to view.';return}sub.textContent=S.studentName+' ('+S.studentId+')';
+MODS.forEach(m=>{const p=S.progress[m.id]||{completed:false,score:'Pending'};const c=p.completed?(p.score==='Passed'?'var(--ok)':'var(--dn)'):'var(--tm)';const t=p.timeTaken?Math.floor(p.timeTaken/60)+'m'+p.timeTaken%60+'s':'-';const tr=document.createElement('tr');tr.style.borderBottom='1px solid var(--bd)';tr.innerHTML='<td style="padding:10px 14px;font-weight:500">'+m.title+'</td><td style="padding:10px 14px;color:'+c+'">'+(p.completed?'Done':'-')+'</td><td style="padding:10px 14px;font-weight:700;color:'+c+'">'+p.score+(p.pct!=null?' ('+p.pct+'%)':'')+'</td><td style="padding:10px 14px">'+t+'</td>';tb.appendChild(tr)});
+if(chS)chS.destroy();if(chC)chC.destroy();const labels=MODS.map((_,i)=>'M'+(i+1)),scores=MODS.map(m=>{const p=S.progress[m.id];return p?.pct||0}),colors=MODS.map(m=>{const p=S.progress[m.id];if(!p?.completed)return'#334155';return p.score==='Passed'?'#10b981':'#ef4444'});
+chS=new Chart(document.getElementById('chScores'),{type:'bar',data:{labels,datasets:[{label:'Score',data:scores,backgroundColor:colors,borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100,grid:{color:'rgba(255,255,255,.05)'}},x:{grid:{display:false}}}}});
+let d=0,f=0,pn=0;MODS.forEach(m=>{const p=S.progress[m.id];if(p?.completed){p.score==='Passed'?d++:f++}else pn++});
+chC=new Chart(document.getElementById('chComp'),{type:'doughnut',data:{labels:['Passed','Failed','Pending'],datasets:[{data:[d,f,pn],backgroundColor:['#10b981','#ef4444','#334155'],borderWidth:0}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{padding:12,color:'#7a85a8'}}}}})}};
+
+const Achiev={render(){const g=document.getElementById('achGrid');g.innerHTML='';BADGES.forEach(b=>{const u=S.achievements.includes(b.id);g.innerHTML+='<div class="badge-card '+(u?'unlocked':'locked')+'"><span class="badge-icon">'+b.icon+'</span><div class="badge-name">'+b.name+'</div><div style="font-size:.66rem;color:var(--tm)">'+b.desc+'</div></div>'})}};
+
+const Instr={render(){const tb=document.getElementById('rosterBody');tb.innerHTML='<tr><td colspan="4" style="padding:14px;text-align:center;color:var(--tm)">No students registered.</td></tr>';
+const sel=document.getElementById('instrModSel');sel.innerHTML='<option value="new">+ Create New Module</option>';MODS.forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.title;sel.appendChild(o)})},
+postAnn(){T('Announcement posted (local only)','ok')},
+modeChange(){const v=document.getElementById('instrModSel').value,db=document.getElementById('instrDelBtn');if(v==='new'){['editModId','editModTitle','editModContent','editModCode'].forEach(id=>document.getElementById(id).value='');document.getElementById('qBuilder').innerHTML='';for(let i=0;i<5;i++)Instr.addQ();db.style.display='none'}else{const m=MODS.find(x=>x.id==v);if(!m)return;document.getElementById('editModId').value=m.id;document.getElementById('editModTitle').value=m.title;document.getElementById('editModContent').value=m.content;document.getElementById('editModCode').value=m.code;document.getElementById('qBuilder').innerHTML='';m.questions.forEach(q=>Instr.addQ(q));db.style.display=''}},
+addQ(qd){const c=document.getElementById('qBuilder'),i=c.children.length+1,d=document.createElement('div');d.style.cssText='padding:12px;border:1px solid var(--bd);border-radius:8px;background:var(--sf)';d.innerHTML='<div style="font-size:.78rem;font-weight:700;color:var(--primary);margin-bottom:6px">Q'+i+'</div><input type="text" class="qt" placeholder="Question" value="'+(qd?qd.q.replace(/"/g,'&quot;'):'')+'"><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><input class="qo0" placeholder="A" value="'+(qd?qd.options[0].replace(/"/g,'&quot;'):'')+'"><input class="qo1" placeholder="B" value="'+(qd?qd.options[1].replace(/"/g,'&quot;'):'')+'"><input class="qo2" placeholder="C" value="'+(qd?qd.options[2].replace(/"/g,'&quot;'):'')+'"><input class="qo3" placeholder="D" value="'+(qd?qd.options[3].replace(/"/g,'&quot;'):'')+'"></div><div style="margin-top:6px;display:flex;gap:8px;align-items:center"><label style="font-size:.78rem">Correct(0-3):</label><input type="number" class="qc" min="0" max="3" value="'+(qd?qd.correct:0)+'" style="width:50px;margin-bottom:0"><input type="text" class="qe" placeholder="Explanation" value="'+(qd?.explain?qd.explain.replace(/"/g,'&quot;'):'')+'" style="flex:1;margin-bottom:0"></div>';c.appendChild(d)},
+save(){T('Module saved (instructor mode)','ok')},del(){T('Module deleted','inf')}};
+
+/* ======== DATA IO ======== */
+function dl(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click()}
+const DataIO={export(){dl('fullstack_backup_'+new Date().toISOString().split('T')[0]+'.json',JSON.stringify({S,exportedAt:new Date().toISOString()},null,2),'application/json');T('Exported','ok')},importF(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.S){S=d.S;save();switchV('dash',document.querySelector('.nav li'));T('Imported!','ok')}}catch(err){T('Invalid file','er')}};r.readAsText(f);e.target.value=''}};
+
+/* ======== COMMAND PALETTE ======== */
+const cmds=[{name:'Dashboard',action:()=>switchV('dash',document.querySelectorAll('.nav li')[0])},{name:'Live Editor',action:()=>switchV('ide',document.querySelectorAll('.nav li')[1])},{name:'Curriculum',action:()=>switchV('courses',document.querySelectorAll('.nav li')[2])},{name:'Analytics',action:()=>switchV('reports',document.querySelectorAll('.nav li')[3])},{name:'Achievements',action:()=>switchV('achievements',document.querySelectorAll('.nav li')[4])},{name:'Toggle Theme',action:UI.togTheme},{name:'Run Preview',action:()=>IDE.runPreview()},{name:'Export Data',action:()=>DataIO.export()}];
+const CMD={si:0,open(){document.getElementById('cmdO').classList.add('open');const i=document.getElementById('cmdIn');i.value='';i.focus();CMD.si=0;CMD.filt()},close(){document.getElementById('cmdO').classList.remove('open')},filt(){CMD.si=0;CMD.render(document.getElementById('cmdIn').value.toLowerCase())},render(q){const c=document.getElementById('cmdR');c.innerHTML='';cmds.filter(x=>x.name.toLowerCase().includes(q)).forEach((cmd,i)=>{const d=document.createElement('div');d.className='cmd-i'+(i===CMD.si?' sel':'');d.innerHTML='<span>'+cmd.name+'</span>';d.onclick=()=>{CMD.close();cmd.action()};c.appendChild(d)})},key(e){const items=document.querySelectorAll('.cmd-i');if(e.key==='Escape')CMD.close();else if(e.key==='ArrowDown'){e.preventDefault();CMD.si=Math.min(CMD.si+1,items.length-1);items.forEach((it,i)=>it.classList.toggle('sel',i===CMD.si))}else if(e.key==='ArrowUp'){e.preventDefault();CMD.si=Math.max(CMD.si-1,0);items.forEach((it,i)=>it.classList.toggle('sel',i===CMD.si))}else if(e.key==='Enter'&&items.length){CMD.close();items[CMD.si]?.click()}}};
+document.getElementById('cmdO').addEventListener('click',e=>{if(e.target.id==='cmdO')CMD.close()});
+
+/* ======== GLOBAL SHORTCUTS ======== */
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();CMD.open()}if(e.key==='Escape'){document.querySelectorAll('.mdl.open').forEach(m=>m.classList.remove('open'));CMD.close();document.getElementById('admPnl').classList.remove('open')}if(e.ctrlKey&&e.shiftKey&&e.key==='L'){e.preventDefault();Adm.open()}});
+
+/* ======== INIT ======== */
+function AppInit(){MODS.forEach(m=>{if(!S.progress[m.id])S.progress[m.id]={completed:false,score:'Pending',pct:null,timeTaken:null}});switchV('dash',document.querySelector('.nav li'));setInterval(()=>{if(S.isLoggedIn){S.secondsActive++;if(S.secondsActive%15===0)save()}},1000);save()}
+(async function boot(){const fp=await Lic.fp();document.getElementById('licFP').value=fp;if(localStorage.getItem(Lic.STOR+'_lk')==='1'){Lic.showExp();return}if(await Lic.check())Lic.unlock();else document.getElementById('licScr').style.display='flex'})();
+</script>
+</body>
+</html>

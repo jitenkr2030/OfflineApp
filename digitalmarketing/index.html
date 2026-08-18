@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DigiMktg Academy — Digital Marketing Course</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--primary:#f97316;--primary-h:#ea580c;--primary-s:rgba(249,115,22,.12);--bg:#0c0f1a;--sf:#131728;--card:#1a1f36;--tx:#e8ecf4;--tm:#7a85a8;--bd:#252a42;--ok:#10b981;--wr:#f59e06;--dn:#ef4444;--pk:#ec4899;--cy:#06b6d4;--rd:10px;--sh:0 4px 24px rgba(0,0,0,.3)}
+[data-theme="light"]{--primary:#ea580c;--primary-h:#c2410c;--primary-s:rgba(234,88,12,.08);--bg:#fef7ed;--sf:#ffffff;--card:#ffffff;--tx:#1c1917;--tm:#78716c;--bd:#e7e5e4;--ok:#059669;--wr:#d97706;--dn:#dc2626;--pk:#db2777;--cy:#0891b2;--sh:0 4px 24px rgba(0,0,0,.06)}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'DM Sans',system-ui,sans-serif}
+body{background:var(--bg);color:var(--tx);display:flex;height:100vh;overflow:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+#licScr{position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#0c0f1a,#1a0a2e,#0c0f1a);display:flex;align-items:center;justify-content:center}
+#licScr.hide{display:none}
+.lic-c{width:440px;max-width:92vw;background:rgba(26,31,54,.95);border:1px solid #252a42;border-radius:16px;padding:36px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.lic-hd{text-align:center;margin-bottom:24px}
+.lic-ic{width:56px;height:56px;background:linear-gradient(135deg,#f97316,#ec4899);border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:12px}
+.lic-f{margin-bottom:14px}
+.lic-f label{display:block;font-size:.82rem;font-weight:600;color:#94a3b8;margin-bottom:6px}
+.lic-f input{width:100%;padding:11px 14px;border:1px solid #334155;border-radius:8px;background:#0f1224;color:#e8ecf4;font-family:'JetBrains Mono',monospace;font-size:.88rem;outline:none}
+.lic-f input[readonly]{background:#0c0f1a;color:#7a85a8;font-size:.78rem}
+.lic-bt{width:100%;padding:12px;border:none;border-radius:8px;font-weight:600;font-size:.9rem;cursor:pointer;font-family:inherit;color:#fff}
+.lic-bt.p{background:linear-gradient(135deg,#f97316,#ec4899)}.lic-bt.p:hover{filter:brightness(1.1)}
+.lic-st{text-align:center;margin-top:14px;font-size:.82rem}.lic-st.ok{color:#34d399}.lic-st.er{color:#fbbf24}
+.lic-dv{display:flex;align-items:center;gap:12px;margin:18px 0;color:#475569;font-size:.78rem}.lic-dv::before,.lic-dv::after{content:'';flex:1;height:1px;background:#252a42}
+.lic-info{background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.2);border-radius:8px;padding:12px;font-size:.78rem;color:#94a3b8;line-height:1.5}
+#licExp{display:none;text-align:center}
+.lic-exp-ic{font-size:4rem;margin-bottom:16px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.95)}}
+.sb{width:264px;min-width:264px;background:var(--sf);border-right:1px solid var(--bd);display:flex;flex-direction:column}
+.brand{padding:18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--bd)}
+.brand-ic{width:36px;height:36px;background:linear-gradient(135deg,#f97316,#ec4899);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.brand-t{font-weight:700;font-size:.95rem;color:var(--primary)}
+.nav{list-style:none;padding:14px 10px;flex:1;overflow-y:auto}
+.nav li{padding:11px 14px;margin-bottom:3px;border-radius:8px;cursor:pointer;font-weight:500;font-size:.86rem;color:var(--tm);display:flex;align-items:center;gap:10px;transition:all .15s}
+.nav li:hover,.nav li.act{background:var(--primary-s);color:var(--primary)}.nav li.act{font-weight:600}
+.sess{padding:14px;background:var(--bg);border-top:1px solid var(--bd);font-size:.78rem}
+.badge{display:inline-block;padding:2px 10px;font-size:.72rem;font-weight:700;border-radius:5px;color:#fff}
+.mn{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.hdr{padding:12px 22px;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center}
+.hdr h2{font-size:1.05rem;font-weight:700}.hdr-ac{display:flex;align-items:center;gap:8px}
+.sv-ind{font-size:.75rem;color:var(--tm);display:flex;align-items:center;gap:5px}
+.sv-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block}.sv-dot.sv{background:var(--wr);animation:pulse .6s infinite}
+.cnt{flex:1;overflow:hidden}
+.vw{display:none;height:100%;overflow-y:auto;padding:22px}.vw.act{display:flex;flex-direction:column}
+.btn{border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-size:.84rem;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{filter:brightness(1.1)}.btn-p{background:var(--primary);color:#fff}.btn-ok{background:var(--ok);color:#fff}.btn-wr{background:var(--wr);color:#000}.btn-dn{background:var(--dn);color:#fff}.btn-gh{background:transparent;border:1px solid var(--bd);color:var(--tx)}.btn-sm{padding:5px 10px;font-size:.76rem}.btn-xs{padding:3px 8px;font-size:.7rem;border-radius:5px}
+input[type="text"],input[type="password"],input[type="number"],input[type="date"],input[type="email"],select,textarea.fc{width:100%;padding:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;margin-bottom:10px;font-size:.88rem;font-family:inherit;outline:none;transition:border .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--primary)}textarea.fc{resize:vertical;line-height:1.5}
+label.lbl{display:block;font-size:.84rem;font-weight:600;margin-bottom:5px;color:var(--tm)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--rd);padding:22px;margin-bottom:16px;box-shadow:var(--sh)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:20px}
+.st-c{background:var(--card);border:1px solid var(--bd);border-radius:var(--rd);padding:18px;text-align:center;position:relative;overflow:hidden}
+.st-c::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.st-c:nth-child(1)::before{background:var(--primary)}.st-c:nth-child(2)::before{background:var(--ok)}.st-c:nth-child(3)::before{background:var(--wr)}.st-c:nth-child(4)::before{background:var(--pk)}.st-c:nth-child(5)::before{background:var(--cy)}
+.st-c h3{font-size:1.5rem;font-weight:700;margin-bottom:2px}.st-c p{color:var(--tm);font-size:.82rem}
+.module-card{background:var(--sf);border:1px solid var(--bd);padding:16px;border-radius:var(--rd);display:flex;justify-content:space-between;align-items:center;transition:all .15s;gap:14px}
+.module-card:hover{border-color:var(--primary);box-shadow:0 0 0 1px var(--primary)}.module-card.locked{opacity:.55;pointer-events:none}
+.module-num{width:30px;height:30px;background:var(--primary);color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0}.module-num.locked-icon{background:var(--tm)}
+.tag{font-size:.68rem;padding:2px 7px;border-radius:4px;font-weight:600}
+.tag-easy{background:rgba(16,185,129,.15);color:var(--ok)}.tag-mid{background:rgba(245,158,6,.15);color:var(--wr)}.tag-hard{background:rgba(239,68,68,.12);color:var(--dn)}
+.tag-time{background:rgba(249,115,22,.12);color:var(--primary)}
+.bookmark-btn{cursor:pointer;font-size:1.1rem;background:none;border:none;padding:4px}
+.quiz-option{display:flex;align-items:center;gap:10px;font-size:.86rem;cursor:pointer;padding:10px 14px;background:var(--card);border:1px solid var(--bd);border-radius:8px}
+.quiz-option:hover{border-color:var(--primary)}.quiz-option input{accent-color:var(--primary)}
+.quiz-timer{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1rem;padding:4px 12px;border-radius:6px}
+.quiz-timer.ok{background:rgba(16,185,129,.15);color:var(--ok)}.quiz-timer.warn{background:rgba(245,158,6,.15);color:var(--wr)}.quiz-timer.danger{background:rgba(239,68,68,.15);color:var(--dn);animation:pulse .6s infinite}
+.badges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
+.badge-card{text-align:center;padding:14px 8px;border:1px solid var(--bd);border-radius:var(--rd);background:var(--sf)}
+.badge-card.unlocked{border-color:var(--wr);background:rgba(245,158,6,.05)}.badge-card.locked{opacity:.45;filter:grayscale(1)}
+.badge-icon{font-size:1.8rem;margin-bottom:4px;display:block}.badge-name{font-size:.76rem;font-weight:600}
+.charts-g{display:grid;grid-template-columns:1fr 1fr;gap:16px}.chart-c{background:var(--card);border:1px solid var(--bd);border-radius:var(--rd);padding:18px}.chart-c h4{font-size:.9rem;margin-bottom:12px;font-weight:600}
+.mdl{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1500;justify-content:center;align-items:center}
+.mdl.open{display:flex}.mdl-box{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:24px;max-width:500px;width:92%;box-shadow:var(--sh);max-height:85vh;overflow-y:auto}
+.tw{position:fixed;bottom:20px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:8px}
+.tst{padding:12px 18px;border-radius:10px;font-size:.84rem;font-weight:600;color:#fff;opacity:0;transform:translateY(12px);transition:all .3s;pointer-events:none;max-width:340px}
+.tst.show{opacity:1;transform:translateY(0)}.tst.ok{background:#059669}.tst.er{background:#dc2626}.tst.inf{background:var(--primary)}.tst.wr{background:#d97706}
+.streak-flame{font-size:1.2rem;animation:flicker 1s infinite alternate}
+@keyframes flicker{0%{transform:scale(1)}100%{transform:scale(1.15) rotate(5deg)}}
+.note-area{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:12px;color:var(--tx);font-size:.85rem;min-height:80px;resize:vertical;width:100%;font-family:inherit;outline:none}
+.cmd-o{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;justify-content:center;padding-top:15vh}
+.cmd-o.open{display:flex}.cmd-b{width:460px;max-height:360px;background:var(--card);border:1px solid var(--bd);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.cmd-b input{padding:14px 16px;border:none;border-bottom:1px solid var(--bd);background:transparent;color:var(--tx);font-size:.95rem;outline:none}
+.cmd-r{overflow-y:auto;flex:1}.cmd-i{padding:10px 16px;cursor:pointer;font-size:.86rem;display:flex;justify-content:space-between;transition:background .1s}
+.cmd-i:hover,.cmd-i.sel{background:var(--primary-s)}
+.lic-bar{display:flex;align-items:center;gap:8px;padding:5px 10px;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer}
+.lic-bar.act{background:rgba(16,185,129,.12);color:var(--ok)}.lic-bar.wrn{background:rgba(245,158,6,.12);color:var(--wr)}
+.lic-bar-dot{width:7px;height:7px;border-radius:50%;display:inline-block}.lic-bar.act .lic-bar-dot{background:var(--ok)}.lic-bar.wrn .lic-bar-dot{background:var(--wr);animation:pulse 1s infinite}
+#admPnl{position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center}
+#admPnl.open{display:flex}.adm-b{width:680px;max-width:95vw;max-height:90vh;background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:28px;overflow-y:auto}
+.adm-t{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:14px}.adm-t th{text-align:left;padding:8px 10px;background:var(--bg);border-bottom:1px solid var(--bd);font-weight:600;color:var(--tm)}.adm-t td{padding:8px 10px;border-bottom:1px solid var(--bd)}
+.gen-k{font-family:'JetBrains Mono',monospace;background:var(--bg);padding:8px 12px;border-radius:6px;font-size:.8rem;color:var(--ok);margin-top:12px;word-break:break-all;display:none;border:1px solid var(--bd)}
+/* Calculator tool */
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.calc-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rd);padding:16px}
+.calc-card h4{font-size:.88rem;margin-bottom:10px;color:var(--primary)}
+.calc-result{font-size:1.4rem;font-weight:700;color:var(--ok);margin-top:8px}
+@media(max-width:900px){.sb{width:56px;min-width:56px}.brand-t,.nav li span,.sess{display:none}.nav li{justify-content:center;padding:12px}.charts-g,.calc-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="licScr"><div class="lic-c">
+<div id="licAct"><div class="lic-hd"><div class="lic-ic">📣</div><h2>DigiMktg Academy</h2><p style="color:#7a85a8;font-size:.82rem;margin-top:4px">License Activation Required</p></div>
+<div class="lic-f"><label>Machine Fingerprint</label><input type="text" id="licFP" readonly></div>
+<div class="lic-f"><label>License Key</label><input type="text" id="licKey" placeholder="DMKT-XXXX-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false"></div>
+<button class="lic-bt p" onclick="Lic.activate()">Activate License</button>
+<div class="lic-st" id="licSt"></div>
+<div class="lic-dv">OR</div>
+<button class="lic-bt" style="background:#334155;color:#e8ecf4" onclick="Lic.showExp()">Demo Mode</button>
+<div class="lic-info" style="margin-top:18px"><strong>How to activate:</strong><br>1. Copy your Machine Fingerprint<br>2. Send it to the administrator<br>3. Receive a license key<br>4. Paste key and click Activate</div></div>
+<div id="licExp"><div style="text-align:center"><div class="lic-exp-ic">🔒</div><h1 style="color:#ef4444;font-size:1.5rem;margin-bottom:8px">License Expired</h1><p style="color:#7a85a8;font-size:.88rem;margin-bottom:20px">All data wiped. Contact admin for a new license.</p><button class="lic-bt p" onclick="Lic.showAct()" style="max-width:300px;margin:0 auto">Enter New License</button></div></div>
+</div></div>
+
+<div id="mainApp" style="display:none;width:100%;height:100%">
+<aside class="sb"><div>
+<div class="brand"><div class="brand-ic">📣</div><span class="brand-t">DigiMktg Academy</span></div>
+<ul class="nav" id="nav">
+<li class="act" data-v="dash">📊 <span>Dashboard</span></li>
+<li data-v="tools">🧮 <span>Marketing Tools</span></li>
+<li data-v="courses">📚 <span>Curriculum</span></li>
+<li data-v="reports">📈 <span>Analytics</span></li>
+<li data-v="achievements">🏆 <span>Achievements</span></li>
+</ul></div>
+<div class="sess"><div id="dispName" style="font-weight:600">Guest</div><div id="roleBadge" style="margin-top:4px"><span class="badge" style="background:var(--dn)">Logged Out</span></div><div id="licBarSess" style="margin-top:8px"></div></div></aside>
+
+<div class="mn">
+<header class="hdr"><h2 id="pgT">Dashboard</h2><div class="hdr-ac"><div class="sv-ind" id="svInd"><span class="sv-dot"></span> Saved</div><div id="licBarHdr"></div><button class="btn btn-gh btn-sm" onclick="CMD.open()">⌘</button><button class="btn btn-gh btn-sm" onclick="UI.togTheme()">🌗</button><button class="btn btn-ok btn-sm" id="authBtn">🔐 Login</button></div></header>
+<div class="cnt">
+
+<div id="v-dash" class="vw act">
+<div class="card"><h2 id="welcomeB">Welcome to DigiMktg Academy</h2><p style="color:var(--tm);margin:6px 0 14px">Master digital marketing: SEO, Social Media, Google Ads, Analytics, Email, Content Strategy and more.</p><div id="authPr"></div></div>
+<div class="stats">
+<div class="st-c"><h3 id="sDone">0</h3><p>Modules Done</p></div>
+<div class="st-c"><h3 id="sScore">0%</h3><p>Accuracy</p></div>
+<div class="st-c"><h3 id="sTime">0m</h3><p>Time Active</p></div>
+<div class="st-c"><h3 id="sCampaigns">0</h3><p>Campaigns Planned</p></div>
+<div class="st-c"><h3 id="sStreak">0</h3><p><span class="streak-flame">🔥</span> Streak</p></div>
+</div>
+<div class="card"><h3 style="margin-bottom:12px">Achievements</h3><div id="dashBadges" class="badges-grid" style="grid-template-columns:repeat(auto-fill,minmax(110px,1fr))"></div></div>
+</div>
+
+<div id="v-tools" class="vw">
+<h2 style="margin-bottom:16px">🧮 Marketing Calculators</h2>
+<div class="calc-grid">
+<div class="calc-card"><h4>ROI Calculator</h4><label class="lbl">Revenue</label><input type="number" id="roiRev" value="50000" oninput="Tools.calcROI()"><label class="lbl">Cost</label><input type="number" id="roiCost" value="10000" oninput="Tools.calcROI()"><div class="calc-result" id="roiResult">400%</div></div>
+<div class="calc-card"><h4>CPC Calculator</h4><label class="lbl">Total Cost</label><input type="number" id="cpcCost" value="5000" oninput="Tools.calcCPC()"><label class="lbl">Total Clicks</label><input type="number" id="cpcClicks" value="2000" oninput="Tools.calcCPC()"><div class="calc-result" id="cpcResult">$2.50</div></div>
+<div class="calc-card"><h4>CPM Calculator</h4><label class="lbl">Total Cost</label><input type="number" id="cpmCost" value="3000" oninput="Tools.calcCPM()"><label class="lbl">Impressions</label><input type="number" id="cpmImp" value="500000" oninput="Tools.calcCPM()"><div class="calc-result" id="cpmResult">$6.00</div></div>
+<div class="calc-card"><h4>Conversion Rate</h4><label class="lbl">Conversions</label><input type="number" id="crConv" value="150" oninput="Tools.calcCR()"><label class="lbl">Total Visitors</label><input type="number" id="crVis" value="5000" oninput="Tools.calcCR()"><div class="calc-result" id="crResult">3.00%</div></div>
+<div class="calc-card"><h4>CPA Calculator</h4><label class="lbl">Total Cost</label><input type="number" id="cpaCost" value="8000" oninput="Tools.calcCPA()"><label class="lbl">Acquisitions</label><input type="number" id="cpaAcq" value="200" oninput="Tools.calcCPA()"><div class="calc-result" id="cpaResult">$40.00</div></div>
+<div class="calc-card"><h4>ROAS Calculator</h4><label class="lbl">Ad Revenue</label><input type="number" id="roasRev" value="25000" oninput="Tools.calcROAS()"><label class="lbl">Ad Spend</label><input type="number" id="roasSpend" value="5000" oninput="Tools.calcROAS()"><div class="calc-result" id="roasResult">5.00x</div></div>
+</div>
+<hr style="border:0;border-top:1px solid var(--bd);margin:20px 0">
+<h2 style="margin-bottom:16px">📝 Marketing Funnel Planner</h2>
+<div class="card"><div id="funnelViz"></div>
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px">
+<div><label class="lbl">Impressions</label><input type="number" id="fImp" value="100000" oninput="Tools.funnel()"></div>
+<div><label class="lbl">Clicks</label><input type="number" id="fClick" value="5000" oninput="Tools.funnel()"></div>
+<div><label class="lbl">Leads</label><input type="number" id="fLead" value="500" oninput="Tools.funnel()"></div>
+<div><label class="lbl">Customers</label><input type="number" id="fCust" value="100" oninput="Tools.funnel()"></div>
+<div><label class="lbl">Revenue/Cust</label><input type="number" id="fRev" value="500" oninput="Tools.funnel()"></div>
+</div></div>
+</div>
+
+<div id="v-courses" class="vw">
+<div id="courseListV"><div class="card"><h3 style="margin-bottom:14px">Digital Marketing Curriculum</h3><div id="modListW" style="display:flex;flex-direction:column;gap:10px"></div></div></div>
+<div id="lessonV" style="display:none"><div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+<button class="btn btn-gh btn-sm" onclick="Courses.back()">← Back</button><button class="btn btn-gh btn-sm" id="bmLessonBtn" onclick="Courses.toggleBM()">🔖</button></div>
+<h2 id="lessonTitle" style="margin-bottom:10px"></h2>
+<div id="lessonBody" style="line-height:1.7;margin-bottom:18px"></div>
+<details style="margin-bottom:18px"><summary style="cursor:pointer;font-weight:600;font-size:.9rem;color:var(--primary);margin-bottom:8px">📝 My Notes</summary><textarea class="note-area" id="modNote" placeholder="Your notes..." oninput="Courses.saveNote()"></textarea></details>
+<div id="quizBox" style="background:var(--card);padding:18px;border-radius:var(--rd);border:1px solid var(--bd)">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div id="quizProg" style="font-size:.8rem;font-weight:700;color:var(--primary)"></div><div id="quizTimer" class="quiz-timer ok" style="display:none"></div></div>
+<h4 id="quizQ" style="margin-bottom:12px;line-height:1.4"></h4>
+<div id="quizOpts" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px"></div>
+<button class="btn btn-p" id="quizNextBtn" onclick="Quiz.next()">Next</button>
+</div></div></div>
+</div>
+
+<div id="v-reports" class="vw"><div class="card"><h2>Learning Report</h2><p id="repSub" style="color:var(--tm);font-size:.85rem;margin:4px 0 14px"></p><div style="border:1px solid var(--bd);border-radius:8px;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.88rem"><thead><tr style="background:var(--sf);border-bottom:1px solid var(--bd)"><th style="padding:10px 14px;text-align:left">Module</th><th style="padding:10px 14px;text-align:left">Status</th><th style="padding:10px 14px;text-align:left">Grade</th><th style="padding:10px 14px;text-align:left">Time</th></tr></thead><tbody id="repBody"></tbody></table></div></div>
+<div class="charts-g"><div class="chart-c"><h4>Module Scores</h4><canvas id="chScores"></canvas></div><div class="chart-c"><h4>Completion</h4><canvas id="chComp"></canvas></div></div></div>
+
+<div id="v-achievements" class="vw"><div class="card"><h2 style="margin-bottom:6px">🏆 Achievements</h2><p style="color:var(--tm);margin-bottom:16px">Complete challenges to unlock badges.</p><div id="achGrid" class="badges-grid"></div></div></div>
+
+</div></div></div>
+
+<div class="mdl" id="authModal"><div class="mdl-box"><h3>Student Login</h3><p style="color:var(--tm);font-size:.84rem;margin:6px 0 14px">Enter name and student ID.</p><label class="lbl">Full Name</label><input type="text" id="authName" placeholder="Alex Morgan"><label class="lbl">Student ID</label><input type="text" id="authId" placeholder="e.g. DMKT-001"><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px"><button class="btn btn-gh" onclick="UI.closeMdl('authModal')">Cancel</button><button class="btn btn-ok" onclick="Auth.login()">Login</button></div></div></div>
+
+<div class="mdl" id="exportModal"><div class="mdl-box"><h3 style="margin-bottom:14px">📦 Export / Import</h3><div style="display:flex;flex-direction:column;gap:10px"><button class="btn btn-p" onclick="DataIO.export()">⬇ Export (JSON)</button><button class="btn btn-gh" onclick="document.getElementById('importFile').click()">⬆ Import (JSON)</button><input type="file" id="importFile" accept=".json" style="display:none" onchange="DataIO.importF(event)"></div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn btn-gh" onclick="UI.closeMdl('exportModal')">Close</button></div></div></div>
+
+<div id="admPnl"><div class="adm-b"><h2 style="margin-bottom:6px">🔑 License Generator</h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px"><div><label class="lbl">Fingerprint</label><input type="text" id="admFP"></div><div><label class="lbl">Days</label><input type="number" id="admDays" value="90"></div></div><div style="display:flex;gap:8px;margin-bottom:14px"><button class="btn btn-p" onclick="Lic.generate()">Generate</button><button class="btn btn-gh" onclick="Lic.revoke()">Revoke</button></div><div class="gen-k" id="admGenK"></div><table class="adm-t"><thead><tr><th>Fingerprint</th><th>Expires</th><th>Days</th></tr></thead><tbody id="admLicBody"></tbody></table><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn btn-gh" onclick="document.getElementById('admPnl').classList.remove('open')">Close</button></div></div></div>
+
+<div class="cmd-o" id="cmdO"><div class="cmd-b"><input type="text" id="cmdIn" placeholder="Command..." oninput="CMD.filt()" onkeydown="CMD.key(event)"><div class="cmd-r" id="cmdR"></div></div></div>
+<div class="tw" id="tw"></div>
+
+<script>
+"use strict";
+const Lic={SECRET:'DIGIMKTG_SECRET_xK9$mP2v@qR7nZ4w',INTERVAL:30000,STOR:'dm_lic_v1',
+async fp(){const c=[];c.push(navigator.userAgent||'');c.push(navigator.language||'');c.push(navigator.platform||'');c.push(String(navigator.hardwareConcurrency||0));c.push(String(screen.width));c.push(String(screen.height));c.push(String(screen.colorDepth));c.push(Intl.DateTimeFormat().resolvedOptions().timeZone||'');try{const cv=document.createElement('canvas');cv.width=200;cv.height=50;const x=cv.getContext('2d');x.textBaseline='top';x.font='14px Arial';x.fillStyle='#f60';x.fillRect(125,1,62,20);x.fillStyle='#069';x.fillText('DigiMktg-FP',2,15);c.push(cv.toDataURL())}catch(e){c.push('c')}try{const g=document.createElement('canvas').getContext('webgl');const d=g.getExtension('WEBGL_debug_renderer_info');if(d){c.push(g.getParameter(d.UNMASKED_VENDOR_WEBGL)||'');c.push(g.getParameter(d.UNMASKED_RENDERER_WEBGL)||'')}}catch(e){c.push('g')}try{const a=new(window.AudioContext||window.webkitAudioContext)();c.push(String(a.sampleRate));a.close()}catch(e){c.push('a')}return(await Lic.sha(c.join('|||'))).substring(0,32).toUpperCase()},
+async sha(m){const b=new TextEncoder().encode(m);return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',b))).map(x=>x.toString(16).padStart(2,'0')).join('')},
+simpleH(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);h=h>>>0}return h.toString(36).toUpperCase()},
+async genKey(fp,days){const ex=new Date();ex.setDate(ex.getDate()+days);const ed=Math.floor(ex.getTime()/864e5);const es=ed.toString(36).toUpperCase().padStart(4,'0');const sg=(await Lic.sha(ed+':'+fp+':'+Lic.SECRET)).substring(0,8).toUpperCase();const pl=es+fp.substring(0,8)+sg;return{key:'DMKT-'+pl.substring(0,4)+'-'+pl.substring(4,8)+'-'+pl.substring(8,12)+'-'+pl.substring(12,16),exp:ex.toISOString(),ed}},
+async valKey(key,fp){try{key=key.trim().toUpperCase();if(!key.startsWith('DMKT-'))return{v:false,r:'Invalid'};const p=key.replace('DMKT-','').split('-');if(p.length!==4)return{v:false,r:'Invalid'};const pl=p.join('');if(pl.length!==16)return{v:false,r:'Invalid'};const ed=parseInt(pl.substring(0,4),36);if(isNaN(ed))return{v:false,r:'Invalid'};if(pl.substring(4,12)!==fp.substring(0,8))return{v:false,r:'Different machine'};const expSg=(await Lic.sha(ed+':'+fp+':'+Lic.SECRET)).substring(0,8).toUpperCase();if(pl.substring(12,20)!==expSg)return{v:false,r:'Invalid signature'};const exMs=ed*864e5;if(Date.now()>exMs)return{v:false,r:'Expired'};return{v:true,exp:new Date(exMs).toISOString(),expMs:exMs,dLeft:Math.ceil((exMs-Date.now())/864e5)}}catch(e){return{v:false,r:'Error'}}},
+getStored(){try{return JSON.parse(localStorage.getItem(Lic.STOR))}catch(e){return null}},
+store(key,fp,val){localStorage.setItem(Lic.STOR,JSON.stringify({key,fp,actAt:new Date().toISOString(),exp:val.exp,expMs:val.expMs,th:Lic.simpleH(JSON.stringify({key,fp,expMs:val.expMs})+Lic.SECRET)}))},
+checkTamper(d){if(!d)return true;return d.th!==Lic.simpleH(JSON.stringify({key:d.key,fp:d.fp,expMs:d.expMs})+Lic.SECRET)},
+wipe(){const k=[];for(let i=0;i<localStorage.length;i++){const n=localStorage.key(i);if(n&&n.startsWith('dm'))k.push(n)}k.forEach(x=>localStorage.removeItem(x));sessionStorage.clear()},
+lock(r){Lic.wipe();localStorage.setItem(Lic.STOR+'_lk','1');document.getElementById('mainApp').style.display='none';document.getElementById('licScr').classList.remove('hide');document.getElementById('licScr').style.display='flex';Lic.showExp();T('License expired.','er')},
+showAct(){document.getElementById('licAct').style.display='';document.getElementById('licExp').style.display='none'},
+showExp(){document.getElementById('licAct').style.display='none';document.getElementById('licExp').style.display=''},
+bar(){const s=Lic.getStored();if(!s)return;const dl=Math.ceil((s.expMs-Date.now())/864e5);const cl=dl<=3?'wrn':'act';const h='<div class="lic-bar '+cl+'"><span class="lic-bar-dot"></span>License: '+dl+'d left</div>';['licBarSess','licBarHdr'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML=h})},
+async activate(){const fp=document.getElementById('licFP').value,key=document.getElementById('licKey').value.trim(),st=document.getElementById('licSt');if(!key){st.textContent='Enter key';st.className='lic-st er';return}st.textContent='Validating...';const r=await Lic.valKey(key,fp);if(r.v){Lic.store(key,fp,r);st.textContent='Activated! '+r.dLeft+' days';st.className='lic-st ok';setTimeout(()=>Lic.unlock(),1000)}else{st.textContent=r.r;st.className='lic-st er'}},
+unlock(){document.getElementById('licScr').classList.add('hide');document.getElementById('licScr').style.display='none';document.getElementById('mainApp').style.display='flex';Lic.startCheck();Lic.bar();AppInit()},
+timer:null,startCheck(){if(Lic.timer)clearInterval(Lic.timer);Lic.timer=setInterval(async()=>{if(!(await Lic.check()))clearInterval(Lic.timer);else Lic.bar()},Lic.INTERVAL)},
+async check(){const s=Lic.getStored();if(!s)return false;if(Lic.checkTamper(s)){Lic.lock('Tampered');return false}if(s.fp!==(await Lic.fp())){Lic.lock('Diff machine');return false}if(Date.now()>s.expMs){Lic.lock('Expired');return false}return true},
+async generate(){const fp=document.getElementById('admFP').value.trim(),days=parseInt(document.getElementById('admDays').value)||90;if(!fp||fp.length<8){T('Enter fingerprint','er');return}const r=await Lic.genKey(fp,days);const el=document.getElementById('admGenK');el.style.display='block';el.innerHTML='<strong>Key:</strong><br><span style="font-size:1rem;color:var(--ok)">'+r.key+'</span><br><small>'+new Date(r.exp).toLocaleDateString()+' ('+days+'d)</small><br><button class="btn btn-p btn-xs" onclick="navigator.clipboard.writeText(\''+r.key+'\');T(\'Copied!\',\'ok\')">Copy</button>';let reg=JSON.parse(localStorage.getItem('dm_reg')||'[]');reg.push({fp,key:r.key,exp:r.exp});localStorage.setItem('dm_reg',JSON.stringify(reg));Adm.render()},
+revoke(){const fp=document.getElementById('admFP').value.trim();if(!fp)return;let reg=JSON.parse(localStorage.getItem('dm_reg')||'[]');reg=reg.filter(r=>r.fp!==fp);localStorage.setItem('dm_reg',JSON.stringify(reg));Adm.render();T('Revoked','inf')}
+};
+const Adm={open(){document.getElementById('admPnl').classList.add('open');Adm.render()},render(){const tb=document.getElementById('admLicBody');const reg=JSON.parse(localStorage.getItem('dm_reg')||'[]');if(!reg.length){tb.innerHTML='<tr><td colspan="3" style="padding:12px;text-align:center;color:var(--tm)">None</td></tr>';return}tb.innerHTML='';reg.forEach(r=>{const dl=Math.max(0,Math.ceil((new Date(r.exp).getTime()-Date.now())/864e5));const tr=document.createElement('tr');tr.innerHTML='<td style="font-family:JetBrains Mono,monospace;font-size:.74rem">'+r.fp.substring(0,16)+'...</td><td>'+new Date(r.exp).toLocaleDateString()+'</td><td style="color:'+(dl>7?'var(--ok)':'var(--wr)')+';font-weight:600">'+dl+'d</td>';tb.appendChild(tr)})}};
+
+const MODS=[
+{id:1,title:"Module 1: Digital Marketing Fundamentals",diff:"Beginner",time:15,prereq:null,
+content:"Digital marketing uses online channels to reach customers. Learn the difference between traditional and digital marketing, understand the customer journey funnel (Awareness > Interest > Desire > Action), explore major channels (SEO, SEM, Social, Email, Content), and set SMART marketing goals.",
+code:"# Digital Marketing Channels Overview\n\n## 1. Search Engine Optimization (SEO)\n- Organic traffic from search engines\n- Long-term strategy\n\n## 2. Search Engine Marketing (SEM)\n- Paid search ads (Google Ads)\n- Immediate results\n\n## 3. Social Media Marketing\n- Facebook, Instagram, TikTok, LinkedIn\n- Brand awareness + engagement\n\n## 4. Content Marketing\n- Blog posts, videos, infographics\n- Builds authority + trust\n\n## 5. Email Marketing\n- Direct communication channel\n- Highest ROI of all channels\n\n## Marketing Funnel:\n# Awareness (100,000 impressions)\n# Interest (5,000 clicks)\n# Desire (500 leads)\n# Action (100 customers)",
+questions:[
+{q:"What does AIDA stand for in marketing?",options:["Awareness Interest Desire Action","Advertising Internet Digital Ads","Analytics Investment Data Analysis","Audience Intent Digital Attribution"],correct:0,explain:"AIDA = Awareness, Interest, Desire, Action — the marketing funnel."},
+{q:"Which channel has the highest ROI typically?",options:["Social Media","SEO","Email Marketing","Print Ads"],correct:2,explain:"Email marketing consistently delivers the highest ROI."},
+{q:"What is a SMART goal?",options:["Simple Measurable Achievable Realistic Timely","Specific Measurable Achievable Relevant Time-bound","Smart Marketing And Revenue Target","Social Media Analytics and Reporting Tool"],correct:1,explain:"SMART = Specific, Measurable, Achievable, Relevant, Time-bound."},
+{q:"Which is a long-term strategy?",options:["PPC Ads","SEO","Influencer Campaigns","Flash Sales"],correct:1,explain:"SEO builds organic rankings over months/years — a long-term play."},
+{q:"Digital marketing differs from traditional because?",options:["It uses the internet","It is always cheaper","It cannot be measured","It only targets young people"],correct:0,explain:"Digital marketing uses online channels, enabling precise targeting and measurement."}
+]},
+{id:2,title:"Module 2: Search Engine Optimization (SEO)",diff:"Intermediate",time:20,prereq:1,
+content:"SEO improves organic search rankings. Learn on-page SEO (title tags, meta descriptions, headers, keyword placement), off-page SEO (backlinks, domain authority), technical SEO (sitemap, robots.txt, page speed), and keyword research strategy.",
+code:"# SEO Checklist\n\n## On-Page SEO\n- Title tag: 50-60 characters, include primary keyword\n- Meta description: 150-160 characters, compelling CTA\n- H1 tag: One per page, contains main keyword\n- URL: Short, descriptive, keyword-rich\n- Internal linking: Connect related pages\n- Image alt text: Descriptive, keyword-relevant\n\n## Technical SEO\n- XML Sitemap: /sitemap.xml\n- Robots.txt: /robots.txt\n- Page speed: Target < 3 seconds\n- Mobile-friendly: Responsive design\n- HTTPS: SSL certificate required\n- Schema markup: Rich snippets\n\n## Keyword Research\n- Tool: Google Keyword Planner\n- Metrics: Search volume, competition, CPC\n- Long-tail keywords: Lower competition\n- Example: 'best running shoes' vs 'best running shoes for flat feet under $100'\n\n## Backlink Strategy\n- Guest posting on authority sites\n- Create linkable assets (guides, tools)\n- Broken link building\n- Competitor backlink analysis",
+questions:[
+{q:"What is the ideal title tag length?",options:["30-40 characters","50-60 characters","100-120 characters","Unlimited"],correct:1,explain:"50-60 characters ensures the full title shows in search results."},
+{q:"What does a sitemap help with?",options:["Styling pages","Helping search engines crawl your site","Storing images","User authentication"],correct:1,explain:"XML sitemaps guide search engine crawlers to all important pages."},
+{q:"What are long-tail keywords?",options:["Very long URLs","Specific multi-word phrases","Keywords with many backlinks","Header tags"],correct:1,explain:"Long-tail keywords are specific phrases with lower competition and higher intent."},
+{q:"What is a backlink?",options:["A link to your homepage","A link from another site to yours","An internal link","A broken link"],correct:1,explain:"Backlinks are external links pointing to your site — a key ranking factor."},
+{q:"Page speed target should be under?",options:["10 seconds","5 seconds","3 seconds","1 second"],correct:2,explain:"Pages should load in under 3 seconds for good SEO and user experience."}
+]},
+{id:3,title:"Module 3: Google Ads & SEM",diff:"Intermediate",time:20,prereq:1,
+content:"Search Engine Marketing uses paid ads on Google. Learn Google Ads account structure, keyword match types (broad, phrase, exact), ad copy writing, bidding strategies, Quality Score, and landing page optimization.",
+code:"# Google Ads Structure\n\n## Account > Campaign > Ad Group > Ads + Keywords\n\n## Keyword Match Types\n- Broad Match: running shoes (any related search)\n- Phrase Match: 'running shoes' (phrase must appear)\n- Exact Match: [running shoes] (exact search only)\n- Negative Match: -cheap (exclude this term)\n\n## Ad Copy Formula (RSA)\n- Headline 1: Include primary keyword\n- Headline 2: Unique selling proposition\n- Headline 3: Call to action\n- Description: Benefits + social proof\n\n## Quality Score (1-10)\n- Expected click-through rate\n- Ad relevance\n- Landing page experience\n\n## Bidding Strategies\n- Manual CPC: Full control\n- Target CPA: Automated, optimize for conversions\n- Target ROAS: Automated, optimize for revenue\n- Maximize Clicks: Get most clicks within budget\n\n## Key Metrics\n- CTR = Clicks / Impressions\n- CPC = Cost / Clicks\n- CPA = Cost / Conversions\n- ROAS = Revenue / Ad Spend",
+questions:[
+{q:"What does CTR measure?",options:["Cost per click","Click-through rate","Conversion tracking ratio","Customer retention"],correct:1,explain:"CTR = Clicks / Impressions — measures how often people click your ad."},
+{q:"Exact match keyword uses which syntax?",options:["keyword","'keyword'","[keyword]","-keyword"],correct:2,explain:"[keyword] is exact match — triggers only for that specific search."},
+{q:"What improves Quality Score?",options:["Higher bids","Relevant ads + good landing page","More keywords","Longer ads"],correct:1,explain:"Quality Score depends on CTR, ad relevance, and landing page experience."},
+{q:"Negative keywords do what?",options:["Increase bids","Exclude irrelevant searches","Lower Quality Score","Block competitors"],correct:1,explain:"Negative keywords prevent your ads from showing for irrelevant searches."},
+{q:"ROAS of 5x means?",options:["Spent $5 earned $1","Earned $5 for every $1 spent","5% conversion rate","5 impressions per click"],correct:1,explain:"ROAS = Revenue/Ad Spend. 5x means $5 revenue per $1 spent."}
+]},
+{id:4,title:"Module 4: Social Media Marketing",diff:"Intermediate",time:20,prereq:1,
+content:"Social media platforms connect brands with audiences. Learn Facebook/Instagram marketing, TikTok strategy, LinkedIn for B2B, content calendar creation, community management, and social media analytics.",
+code:"# Social Media Strategy\n\n## Platform Selection\n- Facebook: Largest audience, 25-55 age group\n- Instagram: Visual content, 18-35 age group\n- TikTok: Short video, Gen Z + Millennials\n- LinkedIn: B2B, professional networking\n- Twitter/X: News, real-time conversations\n\n## Content Calendar (Weekly)\nMonday: Educational post (carousel)\nTuesday: Behind-the-scenes (story)\nWednesday: User-generated content\nThursday: Industry news / trends\nFriday: Fun / engagement post\nSaturday: Product showcase\nSunday: Community highlight\n\n## Engagement Metrics\n- Reach: Unique users who saw your post\n- Engagement Rate = (Likes+Comments+Shares) / Reach\n- Follower Growth Rate\n- Click-through Rate\n- Share of Voice\n\n## Best Practices\n- Post consistently (use scheduling tools)\n- Respond to comments within 1 hour\n- Use 5-10 relevant hashtags\n- Include a clear CTA in every post\n- A/B test different content formats",
+questions:[
+{q:"Which platform is best for B2B marketing?",options:["TikTok","Instagram","LinkedIn","Snapchat"],correct:2,explain:"LinkedIn is the premier B2B platform for professional networking."},
+{q:"Engagement rate formula?",options:["Followers / Posts","(Likes+Comments+Shares) / Reach","Impressions / Clicks","Revenue / Followers"],correct:1,explain:"Engagement Rate measures interaction relative to how many people saw the post."},
+{q:"How many hashtags should you use?",options:["1-2","5-10","30-50","As many as possible"],correct:1,explain:"5-10 relevant hashtags maximize reach without appearing spammy."},
+{q:"What is user-generated content?",options:["AI-generated posts","Content created by your audience","Paid advertisements","Internal memos"],correct:1,explain:"UGC is content created by customers/followers — highly trusted and authentic."},
+{q:"Best time to respond to comments?",options:["Within 24 hours","Within 1 hour","Once a week","It doesn't matter"],correct:1,explain:"Quick responses boost engagement and show your audience you care."}
+]},
+{id:5,title:"Module 5: Content Marketing",diff:"Intermediate",time:15,prereq:1,
+content:"Content marketing attracts and retains audiences through valuable content. Learn content types, blog writing for SEO, visual content creation, content distribution, and performance measurement.",
+code:"# Content Marketing Framework\n\n## Content Types\n1. Blog posts (SEO-optimized, 1500-3000 words)\n2. Videos (tutorials, behind-the-scenes)\n3. Infographics (data visualization)\n4. Podcasts (industry discussions)\n5. Case studies (social proof)\n6. E-books/Whitepapers (lead magnets)\n7. Webinars (live education)\n\n## Blog Post Template\n1. Hook (attention-grabbing first line)\n2. Problem (what the reader faces)\n3. Solution (your expert advice)\n4. Steps (actionable how-to)\n5. Examples (real-world proof)\n6. CTA (what to do next)\n\n## Content Distribution\n- Own channels: Blog, email, social\n- Earned media: PR, guest posts, mentions\n- Paid promotion: Sponsored posts, PPC\n\n## KPIs\n- Page views and time on page\n- Social shares and backlinks\n- Lead generation (form fills)\n- Conversion rate from content",
+questions:[
+{q:"Ideal blog post length for SEO?",options:["300-500 words","500-800 words","1500-3000 words","5000+ words"],correct:2,explain:"Long-form content (1500-3000 words) tends to rank higher in search results."},
+{q:"What is a lead magnet?",options:["A sales pitch","Free content offered for contact info","A social media ad","An email subject line"],correct:1,explain:"Lead magnets (ebooks, webinars) exchange value for email addresses."},
+{q:"Content distribution includes which channels?",options:["Only social media","Own, earned, and paid channels","Only email","Only blog posts"],correct:1,explain:"Distribute through owned (blog/email), earned (PR/guest posts), and paid channels."},
+{q:"What makes a good content hook?",options:["Technical jargon","Attention-grabbing opening line","Long paragraphs","Company history"],correct:1,explain:"A hook captures attention immediately — question, statistic, or bold statement."},
+{q:"Case studies are effective because?",options:["They are short","They provide social proof","They are free to create","They replace ads"],correct:1,explain:"Case studies show real results from real customers — powerful social proof."}
+]},
+{id:6,title:"Module 6: Email Marketing",diff:"Intermediate",time:15,prereq:1,
+content:"Email marketing delivers messages directly to subscribers. Learn list building, campaign types (newsletter, promotional, drip), subject line optimization, automation workflows, segmentation, and A/B testing.",
+code:"# Email Marketing Playbook\n\n## List Building Strategies\n- Lead magnets (free ebook, checklist)\n- Pop-up forms on website\n- Social media lead ads\n- Webinar registrations\n- Content upgrades\n\n## Campaign Types\n1. Newsletter: Weekly value-driven content\n2. Promotional: Product launches, sales\n3. Drip: Automated sequence over days\n4. Transactional: Order confirmations, receipts\n5. Re-engagement: Win back inactive subscribers\n\n## Subject Line Tips\n- Keep under 50 characters\n- Create urgency: 'Last chance'\n- Use numbers: '5 ways to...'\n- Personalize: Include first name\n- Avoid spam words: FREE, BUY NOW\n\n## Automation Workflow Example\nDay 0: Welcome email + lead magnet delivery\nDay 2: Educational content (value)\nDay 4: Case study (social proof)\nDay 7: Product introduction (offer)\nDay 10: Special discount (urgency)\n\n## Key Metrics\n- Open Rate: Target > 20%\n- Click Rate: Target > 3%\n- Unsubscribe Rate: Keep < 0.5%\n- List Growth Rate",
+questions:[
+{q:"Target open rate for emails?",options:["5%","10%","20%+","50%"],correct:2,explain:"A healthy open rate is 20% or higher depending on industry."},
+{q:"What is a drip campaign?",options:["A one-time blast","Automated email sequence over time","A social media campaign","A paid ad series"],correct:1,explain:"Drip campaigns send pre-written emails on a schedule based on user actions."},
+{q:"Which subject line is best?",options:["BUY NOW!!! FREE!!!","5 Marketing Tips That Doubled Our Revenue","Newsletter Issue #47","Hello"],correct:1,explain:"Specific numbers + clear value = higher open rates."},
+{q:"What is list segmentation?",options:["Deleting subscribers","Dividing list into targeted groups","Buying email lists","Sending to everyone"],correct:1,explain:"Segmentation groups subscribers by behavior/characteristics for targeted messaging."},
+{q:"Keep unsubscribe rate under?",options:["5%","2%","0.5%","10%"],correct:2,explain:"High unsubscribe rates indicate poor content relevance or frequency."}
+]},
+{id:7,title:"Module 7: Google Analytics & Data",diff:"Intermediate",time:20,prereq:1,
+content:"Data drives marketing decisions. Learn Google Analytics setup, key metrics (sessions, bounce rate, conversions), UTM parameters, goal tracking, custom reports, and data-driven decision making.",
+code:"# Google Analytics Essentials\n\n## Key Metrics\n- Sessions: Total visits to your site\n- Users: Unique visitors\n- Pageviews: Total pages viewed\n- Bounce Rate: % who leave after 1 page\n- Avg. Session Duration: Time on site\n- Conversion Rate: % who complete a goal\n\n## UTM Parameters\nhttps://example.com?utm_source=facebook\n  &utm_medium=social\n  &utm_campaign=summer_sale\n  &utm_content=blue_button\n  &utm_term=running_shoes\n\n## Goal Types\n1. Destination: Thank you page visit\n2. Duration: Session > X minutes\n3. Pages/Session: Viewed X+ pages\n4. Event: Click, download, video play\n\n## Custom Dashboard\n- Traffic sources (pie chart)\n- Top pages (table)\n- Conversion funnel (bar chart)\n- Device breakdown (mobile vs desktop)\n- Geographic distribution (map)\n\n## Decision Framework\n- High bounce rate? Improve page content\n- Low conversion? Optimize CTA and landing page\n- Traffic drop? Check SEO rankings and backlinks\n- Low engagement? Test new content formats",
+questions:[
+{q:"What does bounce rate measure?",options:["Page load speed","% leaving after viewing 1 page","Total visitors","Revenue per visitor"],correct:1,explain:"Bounce rate = percentage of single-page sessions with no interaction."},
+{q:"UTM parameter for traffic source?",options:["utm_medium","utm_source","utm_campaign","utm_content"],correct:1,explain:"utm_source identifies where traffic comes from (google, facebook, newsletter)."},
+{q:"Which is a goal type in Analytics?",options:["Revenue goal","Destination goal","Traffic goal","SEO goal"],correct:1,explain:"Destination goals trigger when users reach a specific page (e.g., thank you page)."},
+{q:"If bounce rate is 80%, you should?",options:["Celebrate","Improve page content and UX","Increase ad spend","Do nothing"],correct:1,explain:"80% bounce rate means most visitors leave immediately — improve content and UX."},
+{q:"What does utm_medium identify?",options:["Campaign name","Marketing medium (social, email, cpc)","Specific content version","Search term"],correct:1,explain:"utm_medium identifies the marketing medium: social, email, cpc, referral, etc."}
+]},
+{id:8,title:"Module 8: PPC & Paid Advertising",diff:"Advanced",time:20,prereq:3,
+content:"Pay-Per-Click advertising across platforms. Learn Google Display Network, Facebook Ads Manager, retargeting campaigns, budget optimization, ad creative best practices, and performance analysis.",
+code:"# PPC Campaign Framework\n\n## Campaign Types\n1. Search Ads: Text ads on search results\n2. Display Ads: Banner ads on websites\n3. Shopping Ads: Product listings\n4. Video Ads: YouTube pre-roll\n5. App Install Ads\n\n## Facebook Ads Manager\n- Campaign Level: Objective (traffic, conversions, reach)\n- Ad Set Level: Audience, budget, placement, schedule\n- Ad Level: Creative (image/video), copy, CTA\n\n## Audience Targeting\n- Demographics: Age, gender, location\n- Interests: Pages liked, hobbies\n- Behaviors: Purchase history, device usage\n- Custom Audiences: Email lists, website visitors\n- Lookalike Audiences: Similar to your best customers\n\n## Retargeting Strategy\n- Website visitors (pixel-based)\n- Cart abandoners (highest priority)\n- Video viewers (75%+ watched)\n- Email non-openers\n\n## Budget Allocation\n- 70%: Proven campaigns (best performers)\n- 20%: Growing campaigns (testing scaling)\n- 10%: Experimental (new audiences/formats)",
+questions:[
+{q:"What is retargeting?",options:["Targeting new audiences","Showing ads to people who visited your site","Email marketing","SEO optimization"],correct:1,explain:"Retargeting shows ads to people who previously interacted with your brand."},
+{q:"Lookalike audiences are based on?",options:["Random users","Your existing best customers","Competitor audiences","Geographic data"],correct:1,explain:"Lookalike audiences find new people similar to your existing customers."},
+{q:"Recommended budget split for experiments?",options:["50%","30%","10%","1%"],correct:2,explain:"70/20/10 rule: 70% proven, 20% growing, 10% experimental."},
+{q:"Highest priority retargeting segment?",options:["All visitors","Cart abandoners","Blog readers","Social followers"],correct:1,explain:"Cart abandoners showed buying intent — highest conversion potential."},
+{q:"Facebook campaign structure is?",options:["Ad > Campaign > Ad Set","Campaign > Ad Set > Ad","Ad Set > Ad > Campaign","Campaign > Ad > Ad Set"],correct:1,explain:"Facebook uses Campaign > Ad Set > Ad hierarchy."}
+]},
+{id:9,title:"Module 9: Influencer Marketing",diff:"Intermediate",time:15,prereq:4,
+content:"Influencer marketing leverages trusted voices. Learn finding influencers, micro vs macro, campaign negotiation, performance metrics, brand partnerships, and FTC disclosure requirements.",
+code:"# Influencer Marketing Guide\n\n## Influencer Tiers\n- Nano (1K-10K): Highest engagement, very niche\n- Micro (10K-100K): Good engagement, affordable\n- Mid (100K-500K): Broader reach\n- Macro (500K-1M): Large audience, lower engagement\n- Mega (1M+): Celebrity level, expensive\n\n## Finding Influencers\n- Instagram/TikTok search by niche hashtag\n- Influencer platforms (AspireIQ, Upfluence)\n- Competitor follower analysis\n- Google search: 'top [niche] influencers'\n\n## Campaign Structure\n1. Define goals (awareness, sales, content)\n2. Set budget ($100-$10,000+ per post)\n3. Create brief (key messages, deliverables)\n4. Negotiate terms (usage rights, timeline)\n5. Track results (UTM links, promo codes)\n\n## FTC Requirements\n- Must disclose paid partnerships\n- Use #ad or #sponsored clearly\n- Disclosure must be visible (not buried)\n- Both brand and influencer responsible\n\n## Metrics to Track\n- Engagement rate on sponsored posts\n- Click-through rate (unique links)\n- Conversion rate (promo codes)\n- Cost per engagement\n- Brand mention sentiment",
+questions:[
+{q:"Which influencer tier has highest engagement?",options:["Mega (1M+)","Macro (500K-1M)","Micro (10K-100K)","Nano (1K-10K)"],correct:3,explain:"Nano-influencers have the most engaged, niche audiences."},
+{q:"FTC requires disclosure using?",options:["Hidden text","#ad or #sponsored clearly visible","Small font at bottom","No disclosure needed"],correct:1,explain:"FTC mandates clear, visible disclosure like #ad or #sponsored."},
+{q:"Best metric to track influencer ROI?",options:["Follower count","Likes","Click-through rate with unique links","Post frequency"],correct:2,explain:"Unique UTM links and promo codes accurately attribute conversions."},
+{q:"Micro-influencers are preferred because?",options:["Cheapest option","Good engagement and affordable","Most famous","Never make mistakes"],correct:1,explain:"Micro-influencers offer strong engagement rates at reasonable costs."},
+{q:"An influencer brief should include?",options:["Only the payment amount","Key messages, deliverables, timeline","Just the product photo","Nothing — let them decide"],correct:1,explain:"A clear brief ensures alignment on messaging, deliverables, and deadlines."}
+]},
+{id:10,title:"Module 10: Video Marketing",diff:"Intermediate",time:15,prereq:5,
+content:"Video is the most engaging content format. Learn YouTube channel strategy, video SEO, short-form video (TikTok, Reels, Shorts), video production basics, and analytics.",
+code:"# Video Marketing Strategy\n\n## YouTube Channel Setup\n- Channel name + branded banner\n- Consistent upload schedule (weekly)\n- Channel trailer for new visitors\n- Playlists organized by topic\n\n## Video SEO\n- Title: Include primary keyword, under 60 chars\n- Description: First 2 lines are critical (CTA + keyword)\n- Tags: 10-15 relevant tags\n- Thumbnail: Custom, high-contrast, text overlay\n- Captions: Add subtitles for accessibility + SEO\n\n## Short-Form Video (TikTok/Reels/Shorts)\n- Hook in first 3 seconds\n- Keep 15-60 seconds\n- Trending audio/music\n- Text overlays for silent viewers\n- Post 3-5 times per week\n\n## Video Types for Marketing\n1. Tutorials (how-to, educational)\n2. Product demos (show features)\n3. Testimonials (customer stories)\n4. Behind-the-scenes (authenticity)\n5. Live streams (real-time engagement)\n\n## Analytics to Watch\n- Watch time (most important metric)\n- Click-through rate on thumbnails\n- Audience retention graph\n- Subscriber conversion rate",
+questions:[
+{q:"Most important YouTube metric?",options:["Subscribers","Views","Watch time","Likes"],correct:2,explain:"Watch time is YouTube's #1 ranking factor — it shows content quality."},
+{q:"Where should you put the hook in short video?",options:["Middle","Last 3 seconds","First 3 seconds","Description"],correct:2,explain:"First 3 seconds determine if viewers keep watching or scroll past."},
+{q:"YouTube video title should be under?",options:["30 characters","60 characters","100 characters","No limit"],correct:1,explain:"Under 60 characters ensures the full title displays in search results."},
+{q:"Why add captions to videos?",options:["Looks professional only","Accessibility + SEO boost","Required by law","No real benefit"],correct:1,explain:"Captions improve accessibility for hearing-impaired and boost SEO with text content."},
+{q:"How often should you post short-form video?",options:["Once a month","Once a week","3-5 times per week","20 times per day"],correct:2,explain:"Consistency at 3-5 posts/week builds audience without sacrificing quality."}
+]},
+{id:11,title:"Module 11: E-commerce & CRO",diff:"Advanced",time:20,prereq:3,
+content:"E-commerce marketing drives online sales. Learn product page optimization, Google Shopping ads, cart abandonment strategies, conversion rate optimization (CRO), landing page A/B testing.",
+code:"# E-commerce Marketing Playbook\n\n## Product Page Optimization\n- High-quality images (multiple angles)\n- Clear product title with keyword\n- Detailed description with benefits\n- Social proof (reviews, ratings)\n- Urgency (limited stock, countdown)\n- Clear CTA button (Add to Cart)\n\n## Cart Abandonment Recovery\n- Email 1 (1 hour): 'You forgot something'\n- Email 2 (24 hours): Show cart items + reviews\n- Email 3 (72 hours): Offer 10% discount\n- Retargeting ads showing abandoned products\n\n## Conversion Rate Optimization\n- A/B test headlines, CTAs, images\n- Simplify checkout (fewer steps = more sales)\n- Add trust badges (SSL, payment logos)\n- Offer free shipping threshold\n- Exit-intent popup with offer\n\n## Landing Page Best Practices\n- One clear goal per page\n- Match ad copy to landing page\n- Remove navigation distractions\n- Social proof above the fold\n- Mobile-first design\n\n## Google Shopping\n- Product feed optimization\n- High-quality product images\n- Competitive pricing\n- Merchant Center setup",
+questions:[
+{q:"Average cart abandonment rate is about?",options:["20%","40%","70%","10%"],correct:2,explain:"Approximately 70% of carts are abandoned — recovery emails are essential."},
+{q:"First abandonment email should be sent when?",options:["After 1 week","After 1 hour","After 1 month","Never"],correct:1,explain:"Send the first recovery email within 1 hour while intent is fresh."},
+{q:"CRO stands for?",options:["Customer Relationship Optimization","Conversion Rate Optimization","Content Review Online","Campaign Revenue Output"],correct:1,explain:"CRO = Conversion Rate Optimization — improving the % of visitors who convert."},
+{q:"Key element above the fold on landing page?",options:["Navigation menu","Footer links","Social proof","Blog posts"],correct:2,explain:"Social proof (reviews, testimonials) above the fold builds immediate trust."},
+{q:"Free shipping threshold does what?",options:["Reduces costs","Increases average order value","Decreases traffic","Hurts conversions"],correct:1,explain:"Setting a free shipping minimum (e.g., $50+) encourages larger orders."}
+]},
+{id:12,title:"Module 12: Strategy & Campaign Planning",diff:"Advanced",time:25,prereq:11,
+content:"Bring everything together into a complete marketing strategy. Learn budget allocation, multi-channel campaign planning, KPI setting, reporting, client management, and career paths.",
+code:"# Full Marketing Strategy Template\n\n## 1. Situation Analysis\n- SWOT: Strengths, Weaknesses, Opportunities, Threats\n- Competitor analysis (top 3 competitors)\n- Target audience personas\n\n## 2. Goals & KPIs\n- Goal: Increase revenue 30% in 6 months\n- KPIs: Traffic +50%, Conversion +20%, CPA -15%\n\n## 3. Budget Allocation\n- SEO & Content: 30%\n- Paid Ads (Google + Social): 40%\n- Email Marketing: 10%\n- Influencer: 10%\n- Tools & Software: 10%\n\n## 4. Channel Strategy\n- SEO: Publish 8 blog posts/month\n- Google Ads: $5000/month, target CPA $25\n- Facebook/Instagram: $3000/month, retargeting focus\n- Email: Weekly newsletter + 5-part drip sequence\n- Influencer: 4 micro-influencers/month\n\n## 5. Timeline\nMonth 1-2: Foundation (SEO, content, email setup)\nMonth 3-4: Scale (paid ads, influencer launch)\nMonth 5-6: Optimize (analyze, A/B test, refine)\n\n## 6. Reporting Template\n- Weekly: Ad performance + spend\n- Monthly: Traffic, conversions, revenue\n- Quarterly: Strategy review + adjustments",
+questions:[
+{q:"Recommended SEO + Content budget allocation?",options:["5%","15%","30%","60%"],correct:2,explain:"30% for SEO and content is a common balanced allocation."},
+{q:"SWOT analysis covers?",options:["Sales, Work, Output, Time","Strengths, Weaknesses, Opportunities, Threats","Social, Web, Organic, Traffic","Strategy, Workflow, Operations, Tactics"],correct:1,explain:"SWOT = Strengths, Weaknesses, Opportunities, Threats."},
+{q:"How often should you do a strategy review?",options:["Daily","Weekly","Monthly","Quarterly"],correct:3,explain:"Quarterly reviews allow enough data to make meaningful strategic adjustments."},
+{q:"What should Month 1-2 focus on?",options:["Scaling ads","Foundation (SEO, content, email setup)","Cutting budget","Hiring influencers"],correct:1,explain:"First 2 months build the foundation before scaling paid efforts."},
+{q:"If CPA is too high, you should?",options:["Increase budget","Optimize ads, targeting, and landing pages","Pause all campaigns","Switch to TV ads"],correct:1,explain:"High CPA means you need to improve targeting, ad quality, or conversion funnel."}
+]}
+];
+
+const BADGES=[
+{id:'first',name:'First Steps',icon:'🎯',desc:'Log in',check:s=>s.isLoggedIn},
+{id:'seo',name:'SEO Starter',icon:'🔍',desc:'Complete Module 2',check:s=>s.progress[2]?.completed},
+{id:'social',name:'Social Butterfly',icon:'📱',desc:'Complete Module 4',check:s=>s.progress[4]?.completed},
+{id:'data',name:'Data Analyst',icon:'📊',desc:'Complete Module 7',check:s=>s.progress[7]?.completed},
+{id:'ppc',name:'Ad Expert',icon:'💰',desc:'Complete Module 8',check:s=>s.progress[8]?.completed},
+{id:'half',name:'Halfway',icon:'⛰️',desc:'50% modules',check:s=>Object.values(s.progress).filter(p=>p.completed).length>=6},
+{id:'grad',name:'Graduate',icon:'🎓',desc:'All modules',check:s=>Object.values(s.progress).filter(p=>p.completed).length>=12},
+{id:'quiz',name:'Perfect Score',icon:'💯',desc:'100% on quiz',check:s=>Object.values(s.progress).some(p=>p.pct===100)},
+{id:'streak',name:'3-Day Streak',icon:'🔥',desc:'3 day streak',check:s=>s.streak>=3},
+{id:'night',name:'Night Owl',icon:'🦉',desc:'Study past 10PM',check:s=>s.studiedLate},
+{id:'tools',name:'Calculator Pro',icon:'🧮',desc:'Use marketing tools',check:s=>s.usedTools},
+{id:'speed',name:'Speed Run',icon:'⚡',desc:'Quiz < 2 min',check:s=>s.speedRun}
+];
+
+function defS(){return{isLoggedIn:false,studentId:null,studentName:null,secondsActive:0,theme:'dark',progress:{},bookmarks:{},notes:{},streak:0,lastLogin:null,achievements:[],studiedLate:false,speedRun:false,usedTools:false}}
+function loadS(){try{return JSON.parse(localStorage.getItem('dmSess'))||defS()}catch(e){return defS()}}
+let S=loadS();
+function save(){localStorage.setItem('dmSess',JSON.stringify(S));updateUI();showSV()}
+function showSV(){const e=document.getElementById('svInd');if(!e)return;e.innerHTML='<span class="sv-dot sv"></span> Saving...';setTimeout(()=>{e.innerHTML='<span class="sv-dot"></span> Saved'},500)}
+function T(m,t='inf'){const w=document.getElementById('tw');const d=document.createElement('div');d.className='tst '+t;d.textContent=m;w.appendChild(d);requestAnimationFrame(()=>d.classList.add('show'));setTimeout(()=>{d.classList.remove('show');setTimeout(()=>d.remove(),300)},2500)}
+const UI={togTheme(){const t=document.documentElement.getAttribute('data-theme');document.documentElement.setAttribute('data-theme',t==='light'?'dark':'light')},openMdl(id){document.getElementById(id).classList.add('open')},closeMdl(id){document.getElementById(id).classList.remove('open')}};
+
+const vT={dash:'Dashboard',tools:'Marketing Tools',courses:'Curriculum',reports:'Analytics',achievements:'Achievements'};
+function switchV(vid,el){document.querySelectorAll('.vw').forEach(v=>v.classList.remove('act'));document.querySelectorAll('.nav li').forEach(l=>l.classList.remove('act'));document.getElementById('v-'+vid).classList.add('act');if(el)el.classList.add('act');document.getElementById('pgT').textContent=vT[vid]||vid;
+if(vid==='dash')Dash.render();if(vid==='tools')Tools.init();if(vid==='courses')Courses.renderList();if(vid==='reports')Reports.render();if(vid==='achievements')Achiev.render()}
+document.querySelectorAll('.nav li').forEach(li=>{li.addEventListener('click',()=>switchV(li.dataset.v,li))});
+
+function updateUI(){
+document.getElementById('dispName').textContent=S.isLoggedIn?S.studentName:'Guest';
+const rb=document.getElementById('roleBadge'),ab=document.getElementById('authBtn');
+if(S.isLoggedIn){rb.innerHTML='<span class="badge" style="background:var(--ok)">Active</span>';ab.textContent='🚪 Logout'}else{rb.innerHTML='<span class="badge" style="background:var(--dn)">Logged Out</span>';ab.textContent='🔐 Login'}
+let done=0,passed=0,ev=0;Object.values(S.progress).forEach(p=>{if(p.completed)done++;if(p.score==='Passed')passed++;if(p.score!=='Pending')ev++});
+document.getElementById('sDone').textContent=done+'/'+MODS.length;document.getElementById('sScore').textContent=ev?Math.round(passed/ev*100)+'%':'0%';document.getElementById('sTime').textContent=Math.floor(S.secondsActive/60)+'m';document.getElementById('sCampaigns').textContent=Object.values(S.progress).filter(p=>p.completed&&p.score==='Passed').length;document.getElementById('sStreak').textContent=S.streak;
+document.getElementById('welcomeB').textContent=S.isLoggedIn?'Welcome back, '+S.studentName+'!':'Welcome to DigiMktg Academy';
+document.getElementById('authPr').innerHTML=S.isLoggedIn?'<button class="btn btn-dn" onclick="Auth.logout()">🚪 Logout</button>':'<button class="btn btn-ok" onclick="UI.openMdl(\'authModal\')">Log In</button>';
+if(S.isLoggedIn){BADGES.forEach(b=>{if(!S.achievements.includes(b.id)&&b.check(S)){S.achievements.push(b.id);T('🏆 '+b.name,'ok')}})}
+const db=document.getElementById('dashBadges');db.innerHTML='';BADGES.slice(0,8).forEach(b=>{db.innerHTML+='<div class="badge-card '+(S.achievements.includes(b.id)?'unlocked':'locked')+'"><span class="badge-icon">'+b.icon+'</span><div class="badge-name">'+b.name+'</div></div>'})}
+
+document.getElementById('authBtn').onclick=()=>{S.isLoggedIn?Auth.logout():UI.openMdl('authModal')};
+const Auth={login(){const n=document.getElementById('authName').value.trim(),id=document.getElementById('authId').value.trim();if(!n||!id){T('Enter name and ID','er');return}S.isLoggedIn=true;S.studentId=id;S.studentName=n;MODS.forEach(m=>{if(!S.progress[m.id])S.progress[m.id]={completed:false,score:'Pending',pct:null,timeTaken:null}});const today=new Date().toDateString();if(S.lastLogin){const d=Math.floor((new Date(today)-new Date(S.lastLogin))/864e5);S.streak=d===1?S.streak+1:d>1?1:S.streak}else S.streak=1;S.lastLogin=today;if(new Date().getHours()>=22)S.studiedLate=true;save();UI.closeMdl('authModal');switchV('dash',document.querySelector('.nav li'));T('Welcome, '+n+'!','ok')},
+logout(){if(!confirm('Log out?'))return;S.isLoggedIn=false;S.studentId=null;S.studentName=null;save();switchV('dash',document.querySelector('.nav li'));T('Logged out','inf')}};
+
+const Tools={
+init(){Tools.calcROI();Tools.calcCPC();Tools.calcCPM();Tools.calcCR();Tools.calcCPA();Tools.calcROAS();Tools.funnel();S.usedTools=true;save()},
+calcROI(){const r=parseFloat(document.getElementById('roiRev').value)||0,c=parseFloat(document.getElementById('roiCost').value)||1;document.getElementById('roiResult').textContent=c>0?Math.round((r-c)/c*100)+'%':'0%'},
+calcCPC(){const c=parseFloat(document.getElementById('cpcCost').value)||0,cl=parseFloat(document.getElementById('cpcClicks').value)||1;document.getElementById('cpcResult').textContent='$'+(c/cl).toFixed(2)},
+calcCPM(){const c=parseFloat(document.getElementById('cpmCost').value)||0,i=parseFloat(document.getElementById('cpmImp').value)||1;document.getElementById('cpmResult').textContent='$'+(c/i*1000).toFixed(2)},
+calcCR(){const c=parseFloat(document.getElementById('crConv').value)||0,v=parseFloat(document.getElementById('crVis').value)||1;document.getElementById('crResult').textContent=(c/v*100).toFixed(2)+'%'},
+calcCPA(){const c=parseFloat(document.getElementById('cpaCost').value)||0,a=parseFloat(document.getElementById('cpaAcq').value)||1;document.getElementById('cpaResult').textContent='$'+(c/a).toFixed(2)},
+calcROAS(){const r=parseFloat(document.getElementById('roasRev').value)||0,s=parseFloat(document.getElementById('roasSpend').value)||1;document.getElementById('roasResult').textContent=(r/s).toFixed(2)+'x'},
+funnel(){const imp=parseFloat(document.getElementById('fImp').value)||0,click=parseFloat(document.getElementById('fClick').value)||0,lead=parseFloat(document.getElementById('fLead').value)||0,cust=parseFloat(document.getElementById('fCust').value)||0,rev=parseFloat(document.getElementById('fRev').value)||0;
+const stages=[{name:'Impressions',val:imp,color:'var(--primary)'},{name:'Clicks',val:click,color:'var(--cy)'},{name:'Leads',val:lead,color:'var(--wr)'},{name:'Customers',val:cust,color:'var(--ok)'},{name:'Revenue',val:'฿'+(cust*rev).toLocaleString(),color:'var(--pk)'}];
+const max=imp||1;const el=document.getElementById('funnelViz');el.innerHTML='';
+stages.forEach(s=>{const w=Math.max(20,typeof s.val==='number'?s.val/max*100:100);el.innerHTML+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px"><span style="width:90px;font-size:.78rem;color:var(--tm)">'+s.name+'</span><div style="flex:1;background:var(--bd);border-radius:4px;height:28px;overflow:hidden"><div style="width:'+w+'%;height:100%;background:'+s.color+';border-radius:4px;display:flex;align-items:center;padding-left:10px;font-size:.78rem;font-weight:600;transition:width .3s">'+(typeof s.val==='number'?s.val.toLocaleString():s.val)+'</div></div></div>'})}
+};
+
+let activeMod=null,qTimer=null,qStart=0;
+const Courses={
+renderList(){const w=document.getElementById('modListW');w.innerHTML='';document.getElementById('courseListV').style.display='';document.getElementById('lessonV').style.display='none';
+MODS.forEach((m,idx)=>{const p=S.progress[m.id]||{completed:false,score:'Pending'};const ok=!m.prereq||S.progress[m.prereq]?.completed;const dc=m.diff==='Beginner'?'tag-easy':m.diff==='Intermediate'?'tag-mid':'tag-hard';const sc=p.completed?(p.score==='Passed'?'var(--ok)':'var(--dn)'):'var(--tm)';
+const card=document.createElement('div');card.className='module-card'+(ok?'':' locked');const bm=S.bookmarks[m.id];
+card.innerHTML='<div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0"><span class="module-num'+(ok?'':' locked-icon')+'">'+(ok?idx+1:'🔒')+'</span><div style="min-width:0"><div style="display:flex;gap:6px;flex-wrap:wrap"><h4 style="font-size:.92rem">'+m.title+'</h4><span class="tag '+dc+'">'+m.diff+'</span><span class="tag tag-time">⏱'+m.time+'m</span></div><div style="font-size:.72rem;font-weight:700;color:'+sc+';margin-top:3px">'+(p.completed?p.score:'Incomplete')+(p.pct!=null?' ('+p.pct+'%)':'')+'</div></div></div><div style="display:flex;gap:6px;flex-shrink:0"><button class="bookmark-btn" onclick="event.stopPropagation();Courses.toggleBMById('+m.id+')">'+(bm?'🔖':'🏷️')+'</button>'+(ok?'<button class="btn btn-p btn-sm" onclick="Courses.open('+m.id+')">Start →</button>':'')+'</div>';
+w.appendChild(card)})},
+toggleBMById(id){S.bookmarks[id]?delete S.bookmarks[id]:S.bookmarks[id]=true;save();Courses.renderList()},
+toggleBM(){if(!activeMod)return;Courses.toggleBMById(activeMod.id);document.getElementById('bmLessonBtn').textContent=S.bookmarks[activeMod.id]?'🔖':'🏷️'},
+open(id){if(!S.isLoggedIn){T('Log in first','er');UI.openMdl('authModal');return}activeMod=MODS.find(m=>m.id===id);if(!activeMod)return;
+document.getElementById('courseListV').style.display='none';document.getElementById('lessonV').style.display='';
+document.getElementById('lessonTitle').textContent=activeMod.title;
+document.getElementById('lessonBody').innerHTML='<p style="margin-bottom:12px">'+activeMod.content+'</p><pre style="background:var(--bg);padding:14px;border-radius:8px;color:#e2e8f0;font-family:JetBrains Mono,monospace;font-size:.82rem;overflow-x:auto;border:1px solid var(--bd);line-height:1.5;white-space:pre-wrap"><code>'+activeMod.code.replace(/</g,'&lt;')+'</code></pre>';
+document.getElementById('bmLessonBtn').textContent=S.bookmarks[activeMod.id]?'🔖':'🏷️';document.getElementById('modNote').value=S.notes[activeMod.id]||'';Quiz.start()},
+back(){document.getElementById('courseListV').style.display='';document.getElementById('lessonV').style.display='none';Courses.renderList()},
+saveNote(){if(!activeMod)return;S.notes[activeMod.id]=document.getElementById('modNote').value;save()}};
+
+const Quiz={qs:[],qi:0,score:0,answers:[],
+start(){if(!activeMod)return;Quiz.qs=activeMod.questions.map(q=>{const o=[...q.options];const c=o[q.correct];for(let i=o.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[o[i],o[j]]=[o[j],o[i]]}return{...q,options:o,correct:o.indexOf(c)}});Quiz.qi=0;Quiz.score=0;Quiz.answers=[];qStart=Date.now();if(qTimer)clearInterval(qTimer);const tLim=(activeMod.time||15)*60;const te=document.getElementById('quizTimer');te.style.display='';
+qTimer=setInterval(()=>{const el=Math.floor((Date.now()-qStart)/1000);const l=tLim-el;if(l<=0){clearInterval(qTimer);Quiz.finish();return}const m=Math.floor(l/60),s=l%60;te.textContent=m+':'+String(s).padStart(2,'0');te.className='quiz-timer '+(l>120?'ok':l>30?'warn':'danger')},1000);Quiz.renderQ()},
+renderQ(){if(Quiz.qi>=Quiz.qs.length){Quiz.finish();return}const q=Quiz.qs[Quiz.qi];document.getElementById('quizProg').textContent='Q'+(Quiz.qi+1)+'/'+Quiz.qs.length;document.getElementById('quizQ').textContent=q.q;const oc=document.getElementById('quizOpts');oc.innerHTML='';const L=['A','B','C','D'];q.options.forEach((o,i)=>{oc.innerHTML+='<label class="quiz-option"><input type="radio" name="qopt" value="'+i+'"> <strong>'+L[i]+'.</strong> '+o+'</label>'});document.getElementById('quizNextBtn').textContent=Quiz.qi===Quiz.qs.length-1?'Submit':'Next'},
+next(){const s=document.querySelector('input[name="qopt"]:checked');if(!s){T('Select answer','er');return}const ch=parseInt(s.value),q=Quiz.qs[Quiz.qi];Quiz.answers.push({chosen:ch,correct:q.correct,ok:ch===q.correct,q:q.q,opts:q.options,exp:q.explain});if(ch===q.correct)Quiz.score++;Quiz.qi++;Quiz.renderQ()},
+finish(){if(qTimer)clearInterval(qTimer);document.getElementById('quizTimer').style.display='none';const tot=Quiz.qs.length,pct=Math.round(Quiz.score/tot*100),passed=pct>=60,tTaken=Math.floor((Date.now()-qStart)/1000);
+S.progress[activeMod.id]={completed:true,score:passed?'Passed':'Failed',pct,timeTaken:tTaken};if(tTaken<120&&passed)S.speedRun=true;save();
+const L=['A','B','C','D'];let h='<div style="text-align:center;margin-bottom:16px"><h3 style="color:'+(passed?'var(--ok)':'var(--dn)')+'">'+(passed?'Passed!':'Failed')+'</h3><p style="font-size:1.1rem;font-weight:700">'+Quiz.score+'/'+tot+' ('+pct+'%)</p><p style="color:var(--tm);font-size:.84rem">Time: '+Math.floor(tTaken/60)+'m'+tTaken%60+'s</p></div><div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">';
+Quiz.answers.forEach((a,i)=>{h+='<div style="padding:10px;border-radius:8px;border:1px solid '+(a.ok?'var(--ok)':'var(--dn)')+';background:'+(a.ok?'rgba(16,185,129,.06)':'rgba(239,68,68,.06)')+'"><div style="font-weight:600;font-size:.86rem">'+(i+1)+'. '+a.q+'</div><div style="font-size:.82rem">You: '+L[a.chosen]+'. '+a.opts[a.chosen]+' '+(a.ok?'✅':'❌')+'</div>'+(!a.ok?'<div style="font-size:.82rem;color:var(--tm)">Answer: '+L[a.correct]+'. '+a.opts[a.correct]+'</div>':'')+(a.exp?'<div style="font-size:.78rem;color:var(--tm)">💡 '+a.exp+'</div>':'')+'</div>'});
+h+='</div><div style="text-align:center"><button class="btn btn-p" onclick="Courses.back()">← Modules</button></div>';document.getElementById('quizBox').innerHTML=h}};
+
+let chS=null,chC=null;
+const Reports={render(){const sub=document.getElementById('repSub'),tb=document.getElementById('repBody');tb.innerHTML='';if(!S.isLoggedIn){sub.textContent='Log in to view.';return}sub.textContent=S.studentName+' ('+S.studentId+')';
+MODS.forEach(m=>{const p=S.progress[m.id]||{completed:false,score:'Pending'};const c=p.completed?(p.score==='Passed'?'var(--ok)':'var(--dn)'):'var(--tm)';const t=p.timeTaken?Math.floor(p.timeTaken/60)+'m'+p.timeTaken%60+'s':'-';const tr=document.createElement('tr');tr.style.borderBottom='1px solid var(--bd)';tr.innerHTML='<td style="padding:10px 14px;font-weight:500">'+m.title+'</td><td style="padding:10px 14px;color:'+c+'">'+(p.completed?'Done':'-')+'</td><td style="padding:10px 14px;font-weight:700;color:'+c+'">'+p.score+(p.pct!=null?' ('+p.pct+'%)':'')+'</td><td style="padding:10px 14px">'+t+'</td>';tb.appendChild(tr)});
+if(chS)chS.destroy();if(chC)chC.destroy();
+const labels=MODS.map((_,i)=>'M'+(i+1)),scores=MODS.map(m=>{const p=S.progress[m.id];return p?.pct||0}),colors=MODS.map(m=>{const p=S.progress[m.id];if(!p?.completed)return'#334155';return p.score==='Passed'?'#10b981':'#ef4444'});
+chS=new Chart(document.getElementById('chScores'),{type:'bar',data:{labels,datasets:[{data:scores,backgroundColor:colors,borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100,grid:{color:'rgba(255,255,255,.05)'}},x:{grid:{display:false}}}}});
+let d=0,f=0,pn=0;MODS.forEach(m=>{const p=S.progress[m.id];if(p?.completed){p.score==='Passed'?d++:f++}else pn++});
+chC=new Chart(document.getElementById('chComp'),{type:'doughnut',data:{labels:['Passed','Failed','Pending'],datasets:[{data:[d,f,pn],backgroundColor:['#10b981','#ef4444','#334155'],borderWidth:0}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{padding:12,color:'#7a85a8'}}}}})}};
+
+const Achiev={render(){const g=document.getElementById('achGrid');g.innerHTML='';BADGES.forEach(b=>{g.innerHTML+='<div class="badge-card '+(S.achievements.includes(b.id)?'unlocked':'locked')+'"><span class="badge-icon">'+b.icon+'</span><div class="badge-name">'+b.name+'</div><div style="font-size:.66rem;color:var(--tm)">'+b.desc+'</div></div>'})}};
+
+function dl(n,c,t){const b=new Blob([c],{type:t});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n;a.click()}
+const DataIO={export(){dl('digimktg_backup_'+new Date().toISOString().split('T')[0]+'.json',JSON.stringify({S,exportedAt:new Date().toISOString()},null,2),'application/json');T('Exported','ok')},importF(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.S){S=d.S;save();switchV('dash',document.querySelector('.nav li'));T('Imported!','ok')}}catch(err){T('Invalid file','er')}};r.readAsText(f);e.target.value=''}};
+
+const cmds=[{name:'Dashboard',action:()=>switchV('dash',document.querySelectorAll('.nav li')[0])},{name:'Marketing Tools',action:()=>switchV('tools',document.querySelectorAll('.nav li')[1])},{name:'Curriculum',action:()=>switchV('courses',document.querySelectorAll('.nav li')[2])},{name:'Analytics',action:()=>switchV('reports',document.querySelectorAll('.nav li')[3])},{name:'Achievements',action:()=>switchV('achievements',document.querySelectorAll('.nav li')[4])},{name:'Toggle Theme',action:UI.togTheme},{name:'Export Data',action:()=>DataIO.export()}];
+const CMD={si:0,open(){document.getElementById('cmdO').classList.add('open');const i=document.getElementById('cmdIn');i.value='';i.focus();CMD.si=0;CMD.filt()},close(){document.getElementById('cmdO').classList.remove('open')},filt(){CMD.si=0;CMD.render(document.getElementById('cmdIn').value.toLowerCase())},render(q){const c=document.getElementById('cmdR');c.innerHTML='';cmds.filter(x=>x.name.toLowerCase().includes(q)).forEach((cmd,i)=>{const d=document.createElement('div');d.className='cmd-i'+(i===CMD.si?' sel':'');d.innerHTML='<span>'+cmd.name+'</span>';d.onclick=()=>{CMD.close();cmd.action()};c.appendChild(d)})},key(e){const items=document.querySelectorAll('.cmd-i');if(e.key==='Escape')CMD.close();else if(e.key==='ArrowDown'){e.preventDefault();CMD.si=Math.min(CMD.si+1,items.length-1);items.forEach((it,i)=>it.classList.toggle('sel',i===CMD.si))}else if(e.key==='ArrowUp'){e.preventDefault();CMD.si=Math.max(CMD.si-1,0);items.forEach((it,i)=>it.classList.toggle('sel',i===CMD.si))}else if(e.key==='Enter'&&items.length){CMD.close();items[CMD.si]?.click()}}};
+document.getElementById('cmdO').addEventListener('click',e=>{if(e.target.id==='cmdO')CMD.close()});
+
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();CMD.open()}if(e.key==='Escape'){document.querySelectorAll('.mdl.open').forEach(m=>m.classList.remove('open'));CMD.close();document.getElementById('admPnl').classList.remove('open')}if(e.ctrlKey&&e.shiftKey&&e.key==='L'){e.preventDefault();Adm.open()}});
+
+function AppInit(){MODS.forEach(m=>{if(!S.progress[m.id])S.progress[m.id]={completed:false,score:'Pending',pct:null,timeTaken:null}});switchV('dash',document.querySelector('.nav li'));setInterval(()=>{if(S.isLoggedIn){S.secondsActive++;if(S.secondsActive%15===0)save()}},1000);save()}
+(async function boot(){const fp=await Lic.fp();document.getElementById('licFP').value=fp;if(localStorage.getItem(Lic.STOR+'_lk')==='1'){Lic.showExp();return}if(await Lic.check())Lic.unlock();else document.getElementById('licScr').style.display='flex'})();
+</script>
+</body>
+</html>
