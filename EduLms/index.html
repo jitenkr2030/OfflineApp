@@ -1160,7 +1160,7 @@ const Admin = {
             const msLeft = new Date(r.expiryDate).getTime() - Date.now();
             const daysLeft = Math.max(0, Math.ceil(msLeft / 86400000));
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td style="font-family:'JetBrains Mono',monospace;font-size:.74rem;">${r.fingerprint.substring(0,16)}...</td><td>${new Date(r.createdAt).toLocaleDateString()}</td><td>${new Date(r.expiryDate).toLocaleDateString()}</td><td style="color:${daysLeft>7?'#34d399':daysLeft>0?'#fbbf24':'#ef4444'};font-weight:600;">${daysLeft}d</td><td><button class="btn btn-danger btn-xs" onclick="License.revoke('${r.fingerprint}')">Revoke</button></td>`;
+            tr.innerHTML = `<td style="font-family:'JetBrains Mono',monospace;font-size:.74rem;">${r.fingerprint.substring(0,16)}...</td><td>${new Date(r.createdAt).toLocaleDateString()}</td><td>${new Date(r.expiryDate).toLocaleDateString()}</td><td style="color:${daysLeft>7?'#34d399':daysLeft>0?'#fbbf24':'#ef4444'};font-weight:600;">${daysLeft}d</td><td><button class="btn btn-danger btn-xs" onclick="LIC.revoke('${r.fingerprint}')">Revoke</button></td>`;
             tb.appendChild(tr);
         });
     }
