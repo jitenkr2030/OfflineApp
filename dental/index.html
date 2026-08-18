@@ -320,7 +320,7 @@ try{key=key.trim().toUpperCase();if(!key.startsWith('DENT-'))return{v:false,r:'I
 const p=key.replace('DENT-','').split('-');if(p.length!==4)return{v:false,r:'Invalid format'};
 const pl=p.join('');if(pl.length!==16)return{v:false,r:'Invalid length'};
 const es=pl.substring(0,4),fp8=pl.substring(4,12),sg=pl.substring(12,16);
-const ed=parseInt(es,36);if(isNaN(ed))return{v:false,r:'Invalid'};
+const ed=parseInt(es,16);if(isNaN(ed))return{v:false,r:'Invalid'};
 if(fp8!==fp.substring(0,8))return{v:false,r:'Different machine'};
 const expSg=(await Lic.sha(ed+':'+fp+':'+Lic.SECRET)).substring(0,4).toUpperCase();
 if(sg!==expSg)return{v:false,r:'Invalid signature'};

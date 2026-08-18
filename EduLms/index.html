@@ -829,7 +829,7 @@ const LIC = {
         const fpPart = fingerprint.substring(0, 8);
         const dataToSign = expiryDays + ':' + fingerprint + ':' + LIC.SECRET;
         const sigHash = await LIC.sha256(dataToSign);
-        const sig = sigHash.substring(0, 8).toUpperCase();
+        const sig = sigHash.substring(0, 4).toUpperCase();
         const payload = expiryStr + fpPart + sig;
         // Format as SIIT-XXXX-XXXX-XXXX-XXXX
         const formatted = 'SIIT-' + payload.substring(0, 4) + '-' + payload.substring(4, 8) + '-' + payload.substring(8, 12) + '-' + payload.substring(12, 16);
@@ -849,10 +849,10 @@ const LIC = {
 
             const expiryStr = payload.substring(0, 4);
             const fpPart = payload.substring(4, 12);
-            const sig = payload.substring(12, 20);
+            const sig = payload.substring(12, 16);
 
             // Decode expiry
-            const expiryDays = parseInt(expiryStr, 36);
+            const expiryDays = parseInt(expiryStr, 16);
             if (isNaN(expiryDays)) return { valid: false, reason: 'Invalid expiry' };
 
             // Check fingerprint
@@ -863,7 +863,7 @@ const LIC = {
             // Verify signature
             const dataToSign = expiryDays + ':' + fingerprint + ':' + LIC.SECRET;
             const expectedSigHash = await LIC.sha256(dataToSign);
-            const expectedSig = expectedSigHash.substring(0, 8).toUpperCase();
+            const expectedSig = expectedSigHash.substring(0, 4).toUpperCase();
 
             if (sig !== expectedSig) {
                 return { valid: false, reason: 'Invalid signature (tampered key)' };
