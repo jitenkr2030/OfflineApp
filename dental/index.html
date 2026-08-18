@@ -309,20 +309,20 @@ try{const g=document.createElement('canvas').getContext('webgl');const d=g.getEx
 try{const a=new(window.AudioContext||window.webkitAudioContext)();c.push(String(a.sampleRate));a.close()}catch(e){c.push('a-e')}
 const h=await Lic.sha(c.join('|||'));return h.substring(0,32).toUpperCase()},
 async sha(m){const b=new TextEncoder().encode(m);const h=await crypto.subtle.digest('SHA-256',b);return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,'0')).join('')},
-simpleH(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);h=h>>>0}return h.toString(36).toUpperCase()},
+simpleH(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);h=h>>>0}return h.toString(16).toUpperCase()},
 async genKey(fp,days){
 const ex=new Date();ex.setDate(ex.getDate()+days);const ed=Math.floor(ex.getTime()/864e5);
-const es=ed.toString(36).toUpperCase().padStart(4,'0');const fp8=fp.substring(0,8);
+const es=ed.toString(16).toUpperCase().padStart(4,'0');const fp8=fp.substring(0,8);
 const sig=await Lic.sha(ed+':'+fp+':'+Lic.SECRET);const sg=sig.substring(0,8).toUpperCase();
 const pl=es+fp8+sg;return{key:'DENT-'+pl.substring(0,4)+'-'+pl.substring(4,8)+'-'+pl.substring(8,12)+'-'+pl.substring(12,16),exp:ex.toISOString(),ed}},
 async valKey(key,fp){
 try{key=key.trim().toUpperCase();if(!key.startsWith('DENT-'))return{v:false,r:'Invalid format'};
 const p=key.replace('DENT-','').split('-');if(p.length!==4)return{v:false,r:'Invalid format'};
 const pl=p.join('');if(pl.length!==16)return{v:false,r:'Invalid length'};
-const es=pl.substring(0,4),fp8=pl.substring(4,12),sg=pl.substring(12,20);
+const es=pl.substring(0,4),fp8=pl.substring(4,12),sg=pl.substring(12,16);
 const ed=parseInt(es,36);if(isNaN(ed))return{v:false,r:'Invalid'};
 if(fp8!==fp.substring(0,8))return{v:false,r:'Different machine'};
-const expSg=(await Lic.sha(ed+':'+fp+':'+Lic.SECRET)).substring(0,8).toUpperCase();
+const expSg=(await Lic.sha(ed+':'+fp+':'+Lic.SECRET)).substring(0,4).toUpperCase();
 if(sg!==expSg)return{v:false,r:'Invalid signature'};
 const exMs=ed*864e5;if(Date.now()>exMs)return{v:false,r:'Expired',expired:true,exp:new Date(exMs).toISOString()};
 return{v:true,exp:new Date(exMs).toISOString(),expMs:exMs,dLeft:Math.ceil((exMs-Date.now())/864e5)}}
@@ -359,7 +359,7 @@ function defDB(){return{cfg:{name:'DentaCare Dental Clinic',phone:'02-123-4567',
 function loadDB(){try{return JSON.parse(localStorage.getItem('dcDB'))||defDB()}catch(e){return defDB()}}
 function saveDB(){localStorage.setItem('dcDB',JSON.stringify(DB));showSV()}
 function showSV(){const e=document.getElementById('svInd');if(!e)return;e.innerHTML='<span class="sv-dot sv"></span> Saving...';setTimeout(()=>{e.innerHTML='<span class="sv-dot"></span> Saved'},500)}
-function genRef(){return 'REF-'+Date.now().toString(36).toUpperCase().substring(5)}
+function genRef(){return 'REF-'+Date.now().toString(16).toUpperCase().substring(5)}
 function genPatId(){return 'P-'+(DB.patients.length+1).toString().padStart(4,'0')}
 function fmtDate(d){return new Date(d).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})}
 function fmtMoney(n){return Number(n).toLocaleString('en-US',{minimumFractionDigits:0})}
@@ -520,7 +520,7 @@ const ref=genRef();
 const appt={id:ref,patientId:patId,patientName:Book.data.patientName,patientPhone:Book.data.patientPhone,dentist:Book.data.dentist,treatment:Book.data.treatment,date:Book.data.date,time:Book.data.time,slots:Book.data.slots,notes:Book.data.notes,status:'pending',price:Book.data.price||0,createdAt:new Date().toISOString()};
 DB.appointments.push(appt);
 // Create pending payment
-const pay={id:'PAY-'+Date.now().toString(36).toUpperCase().substring(5),apptRef:ref,patientId:patId,patientName:Book.data.patientName,treatment:Book.data.treatment,amount:Book.data.price||0,paid:0,balance:Book.data.price||0,method:'',status:'pending',notes:'',date:today(),createdAt:new Date().toISOString()};
+const pay={id:'PAY-'+Date.now().toString(16).toUpperCase().substring(5),apptRef:ref,patientId:patId,patientName:Book.data.patientName,treatment:Book.data.treatment,amount:Book.data.price||0,paid:0,balance:Book.data.price||0,method:'',status:'pending',notes:'',date:today(),createdAt:new Date().toISOString()};
 DB.payments.push(pay);
 saveDB();
 // Show slip
@@ -681,7 +681,7 @@ if(amount<=0){T('Enter amount','er');return}
 const appt=DB.appointments.find(a=>a.id===apptRef);
 const paid=status==='paid'?amount:status==='partial'?Math.round(amount*0.5):0;
 if(eid){const p=DB.payments.find(x=>x.id===eid);if(p){p.amount=amount;p.paid=paid;p.balance=amount-paid;p.method=method;p.status=status;p.notes=notes}}
-else{DB.payments.push({id:'PAY-'+Date.now().toString(36).toUpperCase().substring(5),apptRef,patientId:appt?.patientId||'',patientName:appt?.patientName||'Unknown',treatment:appt?.treatment||'',amount,paid,balance:amount-paid,method,status,notes,date:today(),createdAt:new Date().toISOString()})}
+else{DB.payments.push({id:'PAY-'+Date.now().toString(16).toUpperCase().substring(5),apptRef,patientId:appt?.patientId||'',patientName:appt?.patientName||'Unknown',treatment:appt?.treatment||'',amount,paid,balance:amount-paid,method,status,notes,date:today(),createdAt:new Date().toISOString()})}
 saveDB();UI.closeMdl('payModal');Pays.render();T('Payment saved','ok')},
 exportCSV(){
 let csv='ID,Patient,Treatment,Amount,Paid,Balance,Method,Status,Date\n';

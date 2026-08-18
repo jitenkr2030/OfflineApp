@@ -825,7 +825,7 @@ const LIC = {
         const expiryDate = new Date();
         expiryDate.setDate(expiryDate.getDate() + daysFromNow);
         const expiryDays = Math.floor(expiryDate.getTime() / 86400000);
-        const expiryStr = expiryDays.toString(36).toUpperCase().padStart(4, '0');
+        const expiryStr = expiryDays.toString(16).toUpperCase().padStart(4, '0');
         const fpPart = fingerprint.substring(0, 8);
         const dataToSign = expiryDays + ':' + fingerprint + ':' + LIC.SECRET;
         const sigHash = await LIC.sha256(dataToSign);
@@ -928,7 +928,7 @@ const LIC = {
             h = Math.imul(h, 0x01000193);
             h = h >>> 0;
         }
-        return h.toString(36).toUpperCase();
+        return h.toString(16).toUpperCase();
     },
 
     // ------- ANTI-TAMPER CHECK -------
