@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GSTPro — GST Billing, Invoice & Accounting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--primary:#6366f1;--primary-h:#4f46e5;--primary-s:rgba(99,102,241,.12);--bg:#0b0e1a;--sf:#111528;--card:#171c32;--tx:#e8ecf4;--tm:#6b7a94;--bd:#1e2540;--ok:#10b981;--wr:#f59e06;--dn:#ef4444;--pk:#ec4899;--cy:#06b6d4;--or:#f97316;--rd:10px;--sh:0 4px 24px rgba(0,0,0,.3)}
+[data-theme="light"]{--primary:#4f46e5;--primary-h:#4338ca;--primary-s:rgba(79,70,229,.08);--bg:#f5f5ff;--sf:#ffffff;--card:#ffffff;--tx:#1a1a2e;--tm:#6b7280;--bd:#e5e7eb;--ok:#059669;--wr:#d97706;--dn:#dc2626;--pk:#db2777;--cy:#0891b2;--or:#ea580c;--sh:0 4px 24px rgba(0,0,0,.06)}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'DM Sans',system-ui,sans-serif}
+body{background:var(--bg);color:var(--tx);display:flex;height:100vh;overflow:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+/* License */
+#licScr{position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#0b0e1a,#0e0a2e,#0b0e1a);display:flex;align-items:center;justify-content:center}
+#licScr.hide{display:none}
+.lic-c{width:440px;max-width:92vw;background:rgba(23,28,50,.95);border:1px solid #1e2540;border-radius:16px;padding:36px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.lic-hd{text-align:center;margin-bottom:24px}.lic-ic{width:56px;height:56px;background:linear-gradient(135deg,#6366f1,#06b6d4);border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:12px}
+.lic-f{margin-bottom:14px}.lic-f label{display:block;font-size:.82rem;font-weight:600;color:#94a3b8;margin-bottom:6px}
+.lic-f input{width:100%;padding:11px 14px;border:1px solid #334155;border-radius:8px;background:#0b1020;color:#e8ecf4;font-family:'JetBrains Mono',monospace;font-size:.88rem;outline:none}
+.lic-f input[readonly]{background:#0b0e1a;color:#6b7a94;font-size:.78rem}
+.lic-bt{width:100%;padding:12px;border:none;border-radius:8px;font-weight:600;font-size:.9rem;cursor:pointer;font-family:inherit;color:#fff}
+.lic-bt.p{background:linear-gradient(135deg,#6366f1,#06b6d4)}.lic-bt.p:hover{filter:brightness(1.1)}
+.lic-st{text-align:center;margin-top:14px;font-size:.82rem}.lic-st.ok{color:#34d399}.lic-st.er{color:#fbbf24}
+.lic-dv{display:flex;align-items:center;gap:12px;margin:18px 0;color:#475569;font-size:.78rem}.lic-dv::before,.lic-dv::after{content:'';flex:1;height:1px;background:#1e2540}
+.lic-info{background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);border-radius:8px;padding:12px;font-size:.78rem;color:#94a3b8;line-height:1.5}
+#licExp{display:none;text-align:center}.lic-exp-ic{font-size:4rem;margin-bottom:16px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.95)}}
+/* Sidebar */
+.sb{width:252px;min-width:252px;background:var(--sf);border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow:hidden}
+.brand{padding:14px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--bd)}
+.brand-ic{width:34px;height:34px;background:linear-gradient(135deg,#6366f1,#06b6d4);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.95rem}
+.brand-t{font-weight:700;font-size:.9rem;color:var(--primary)}
+.nav{list-style:none;padding:8px 7px;flex:1;overflow-y:auto}
+.nav li{padding:9px 11px;margin-bottom:2px;border-radius:8px;cursor:pointer;font-weight:500;font-size:.82rem;color:var(--tm);display:flex;align-items:center;gap:8px;transition:all .15s}
+.nav li:hover,.nav li.act{background:var(--primary-s);color:var(--primary)}.nav li.act{font-weight:600}
+.nav .nav-sec{font-size:.66rem;text-transform:uppercase;letter-spacing:.08em;color:var(--tm);padding:10px 11px 3px;font-weight:700;cursor:default}
+.sess{padding:10px;background:var(--bg);border-top:1px solid var(--bd);font-size:.74rem}
+.badge{display:inline-block;padding:2px 10px;font-size:.72rem;font-weight:700;border-radius:5px;color:#fff}
+/* Main */
+.mn{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.hdr{padding:10px 18px;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center}
+.hdr h2{font-size:.98rem;font-weight:700}.hdr-ac{display:flex;align-items:center;gap:7px}
+.sv-ind{font-size:.73rem;color:var(--tm);display:flex;align-items:center;gap:4px}
+.sv-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block}.sv-dot.sv{background:var(--wr);animation:pulse .6s infinite}
+.cnt{flex:1;overflow:hidden}
+.vw{display:none;height:100%;overflow-y:auto;padding:18px}.vw.act{display:flex;flex-direction:column}
+/* Buttons */
+.btn{border:none;padding:7px 14px;border-radius:8px;font-weight:600;cursor:pointer;font-size:.8rem;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{filter:brightness(1.1)}.btn-p{background:var(--primary);color:#fff}.btn-ok{background:var(--ok);color:#fff}.btn-wr{background:var(--wr);color:#000}.btn-dn{background:var(--dn);color:#fff}.btn-gh{background:transparent;border:1px solid var(--bd);color:var(--tx)}.btn-cy{background:var(--cy);color:#fff}.btn-or{background:var(--or);color:#fff}.btn-sm{padding:4px 9px;font-size:.72rem}.btn-xs{padding:3px 7px;font-size:.68rem;border-radius:5px}
+input[type="text"],input[type="password"],input[type="number"],input[type="date"],input[type="email"],select,textarea.fc{width:100%;padding:8px 10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;margin-bottom:8px;font-size:.84rem;font-family:inherit;outline:none;transition:border .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--primary)}textarea.fc{resize:vertical;line-height:1.5}
+label.lbl{display:block;font-size:.8rem;font-weight:600;margin-bottom:4px;color:var(--tm)}
+/* Cards */
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--rd);padding:16px;margin-bottom:14px;box-shadow:var(--sh)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px}
+.st-c{background:var(--card);border:1px solid var(--bd);border-radius:var(--rd);padding:12px;text-align:center;position:relative;overflow:hidden}
+.st-c::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.st-c:nth-child(1)::before{background:var(--primary)}.st-c:nth-child(2)::before{background:var(--ok)}.st-c:nth-child(3)::before{background:var(--wr)}.st-c:nth-child(4)::before{background:var(--dn)}.st-c:nth-child(5)::before{background:var(--cy)}.st-c:nth-child(6)::before{background:var(--or)}
+.st-c h3{font-size:1.2rem;font-weight:700;margin-bottom:2px}.st-c p{color:var(--tm);font-size:.76rem}
+/* Table */
+.tbl-wrap{border:1px solid var(--bd);border-radius:8px;overflow-x:auto;margin-bottom:12px}
+table.wt{width:100%;border-collapse:collapse;font-size:.82rem}
+table.wt th{text-align:left;padding:9px 11px;background:var(--sf);border-bottom:1px solid var(--bd);font-weight:600;color:var(--tm);white-space:nowrap}
+table.wt td{padding:8px 11px;border-bottom:1px solid var(--bd)}
+table.wt tr:hover{background:var(--primary-s)}
+/* Modal */
+.mdl{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1500;justify-content:center;align-items:center}
+.mdl.open{display:flex}.mdl-box{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:20px;max-width:700px;width:94%;box-shadow:var(--sh);max-height:88vh;overflow-y:auto}
+/* Toast */
+.tw{position:fixed;bottom:20px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:7px}
+.tst{padding:11px 16px;border-radius:10px;font-size:.82rem;font-weight:600;color:#fff;opacity:0;transform:translateY(12px);transition:all .3s;pointer-events:none;max-width:320px}
+.tst.show{opacity:1;transform:translateY(0)}.tst.ok{background:#059669}.tst.er{background:#dc2626}.tst.inf{background:var(--primary)}.tst.wr{background:#d97706}
+/* Admin */
+#admPnl{position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center}
+#admPnl.open{display:flex}.adm-b{width:680px;max-width:95vw;max-height:90vh;background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:22px;overflow-y:auto}
+.adm-t{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:12px}.adm-t th{text-align:left;padding:7px 9px;background:var(--bg);border-bottom:1px solid var(--bd);font-weight:600;color:var(--tm)}.adm-t td{padding:7px 9px;border-bottom:1px solid var(--bd)}
+.gen-k{font-family:'JetBrains Mono',monospace;background:var(--bg);padding:8px 12px;border-radius:6px;font-size:.8rem;color:var(--ok);margin-top:12px;word-break:break-all;display:none;border:1px solid var(--bd)}
+.lic-bar{display:flex;align-items:center;gap:7px;padding:4px 9px;border-radius:6px;font-size:.7rem;font-weight:600}
+.lic-bar.act{background:rgba(16,185,129,.12);color:var(--ok)}.lic-bar.wrn{background:rgba(245,158,6,.12);color:var(--wr)}
+.lic-bar-dot{width:7px;height:7px;border-radius:50%;display:inline-block}.lic-bar.act .lic-bar-dot{background:var(--ok)}.lic-bar.wrn .lic-bar-dot{background:var(--wr);animation:pulse 1s infinite}
+/* Cmd */
+.cmd-o{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;justify-content:center;padding-top:14vh}
+.cmd-o.open{display:flex}.cmd-b{width:440px;max-height:340px;background:var(--card);border:1px solid var(--bd);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.cmd-b input{padding:12px 14px;border:none;border-bottom:1px solid var(--bd);background:transparent;color:var(--tx);font-size:.92rem;outline:none}
+.cmd-r{overflow-y:auto;flex:1}.cmd-i{padding:9px 14px;cursor:pointer;font-size:.84rem;display:flex;justify-content:space-between;transition:background .1s}
+.cmd-i:hover,.cmd-i.sel{background:var(--primary-s)}
+/* Tags */
+.tag{font-size:.66rem;padding:2px 7px;border-radius:4px;font-weight:600}
+.tag-ok{background:rgba(16,185,129,.15);color:var(--ok)}.tag-dn{background:rgba(239,68,68,.12);color:var(--dn)}.tag-wr{background:rgba(245,158,6,.12);color:var(--wr)}.tag-cy{background:rgba(6,182,212,.12);color:var(--cy)}.tag-pk{background:rgba(236,72,153,.12);color:var(--pk)}
+.charts-g{display:grid;grid-template-columns:1fr 1fr;gap:12px}.chart-c{background:var(--card);border:1px solid var(--bd);border-radius:var(--rd);padding:14px}.chart-c h4{font-size:.86rem;margin-bottom:8px;font-weight:600}
+.frm-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.frm-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.frm-row-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+.search-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.search-bar input,.search-bar select{margin-bottom:0}
+.badges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:10px}
+.badge-card{text-align:center;padding:11px 6px;border:1px solid var(--bd);border-radius:var(--rd);background:var(--sf)}.badge-card.unlocked{border-color:var(--wr);background:rgba(245,158,6,.05)}.badge-card.locked{opacity:.4;filter:grayscale(1)}
+.badge-icon{font-size:1.5rem;margin-bottom:2px;display:block}.badge-name{font-size:.72rem;font-weight:600}
+/* GST calc */
+.calc-result{font-size:1.3rem;font-weight:700;color:var(--ok);margin-top:8px;padding:8px;background:var(--bg);border-radius:8px;text-align:center}
+.calc-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rd);padding:14px}
+.gstin-box{font-family:'JetBrains Mono',monospace;font-size:.95rem;padding:12px;background:var(--bg);border-radius:8px;border:1px solid var(--bd);margin-top:8px;line-height:1.6}
+@media(max-width:900px){.sb{width:54px;min-width:54px}.brand-t,.nav li span,.nav .nav-sec,.sess{display:none}.nav li{justify-content:center;padding:11px}.charts-g,.frm-row-3,.frm-row-4{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- LICENSE -->
+<div id="licScr"><div class="lic-c">
+<div id="licAct"><div class="lic-hd"><div class="lic-ic">🧾</div><h2>GSTPro</h2><p style="color:#6b7a94;font-size:.82rem;margin-top:4px">GST Billing, Invoice & Accounting</p></div>
+<div class="lic-f"><label>Machine Fingerprint</label><input type="text" id="licFP" readonly></div>
+<div class="lic-f"><label>License Key</label><input type="text" id="licKey" placeholder="GSTP-XXXX-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false"></div>
+<button class="lic-bt p" onclick="LIC.activate()">Activate License</button>
+<div class="lic-st" id="licSt"></div>
+<div class="lic-dv">OR</div>
+<button class="lic-bt" style="background:#334155;color:#e8ecf4" onclick="LIC.showExp()">Demo Mode</button>
+<div class="lic-info" style="margin-top:16px"><strong>How to activate:</strong><br>1. Copy Machine Fingerprint<br>2. Send to administrator<br>3. Receive license key<br>4. Paste and click Activate</div></div>
+<div id="licExp"><div style="text-align:center"><div class="lic-exp-ic">🔒</div><h1 style="color:#ef4444;font-size:1.4rem;margin-bottom:8px">License Expired</h1><p style="color:#6b7a94;font-size:.86rem;margin-bottom:18px">All data wiped. Contact admin.</p><button class="lic-bt p" onclick="LIC.showAct()" style="max-width:280px;margin:0 auto">Enter New License</button></div></div>
+</div></div>
+
+<!-- MAIN APP -->
+<div id="mainApp" style="display:none;width:100%;height:100%">
+<aside class="sb"><div>
+<div class="brand"><div class="brand-ic">🧾</div><span class="brand-t">GSTPro</span></div>
+<ul class="nav" id="nav">
+<li class="act" data-v="dash">📊 <span>Dashboard</span></li>
+<li class="nav-sec">Billing</li>
+<li data-v="invoices">📄 <span>Invoices</span></li>
+<li data-v="customers">👥 <span>Customers</span></li>
+<li data-v="suppliers">🏭 <span>Suppliers</span></li>
+<li data-v="products">📦 <span>Products</span></li>
+<li class="nav-sec">Finance</li>
+<li data-v="payments">💰 <span>Payments</span></li>
+<li data-v="purchases">📝 <span>Purchases</span></li>
+<li data-v="expenses">💸 <span>Expenses</span></li>
+<li class="nav-sec">GST & Tax</li>
+<li data-v="gstcalc">🧮 <span>GST Calculator</span></li>
+<li data-v="gstin">🔍 <span>GSTIN Validator</span></li>
+<li data-v="hsn">📋 <span>HSN/SAC Codes</span></li>
+<li data-v="gstreturns">📑 <span>GST Returns</span></li>
+<li class="nav-sec">Other</li>
+<li data-v="reports">📈 <span>Reports</span></li>
+<li data-v="achievements">🏆 <span>Achievements</span></li>
+<li data-v="settings">⚙️ <span>Settings</span></li>
+</ul></div>
+<div class="sess"><div id="dispName" style="font-weight:600">Admin</div><div style="margin-top:3px"><span class="badge" style="background:var(--ok)">Business</span></div><div id="licBarSess" style="margin-top:6px"></div></div></aside>
+
+<div class="mn">
+<header class="hdr"><h2 id="pgT">Dashboard</h2><div class="hdr-ac"><div class="sv-ind" id="svInd"><span class="sv-dot"></span> Saved</div><div id="licBarHdr"></div><button class="btn btn-gh btn-sm" onclick="CMD.open()">⌘K</button><button class="btn btn-gh btn-sm" onclick="UI.togTheme()">🌗</button><button class="btn btn-gh btn-sm" onclick="DataIO.open()">📦</button></div></header>
+<div class="cnt">
+
+<!-- DASHBOARD -->
+<div id="v-dash" class="vw act">
+<div class="stats" id="dashStats"></div>
+<div class="charts-g"><div class="chart-c"><h4>Revenue Trend</h4><canvas id="chRev"></canvas></div><div class="chart-c"><h4>GST Breakdown</h4><canvas id="chGST"></canvas></div></div>
+<div class="card" style="margin-top:12px"><h3 style="margin-bottom:8px">Quick Actions</h3><div style="display:flex;gap:6px;flex-wrap:wrap">
+<button class="btn btn-p btn-sm" onclick="Nav.go('invoices');Inv.showForm()">+ New Invoice</button>
+<button class="btn btn-ok btn-sm" onclick="Nav.go('customers');Cust.showForm()">+ Add Customer</button>
+<button class="btn btn-wr btn-sm" onclick="Nav.go('gstcalc')">GST Calculator</button>
+<button class="btn btn-cy btn-sm" onclick="Nav.go('gstin')">GSTIN Validator</button>
+<button class="btn btn-or btn-sm" onclick="Nav.go('expenses');Exp.showForm()">Record Expense</button>
+</div></div></div>
+
+<!-- INVOICES -->
+<div id="v-invoices" class="vw">
+<div class="search-bar">
+<input type="text" id="invSearch" placeholder="Search invoices..." oninput="Inv.renderList()" style="width:200px">
+<select id="invFilterStatus" onchange="Inv.renderList()" style="width:120px"><option value="">All Status</option><option>Draft</option><option>Sent</option><option>Paid</option><option>Overdue</option><option>Cancelled</option></select>
+<div style="flex:1"></div>
+<button class="btn btn-gh btn-sm" onclick="Inv.exportCSV()">Export CSV</button>
+<button class="btn btn-p btn-sm" onclick="Inv.showForm()">+ New Invoice</button>
+</div>
+<div class="tbl-wrap"><table class="wt"><thead><tr><th>Inv #</th><th>Date</th><th>Customer</th><th>Taxable</th><th>GST</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="invBody"></tbody></table></div>
+</div>
+
+<!-- CUSTOMERS -->
+<div id="v-customers" class="vw">
+<div class="search-bar">
+<input type="text" id="custSearch" placeholder="Search by name or GSTIN..." oninput="Cust.renderList()" style="width:240px">
+<div style="flex:1"></div>
+<button class="btn btn-p btn-sm" onclick="Cust.showForm()">+ Add Customer</button>
+</div>
+<div class="tbl-wrap"><table class="wt"><thead><tr><th>#</th><th>Name</th><th>GSTIN</th><th>State</th><th>Phone</th><th>Balance</th><th>Actions</th></tr></thead><tbody id="custBody"></tbody></table></div>
+</div>
+
+<!-- SUPPLIERS -->
+<div id="v-suppliers" class="vw">
+<div class="search-bar">
+<input type="text" id="supSearch" placeholder="Search suppliers..." oninput="Sup.renderList()" style="width:240px">
+<div style="flex:1"></div>
+<button class="btn btn-p btn-sm" onclick="Sup.showForm()">+ Add Supplier</button>
+</div>
+<div class="tbl-wrap"><table class="wt"><thead><tr><th>#</th><th>Name</th><th>GSTIN</th><th>State</th><th>Phone</th><th>Balance</th><th>Actions</th></tr></thead><tbody id="supBody"></tbody></table></div>
+</div>
+
+<!-- PRODUCTS -->
+<div id="v-products" class="vw">
+<div class="search-bar">
+<input type="text" id="prodSearch" placeholder="Search by name or HSN..." oninput="Prod.renderList()" style="width:240px">
+<div style="flex:1"></div>
+<button class="btn btn-p btn-sm" onclick="Prod.showForm()">+ Add Product</button>
+</div>
+<div class="tbl-wrap"><table class="wt"><thead><tr><th>Code</th><th>Name</th><th>HSN/SAC</th><th>Unit</th><th>Rate</th><th>GST%</th><th>Stock</th><th>Actions</th></tr></thead><tbody id="prodBody"></tbody></table></div>
+</div>
+
+<!-- PAYMENTS -->
+<div id="v-payments" class="vw">
+<div class="stats" id="payStats"></div>
+<div class="search-bar">
+<h3 style="flex:1">Payments</h3>
+<button class="btn btn-gh btn-sm" onclick="Pay.exportCSV()">Export</button>
+<button class="btn btn-p btn-sm" onclick="Pay.showForm()">+ Record Payment</button>
+</div>
+<div class="tbl-wrap"><table class="wt"><thead><tr><th>Pay #</th><th>Date</th><th>Customer/Supplier</th><th>Type</th><th>Amount</th><th>Mode</th><th>Ref</th><th>Actions</th></tr></thead><tbody id="payBody"></tbody></table></div>
+</div>
+
+<!-- PURCHASES -->
+<div id="v-purchases" class="vw">
+<div class="search-bar">
+<h3 style="flex:1">Purchases</h3>
+<button class="btn btn-p btn-sm" onclick="Purch.showForm()">+ New Purchase</button>
+</div>
+<div class="tbl-wrap"><table class="wt"><thead><tr><th>Pur #</th><th>Date</th><th>Supplier</th><th>Taxable</th><th>GST</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="purchBody"></tbody></table></div>
+</div>
+
+<!-- EXPENSES -->
+<div id="v-expenses" class="vw">
+<div class="stats" id="expStats"></div>
+<div class="search-bar">
+<h3 style="flex:1">Expenses</h3>
+<button class="btn btn-gh btn-sm" onclick="Exp.exportCSV()">Export</button>
+<button class="btn btn-p btn-sm" onclick="Exp.showForm()">+ Add Expense</button>
+</div>
+<div class="tbl-wrap"><table class="wt"><thead><tr><th>Exp #</th><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>GST</th><th>Mode</th><th>Actions</th></tr></thead><tbody id="expBody"></tbody></table></div>
+</div>
+
+<!-- GST CALCULATOR -->
+<div id="v-gstcalc" class="vw">
+<h2 style="margin-bottom:14px">🧮 GST Calculator</h2>
+<div class="card">
+<div class="frm-row-3">
+<div><label class="lbl">Amount</label><input type="number" id="gcAmt" value="100000" oninput="GSTCalc.calc()"></div>
+<div><label class="lbl">GST Rate</label><select id="gcRate" onchange="GSTCalc.calc()"><option value="0">0%</option><option value="3">3%</option><option value="5">5%</option><option value="12">12%</option><option value="18" selected>18%</option><option value="28">28%</option></select></div>
+<div><label class="lbl">Supply Type</label><select id="gcType" onchange="GSTCalc.calc()"><option>Intra-State</option><option>Inter-State</option></select></div>
+</div>
+<div id="gcResult" class="calc-result" style="margin-top:10px"></div>
+</div>
+<div class="card" style="margin-top:14px">
+<h3 style="margin-bottom:8px">Quick Rates</h3>
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<button class="btn btn-gh btn-sm" onclick="document.getElementById('gcRate').value='0';GSTCalc.calc()">0%</button>
+<button class="btn btn-gh btn-sm" onclick="document.getElementById('gcRate').value='5';GSTCalc.calc()">5%</button>
+<button class="btn btn-gh btn-sm" onclick="document.getElementById('gcRate').value='12';GSTCalc.calc()">12%</button>
+<button class="btn btn-gh btn-sm" onclick="document.getElementById('gcRate').value='18';GSTCalc.calc()">18%</button>
+<button class="btn btn-gh btn-sm" onclick="document.getElementById('gcRate').value='28';GSTCalc.calc()">28%</button>
+</div></div></div>
+
+<!-- GSTIN VALIDATOR -->
+<div id="v-gstin" class="vw">
+<h2 style="margin-bottom:14px">🔍 GSTIN Validator</h2>
+<div class="card">
+<label class="lbl">Enter GSTIN</label>
+<div style="display:flex;gap:8px"><input type="text" id="gstinInput" placeholder="e.g. 27AABCU9603R1ZM" style="flex:1" oninput="GSTIN.validate()" maxlength="15"><button class="btn btn-p" onclick="GSTIN.validate()">Validate</button></div>
+<div id="gstinResult" class="gstin-box" style="margin-top:12px;color:var(--tm)">Enter a 15-character GSTIN to validate</div>
+</div></div>
+
+<!-- HSN/SAC CODES -->
+<div id="v-hsn" class="vw">
+<h2 style="margin-bottom:14px">📋 HSN/SAC Code Finder</h2>
+<div class="card">
+<input type="text" id="hsnSearch" placeholder="Search by code or description..." oninput="HSN.filter()" style="margin-bottom:10px">
+<div class="tbl-wrap"><table class="wt"><thead><tr><th>Code</th><th>Description</th><th>GST %</th><th>Type</th></tr></thead><tbody id="hsnBody"></tbody></table></div>
+</div></div>
+
+<!-- GST RETURNS -->
+<div id="v-gstreturns" class="vw">
+<h2 style="margin-bottom:14px">📑 GST Return Preparation</h2>
+<div class="card"><h3 style="margin-bottom:10px">GSTR-1 Summary (Outward Supplies)</h3>
+<div class="tbl-wrap"><table class="wt"><thead><tr><th>Description</th><th>Taxable Value</th><th>CGST</th><th>SGST</th><th>IGST</th><th>Total Tax</th></tr></thead><tbody id="gstr1Body"></tbody></table></div>
+<button class="btn btn-cy btn-sm" onclick="GSTR.generateGSTR1()" style="margin-top:8px">Generate GSTR-1 JSON</button></div>
+<div class="card" style="margin-top:14px"><h3 style="margin-bottom:10px">GSTR-3B Summary</h3>
+<div id="gstr3bContent"></div></div></div>
+
+<!-- REPORTS -->
+<div id="v-reports" class="vw">
+<h2 style="margin-bottom:14px">📈 Reports & Analytics</h2>
+<div class="charts-g"><div class="chart-c"><h4>Top Customers</h4><canvas id="chTopCust"></canvas></div><div class="chart-c"><h4>Expenses by Category</h4><canvas id="chExpCat"></canvas></div></div>
+<div class="card" style="margin-top:12px"><h3 style="margin-bottom:8px">Available Reports</h3>
+<div style="display:flex;flex-wrap:wrap;gap:6px">
+<button class="btn btn-gh btn-sm" onclick="Rpts.run('sales')">Sales Report</button>
+<button class="btn btn-gh btn-sm" onclick="Rpts.run('purchase')">Purchase Report</button>
+<button class="btn btn-gh btn-sm" onclick="Rpts.run('expense')">Expense Report</button>
+<button class="btn btn-gh btn-sm" onclick="Rpts.run('gst')">GST Summary</button>
+<button class="btn btn-gh btn-sm" onclick="Rpts.run('aging')">Receivables Aging</button>
+<button class="btn btn-gh btn-sm" onclick="Rpts.run('pnl')">Profit & Loss</button>
+</div></div>
+<div id="rptOutput" style="margin-top:12px"></div></div>
+
+<!-- ACHIEVEMENTS -->
+<div id="v-achievements" class="vw"><div class="card"><h2 style="margin-bottom:6px">🏆 Achievements</h2><p style="color:var(--tm);margin-bottom:12px">Complete tasks to unlock badges.</p><div id="achGrid" class="badges-grid"></div></div></div>
+
+<!-- SETTINGS -->
+<div id="v-settings" class="vw">
+<div class="card"><h3 style="margin-bottom:12px">Business Profile</h3>
+<div class="frm-row"><div><label class="lbl">Business Name *</label><input type="text" id="setBizName" value="My Business"></div><div><label class="lbl">Trade Name</label><input type="text" id="setTradeName"></div></div>
+<div class="frm-row-3"><div><label class="lbl">GSTIN</label><input type="text" id="setGSTIN" maxlength="15"></div><div><label class="lbl">PAN</label><input type="text" id="setPAN" maxlength="10"></div><div><label class="lbl">State</label><select id="setState"></select></div></div>
+<div class="frm-row"><div><label class="lbl">Phone</label><input type="text" id="setPhone"></div><div><label class="lbl">Email</label><input type="email" id="setEmail"></div></div>
+<label class="lbl">Address</label><textarea class="fc" id="setAddr" rows="2"></textarea>
+<div class="frm-row-3"><div><label class="lbl">Bank Name</label><input type="text" id="setBank"></div><div><label class="lbl">Account No</label><input type="text" id="setAcct"></div><div><label class="lbl">IFSC</label><input type="text" id="setIFSC"></div></div>
+<button class="btn btn-p" onclick="Settings.save()" style="margin-top:8px">Save Settings</button></div>
+<div class="card" style="margin-top:12px"><h3 style="margin-bottom:8px">Invoice Settings</h3>
+<div class="frm-row-3"><div><label class="lbl">Invoice Prefix</label><input type="text" id="setInvPre" value="INV-"></div><div><label class="lbl">Default Due Days</label><input type="number" id="setDueDays" value="30"></div><div><label class="lbl">Currency</label><input type="text" id="setCurr" value="₹"></div></div>
+<button class="btn btn-p" onclick="Settings.save()" style="margin-top:8px">Save</button></div>
+<div class="card" style="margin-top:12px"><h3 style="margin-bottom:8px">Danger Zone</h3>
+<button class="btn btn-dn btn-sm" onclick="if(confirm('Delete ALL data?')){DB.reset();location.reload()}">Reset All Data</button></div>
+</div>
+
+</div></div></div>
+
+<!-- MODALS -->
+<div class="mdl" id="formModal"><div class="mdl-box" id="formContent"></div></div>
+<div class="mdl" id="exportModal"><div class="mdl-box"><h3 style="margin-bottom:12px">📦 Export / Import</h3>
+<div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-p" onclick="DataIO.exportAll()">⬇ Export All Data</button><button class="btn btn-gh" onclick="document.getElementById('importFile').click()">⬆ Import Data</button><input type="file" id="importFile" accept=".json" style="display:none" onchange="DataIO.importF(event)"></div>
+<div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn btn-gh" onclick="UI.closeMdl('exportModal')">Close</button></div></div></div>
+
+<div id="admPnl"><div class="adm-b"><h2 style="margin-bottom:6px">🔑 License Generator</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px"><div><label class="lbl">Fingerprint</label><input type="text" id="admFP"></div><div><label class="lbl">Days</label><input type="number" id="admDays" value="365"></div></div>
+<div style="display:flex;gap:8px;margin-bottom:10px"><button class="btn btn-p" onclick="LIC.generate()">Generate</button><button class="btn btn-gh" onclick="LIC.revoke()">Revoke</button></div>
+<div class="gen-k" id="admGenK"></div>
+<table class="adm-t"><thead><tr><th>Fingerprint</th><th>Expires</th><th>Days</th></tr></thead><tbody id="admLicBody"></tbody></table>
+<div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn btn-gh" onclick="document.getElementById('admPnl').classList.remove('open')">Close</button></div></div></div>
+
+<div class="cmd-o" id="cmdO"><div class="cmd-b"><input type="text" id="cmdIn" placeholder="Command..." oninput="CMD.filt()" onkeydown="CMD.key(event)"><div class="cmd-r" id="cmdR"></div></div></div>
+<div class="tw" id="tw"></div>
+
+<script>
+"use strict";
+/* LICENSE */
+const LIC={SECRET:'GSTPRO_SECRET_xK9$mP2v@qR7nZ4w',INTERVAL:30000,STOR:'gstp_lic_v1',
+async fp(){const c=[];c.push(navigator.userAgent||'');c.push(navigator.language||'');c.push(navigator.platform||'');c.push(String(navigator.hardwareConcurrency||0));c.push(String(screen.width));c.push(String(screen.height));c.push(String(screen.colorDepth));c.push(Intl.DateTimeFormat().resolvedOptions().timeZone||'');try{const cv=document.createElement('canvas');cv.width=200;cv.height=50;const x=cv.getContext('2d');x.textBaseline='top';x.font='14px Arial';x.fillStyle='#f60';x.fillRect(125,1,62,20);x.fillStyle='#069';x.fillText('GSTP-FP',2,15);c.push(cv.toDataURL())}catch(e){c.push('c')}try{const g=document.createElement('canvas').getContext('webgl');const d=g.getExtension('WEBGL_debug_renderer_info');if(d){c.push(g.getParameter(d.UNMASKED_VENDOR_WEBGL)||'');c.push(g.getParameter(d.UNMASKED_RENDERER_WEBGL)||'')}}catch(e){c.push('g')}try{const a=new(window.AudioContext||window.webkitAudioContext)();c.push(String(a.sampleRate));a.close()}catch(e){c.push('a')}return(await LIC.sha(c.join('|||'))).substring(0,32).toUpperCase()},
+async sha(m){const b=new TextEncoder().encode(m);return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',b))).map(x=>x.toString(16).padStart(2,'0')).join('')},
+simpleH(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);h=h>>>0}return h.toString(36).toUpperCase()},
+async genKey(fp,days){const ex=new Date();ex.setDate(ex.getDate()+days);const ed=Math.floor(ex.getTime()/864e5);const es=ed.toString(16).toUpperCase().padStart(4,'0');const sg=(await LIC.sha(ed+':'+fp+':'+LIC.SECRET)).substring(0,4).toUpperCase();const pl=es+fp.substring(0,8)+sg;if(pl.length!==16)return null;return{key:'GSTP-'+pl.substring(0,4)+'-'+pl.substring(4,8)+'-'+pl.substring(8,12)+'-'+pl.substring(12,16),exp:ex.toISOString(),ed}},
+async valKey(key,fp){try{key=key.trim().toUpperCase();if(!key.startsWith('GSTP-'))return{v:false,r:'Invalid prefix'};const p=key.replace('GSTP-','').split('-');if(p.length!==4)return{v:false,r:'Invalid format'};const pl=p.join('');if(pl.length!==16)return{v:false,r:'Invalid length'};const ed=parseInt(pl.substring(0,4),16);if(isNaN(ed))return{v:false,r:'Invalid expiration'};if(pl.substring(4,12)!==fp.substring(0,8))return{v:false,r:'Different machine'};const expSg=(await LIC.sha(ed+':'+fp+':'+LIC.SECRET)).substring(0,4).toUpperCase();if(pl.substring(12,16)!==expSg)return{v:false,r:'Invalid signature'};const exMs=ed*864e5;if(Date.now()>exMs)return{v:false,r:'Expired'};return{v:true,exp:new Date(exMs).toISOString(),expMs:exMs,dLeft:Math.ceil((exMs-Date.now())/864e5)}}catch(e){return{v:false,r:'Error'}}},
+getStored(){try{return JSON.parse(localStorage.getItem(LIC.STOR))}catch(e){return null}},
+store(key,fp,val){localStorage.setItem(LIC.STOR,JSON.stringify({key,fp,actAt:new Date().toISOString(),exp:val.exp,expMs:val.expMs,th:LIC.simpleH(JSON.stringify({key,fp,expMs:val.expMs})+LIC.SECRET)}))},
+checkTamper(d){if(!d)return true;return d.th!==LIC.simpleH(JSON.stringify({key:d.key,fp:d.fp,expMs:d.expMs})+LIC.SECRET)},
+wipe(){const k=[];for(let i=0;i<localStorage.length;i++){const n=localStorage.key(i);if(n&&(n.startsWith('gstp')||n.startsWith('gstDB')))k.push(n)}k.forEach(x=>localStorage.removeItem(x));sessionStorage.clear()},
+lock(r){LIC.wipe();localStorage.setItem(LIC.STOR+'_lk','1');document.getElementById('mainApp').style.display='none';document.getElementById('licScr').classList.remove('hide');document.getElementById('licScr').style.display='flex';LIC.showExp();T('License expired.','er')},
+showAct(){document.getElementById('licAct').style.display='';document.getElementById('licExp').style.display='none'},
+showExp(){document.getElementById('licAct').style.display='none';document.getElementById('licExp').style.display=''},
+bar(){const s=LIC.getStored();if(!s)return;const dl=Math.ceil((s.expMs-Date.now())/864e5);const cl=dl<=3?'wrn':'act';const h='<div class="lic-bar '+cl+'"><span class="lic-bar-dot"></span>License: '+dl+'d left</div>';['licBarSess','licBarHdr'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML=h})},
+async activate(){const fp=document.getElementById('licFP').value,key=document.getElementById('licKey').value.trim(),st=document.getElementById('licSt');if(!key){st.textContent='Enter key';st.className='lic-st er';return}st.textContent='Validating...';const r=await LIC.valKey(key,fp);console.log('[LIC]',r);if(r.v){LIC.store(key,fp,r);st.textContent='Activated! '+r.dLeft+' days';st.className='lic-st ok';setTimeout(()=>LIC.unlock(),1000)}else{st.textContent=r.r;st.className='lic-st er'}},
+unlock(){document.getElementById('licScr').classList.add('hide');document.getElementById('licScr').style.display='none';document.getElementById('mainApp').style.display='flex';LIC.startCheck();LIC.bar();AppInit()},
+timer:null,startCheck(){if(LIC.timer)clearInterval(LIC.timer);LIC.timer=setInterval(async()=>{if(!(await LIC.check()))clearInterval(LIC.timer);else LIC.bar()},LIC.INTERVAL)},
+async check(){const s=LIC.getStored();if(!s)return false;if(LIC.checkTamper(s)){LIC.lock('Tampered');return false}if(s.fp!==(await LIC.fp())){LIC.lock('Diff machine');return false}if(Date.now()>s.expMs){LIC.lock('Expired');return false}return true},
+async generate(){const fp=document.getElementById('admFP').value.trim(),days=parseInt(document.getElementById('admDays').value)||365;if(!fp||fp.length<8){T('Enter fingerprint','er');return}const r=await LIC.genKey(fp,days);if(!r)return;const el=document.getElementById('admGenK');el.style.display='block';el.innerHTML='<strong>Key:</strong><br><span style="font-size:1rem;color:var(--ok)">'+r.key+'</span><br><small>'+new Date(r.exp).toLocaleDateString()+' ('+days+'d)</small>';let reg=JSON.parse(localStorage.getItem('gstp_reg')||'[]');reg.push({fp,key:r.key,exp:r.exp,at:new Date().toISOString()});localStorage.setItem('gstp_reg',JSON.stringify(reg));Adm.render()},
+revoke(){const fp=document.getElementById('admFP').value.trim();if(!fp)return;let reg=JSON.parse(localStorage.getItem('gstp_reg')||'[]');reg=reg.filter(r=>r.fp!==fp);localStorage.setItem('gstp_reg',JSON.stringify(reg));Adm.render();T('Revoked','inf')}
+};
+const Adm={open(){document.getElementById('admPnl').classList.add('open');Adm.render()},render(){const tb=document.getElementById('admLicBody');const reg=JSON.parse(localStorage.getItem('gstp_reg')||'[]');if(!reg.length){tb.innerHTML='<tr><td colspan="3" style="padding:12px;text-align:center;color:var(--tm)">None</td></tr>';return}tb.innerHTML='';reg.forEach(r=>{const dl=Math.max(0,Math.ceil((new Date(r.exp).getTime()-Date.now())/864e5));const tr=document.createElement('tr');tr.innerHTML='<td>'+r.fp.substring(0,16)+'...</td><td>'+new Date(r.exp).toLocaleDateString()+'</td><td style="color:'+(dl>7?'var(--ok)':'var(--wr)')+'">'+dl+'d</td>';tb.appendChild(tr)})}};
+
+/* DATABASE */
+const DB={key:'gstpDB',
+defaults:{
+settings:{bizName:'My Business',tradeName:'',gstin:'',pan:'',state:'27',phone:'',email:'',address:'',bank:'',acct:'',ifsc:'',invPre:'INV-',dueDays:30,currency:'₹'},
+customers:[],suppliers:[],products:[],invoices:[],purchases:[],expenses:[],payments:[],
+counters:{invoice:0,customer:0,supplier:0,product:0,payment:0,purchase:0,expense:0}
+},
+load(){try{const d=JSON.parse(localStorage.getItem(DB.key));if(d&&d.settings)return d;return JSON.parse(JSON.stringify(DB.defaults))}catch(e){return JSON.parse(JSON.stringify(DB.defaults))}},
+save(d){localStorage.setItem(DB.key,JSON.stringify(d))},
+reset(){localStorage.removeItem(DB.key)},
+nextId(d,type){d.counters[type]++;return d.counters[type]}
+};
+let D=DB.load();
+function saveD(){DB.save(D);showSV()}
+function showSV(){const e=document.getElementById('svInd');if(!e)return;e.innerHTML='<span class="sv-dot sv"></span> Saving...';setTimeout(()=>{e.innerHTML='<span class="sv-dot"></span> Saved'},500)}
+function T(m,t='inf'){const w=document.getElementById('tw');const d=document.createElement('div');d.className='tst '+t;d.textContent=m;w.appendChild(d);requestAnimationFrame(()=>d.classList.add('show'));setTimeout(()=>{d.classList.remove('show');setTimeout(()=>d.remove(),300)},2500)}
+
+/* UI */
+const UI={togTheme(){const t=document.documentElement.getAttribute('data-theme');document.documentElement.setAttribute('data-theme',t==='light'?'dark':'light')},openMdl(id){document.getElementById(id).classList.add('open')},closeMdl(id){document.getElementById(id).classList.remove('open')},openForm(html){document.getElementById('formContent').innerHTML=html;document.getElementById('formModal').classList.add('open')},closeForm(){document.getElementById('formModal').classList.remove('open')}};
+
+/* HELPERS */
+function $(id){return document.getElementById(id)}
+function fmtDate(d){return d?new Date(d).toLocaleDateString('en-IN'):'-'}
+function fmtMoney(n){return D.settings.currency+Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function custName(id){const c=D.customers.find(x=>x.id===id);return c?c.name:'-'}
+function supName(id){const s=D.suppliers.find(x=>x.id===id);return s?s.name:'-'}
+function prodName(id){const p=D.products.find(x=>x.id===id);return p?p.name:'-'}
+function dl(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click()}
+
+/* INDIAN STATES */
+const STATES={'01':'Jammu & Kashmir','02':'Himachal Pradesh','03':'Punjab','04':'Chandigarh','05':'Uttarakhand','06':'Haryana','07':'Delhi','08':'Rajasthan','09':'Uttar Pradesh','10':'Bihar','11':'Sikkim','12':'Arunachal Pradesh','13':'Nagaland','14':'Manipur','15':'Mizoram','16':'Tripura','17':'Meghalaya','18':'Assam','19':'West Bengal','20':'Jharkhand','21':'Odisha','22':'Chhattisgarh','23':'Madhya Pradesh','24':'Gujarat','27':'Maharashtra','29':'Karnataka','30':'Goa','31':'Lakshadweep','32':'Kerala','33':'Tamil Nadu','34':'Puducherry','36':'Telangana','37':'Andhra Pradesh'};
+function stateOptions(sel){let h='<option value="">Select State</option>';Object.entries(STATES).forEach(([k,v])=>{h+='<option value="'+k+'"'+(sel===k?' selected':'')+'>'+k+' - '+v+'</option>'});return h}
+function stateFromCode(code){return STATES[code]||'Unknown'}
+function stateFromGSTIN(g){if(!g||g.length<2)return'';return g.substring(0,2)}
+
+/* AMOUNT IN WORDS */
+function amountWords(n){if(!n)return'Zero';const a=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];const b=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];function twoD(x){return x<20?a[x]:b[Math.floor(x/10)]+(x%10?' '+a[x%10]:'')}const rupees=Math.floor(n);const paise=Math.round((n-rupees)*100);let w='';if(rupees>=10000000){w+=twoD(Math.floor(rupees/10000000))+' Crore ';n=rupees%10000000}else{n=rupees}if(n>=100000){w+=twoD(Math.floor(n/100000))+' Lakh ';n=n%100000}if(n>=1000){w+=twoD(Math.floor(n/1000))+' Thousand ';n=n%1000}if(n>=100){w+=a[Math.floor(n/100)]+' Hundred ';n=n%100}if(n>0)w+=twoD(n);w=w.trim()+' Rupees';if(paise>0)w+=' and '+twoD(paise)+' Paise';return w+' Only'}
+
+/* NAVIGATION */
+const vNames={dash:'Dashboard',invoices:'Invoices',customers:'Customers',suppliers:'Suppliers',products:'Products',payments:'Payments',purchases:'Purchases',expenses:'Expenses',gstcalc:'GST Calculator',gstin:'GSTIN Validator',hsn:'HSN/SAC Codes',gstreturns:'GST Returns',reports:'Reports & Analytics',achievements:'Achievements',settings:'Settings'};
+const Nav={go(v){document.querySelectorAll('.vw').forEach(x=>x.classList.remove('act'));document.querySelectorAll('.nav li').forEach(l=>l.classList.remove('act'));const el=document.getElementById('v-'+v);if(el)el.classList.add('act');document.querySelectorAll('.nav li[data-v="'+v+'"]').forEach(l=>l.classList.add('act'));document.getElementById('pgT').textContent=vNames[v]||v;
+if(v==='dash')Dash.render();if(v==='invoices')Inv.renderList();if(v==='customers')Cust.renderList();if(v==='suppliers')Sup.renderList();if(v==='products')Prod.renderList();if(v==='payments')Pay.render();if(v==='purchases')Purch.renderList();if(v==='expenses')Exp.render();if(v==='gstcalc')GSTCalc.calc();if(v==='hsn')HSN.render();if(v==='gstreturns')GSTR.render();if(v==='reports')Rpts.render();if(v==='achievements')Achiev.render();if(v==='settings')Settings.load()}};
+document.querySelectorAll('.nav li[data-v]').forEach(li=>{li.addEventListener('click',()=>Nav.go(li.dataset.v))});
+
+/* DASHBOARD */
+const Dash={render(){
+const invCount=D.invoices.length;
+const revenue=D.invoices.filter(i=>i.status!=='Cancelled').reduce((s,i)=>s+i.total,0);
+const expenses=D.expenses.reduce((s,e)=>s+e.amount,0);
+const gstOutput=D.invoices.filter(i=>i.status!=='Cancelled').reduce((s,i)=>s+i.cgst+i.sgst+i.igst,0);
+const gstInput=D.purchases.reduce((s,p)=>s+p.cgst+p.sgst+p.igst,0)+D.expenses.filter(e=>e.gstAmt).reduce((s,e)=>s+e.gstAmt,0);
+const pending=D.invoices.filter(i=>i.status==='Sent'||i.status==='Overdue').reduce((s,i)=>s+i.total-(i.paid||0),0);
+$('dashStats').innerHTML='<div class="st-c"><h3>'+invCount+'</h3><p>Invoices</p></div><div class="st-c"><h3>'+fmtMoney(revenue)+'</h3><p>Revenue</p></div><div class="st-c"><h3>'+fmtMoney(expenses)+'</h3><p>Expenses</p></div><div class="st-c"><h3>'+fmtMoney(gstOutput)+'</h3><p>GST Output</p></div><div class="st-c"><h3>'+fmtMoney(gstInput)+'</h3><p>GST Input (ITC)</p></div><div class="st-c"><h3>'+fmtMoney(pending)+'</h3><p>Pending</p></div>';
+Dash.renderCharts()},
+renderCharts(){if(typeof Chart==='undefined')return;
+const months=[];const revData=[];const gstData=[];
+for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);const key=d.toISOString().slice(0,7);months.push(d.toLocaleString('en',{month:'short'}));
+revData.push(D.invoices.filter(inv=>inv.date&&inv.date.startsWith(key)&&inv.status!=='Cancelled').reduce((s,inv)=>s+inv.taxable,0));
+gstData.push(D.invoices.filter(inv=>inv.date&&inv.date.startsWith(key)&&inv.status!=='Cancelled').reduce((s,inv)=>s+inv.cgst+inv.sgst+inv.igst,0))}
+if(Dash._chR)Dash._chR.destroy();Dash._chR=new Chart($('chRev'),{type:'line',data:{labels:months,datasets:[{label:'Revenue',data:revData,borderColor:'#6366f1',backgroundColor:'rgba(99,102,241,.1)',fill:true,tension:.3}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,.05)'}},x:{grid:{display:false}}}}});
+if(Dash._chG)Dash._chG.destroy();Dash._chG=new Chart($('chGST'),{type:'bar',data:{labels:months,datasets:[{label:'CGST',data:gstData.map(g=>g/2),backgroundColor:'#6366f1'},{label:'SGST',data:gstData.map(g=>g/2),backgroundColor:'#06b6d4'}]},options:{responsive:true,plugins:{legend:{position:'bottom'}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,beginAtZero:true,grid:{color:'rgba(255,255,255,.05)'}}}}})}};
+
+/* INVOICES */
+const Inv={
+renderList(){const search=$('invSearch').value.toLowerCase();const fStatus=$('invFilterStatus').value;
+let list=D.invoices.filter(i=>{if(search&&!(i.number.toLowerCase().includes(search)||custName(i.customer).toLowerCase().includes(search)))return false;if(fStatus&&i.status!==fStatus)return false;return true}).sort((a,b)=>new Date(b.date)-new Date(a.date));
+const body=$('invBody');body.innerHTML='';
+if(!list.length){body.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--tm);padding:16px">No invoices</td></tr>';return}
+list.forEach(i=>{const st={Draft:'tag-cy',Sent:'tag-wr',Paid:'tag-ok',Overdue:'tag-dn',Cancelled:'tag-pk'};const tr=document.createElement('tr');tr.innerHTML='<td>'+i.number+'</td><td>'+fmtDate(i.date)+'</td><td>'+custName(i.customer)+'</td><td>'+fmtMoney(i.taxable)+'</td><td>'+fmtMoney(i.cgst+i.sgst+i.igst)+'</td><td>'+fmtMoney(i.total)+'</td><td><span class="tag '+st[i.status]+'">'+i.status+'</span></td><td><button class="btn btn-gh btn-xs" onclick="Inv.showForm('+i.dbId+')">Edit</button> <button class="btn btn-gh btn-xs" onclick="Inv.printInv('+i.dbId+')">Print</button></td>';body.appendChild(tr)})},
+showForm(id){
+const inv=id?D.invoices.find(x=>x.dbId===id):null;
+let h='<h3 style="margin-bottom:12px">'+(inv?'Edit':'New')+' Tax Invoice</h3>';
+h+='<input type="hidden" id="ifId" value="'+(inv?inv.dbId:'')+'">';
+h+='<div class="frm-row-3"><div><label class="lbl">Invoice #</label><input type="text" id="ifNum" value="'+(inv?inv.number:D.settings.invPre+String(D.counters.invoice+1).padStart(4,'0'))+'" readonly></div><div><label class="lbl">Date</label><input type="date" id="ifDate" value="'+(inv?inv.date:new Date().toISOString().split('T')[0])+'"></div><div><label class="lbl">Due Date</label><input type="date" id="ifDue" value="'+(inv?inv.dueDate:new Date(Date.now()+D.settings.dueDays*864e5).toISOString().split('T')[0])+'"></div></div>';
+h+='<div class="frm-row"><div><label class="lbl">Customer *</label><select id="ifCust"><option value="">Select</option>'+D.customers.map(c=>'<option value="'+c.id+'"'+(inv&&inv.customer===c.id?' selected':'')+'>'+c.name+'</option>').join('')+'</select></div><div><label class="lbl">Place of Supply</label><select id="ifPOS">'+stateOptions(inv?inv.pos:'')+'</select></div></div>';
+h+='<h4 style="margin:12px 0 8px;color:var(--primary)">Line Items</h4>';
+h+='<div id="ifItems"></div>';
+h+='<button class="btn btn-gh btn-xs" onclick="Inv.addItem()" style="margin-bottom:10px">+ Add Item</button>';
+h+='<div id="ifTotals" style="text-align:right;font-size:.88rem;margin-bottom:10px"></div>';
+h+='<label class="lbl">Notes</label><textarea class="fc" id="ifNotes" rows="2">'+(inv?inv.notes:'')+'</textarea>';
+h+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px"><button class="btn btn-gh" onclick="UI.closeForm()">Cancel</button>';
+if(inv)h+='<button class="btn btn-dn btn-sm" onclick="Inv.del('+inv.dbId+')">Delete</button>';
+h+='<button class="btn btn-p" onclick="Inv.save()">Save Invoice</button></div>';
+UI.openForm(h);
+if(inv&&inv.items.length){inv.items.forEach(it=>Inv.addItem(it))}else{Inv.addItem()}},
+addItem(data){
+const div=document.createElement('div');div.className='frm-row-4';div.style.cssText='margin-bottom:6px;padding:8px;background:var(--sf);border-radius:8px;border:1px solid var(--bd)';
+div.innerHTML='<div><label class="lbl">Product</label><select class="ifProd" onchange="Inv.prodChange(this)"><option value="">Select</option>'+D.products.map(p=>'<option value="'+p.id+'" data-rate="'+p.rate+'" data-gst="'+p.gst+'" data-hsn="'+p.hsn+'"'+(data&&data.product===p.id?' selected':'')+'>'+p.name+'</option>').join('')+'</select></div><div><label class="lbl">HSN</label><input class="ifHSN" value="'+(data?data.hsn:'')+'"></div><div><label class="lbl">Qty</label><input type="number" class="ifQty" value="'+(data?data.qty:1)+'" oninput="Inv.calcTotals()"></div><div><label class="lbl">Rate</label><input type="number" class="ifRate" value="'+(data?data.rate:0)+'" oninput="Inv.calcTotals()"></div>';
+div.innerHTML+='<div style="display:flex;gap:4px;align-items:end"><div style="flex:1"><label class="lbl">GST%</label><select class="ifGST" onchange="Inv.calcTotals()"><option value="0"' + (data&&data.gst===0?' selected':'') + '>0%</option><option value="3"'+(data&&data.gst===3?' selected':'')+'>3%</option><option value="5"'+(data&&data.gst===5?' selected':'')+'>5%</option><option value="12"'+(data&&data.gst===12?' selected':'')+'>12%</option><option value="18"'+(data&&data.gst===18?' selected':'')+'>18%</option><option value="28"'+(data&&data.gst===28?' selected':'')+'>28%</option></select></div><button class="btn btn-dn btn-xs" onclick="this.closest(\'.frm-row-4\').remove();Inv.calcTotals()" style="margin-bottom:8px">✕</button></div>';
+$('ifItems').appendChild(div);Inv.calcTotals()},
+prodChange(sel){const opt=sel.options[sel.selectedIndex];const row=sel.closest('.frm-row-4');if(opt.dataset.rate)row.querySelector('.ifRate').value=opt.dataset.rate;if(opt.dataset.gst)row.querySelector('.ifGST').value=opt.dataset.gst;if(opt.dataset.hsn)row.querySelector('.ifHSN').value=opt.dataset.hsn;Inv.calcTotals()},
+calcTotals(){const rows=document.querySelectorAll('#ifItems .frm-row-4');let taxable=0,cgst=0,sgst=0,igst=0;
+const cust=$('ifCust').value;const custObj=D.customers.find(c=>c.id===cust);
+const pos=$('ifPOS').value;const bizState=stateFromGSTIN(D.settings.gstin);const isInter=bizState&&pos&&bizState!==pos;
+rows.forEach(r=>{const qty=parseFloat(r.querySelector('.ifQty').value)||0;const rate=parseFloat(r.querySelector('.ifRate').value)||0;const gstRate=parseFloat(r.querySelector('.ifGST').value)||0;
+const lineTotal=qty*rate;const lineGST=lineTotal*gstRate/100;taxable+=lineTotal;
+if(isInter){igst+=lineGST}else{cgst+=lineGST/2;sgst+=lineGST/2}});
+const total=Math.round((taxable+cgst+sgst+igst)*100)/100;
+$('ifTotals').innerHTML='Taxable: <b>'+fmtMoney(taxable)+'</b><br>CGST: '+fmtMoney(cgst)+' | SGST: '+fmtMoney(sgst)+' | IGST: '+fmtMoney(igst)+'<br><h3 style="color:var(--primary)">Total: '+fmtMoney(total)+'</h3>'},
+save(){
+const cust=$('ifCust').value;if(!cust){T('Select customer','er');return}
+const rows=document.querySelectorAll('#ifItems .frm-row-4');const items=[];
+rows.forEach(r=>{const prod=r.querySelector('.ifProd').value;const qty=parseFloat(r.querySelector('.ifQty').value)||0;const rate=parseFloat(r.querySelector('.ifRate').value)||0;const gst=parseFloat(r.querySelector('.ifGST').value)||0;const hsn=r.querySelector('.ifHSN').value;
+if(qty>0&&rate>0)items.push({product:prod,hsn,qty,rate,gst,amount:qty*rate,gstAmt:qty*rate*gst/100})});
+if(!items.length){T('Add at least one item','er');return}
+const pos=$('ifPOS').value;const bizState=stateFromGSTIN(D.settings.gstin);const isInter=bizState&&pos&&bizState!==pos;
+let taxable=0,cgst=0,sgst=0,igst=0;
+items.forEach(it=>{taxable+=it.amount;if(isInter){igst+=it.gstAmt}else{cgst+=it.gstAmt/2;sgst+=it.gstAmt/2}});
+taxable=Math.round(taxable*100)/100;cgst=Math.round(cgst*100)/100;sgst=Math.round(sgst*100)/100;igst=Math.round(igst*100)/100;
+const total=Math.round((taxable+cgst+sgst+igst)*100)/100;
+const id=$('ifId').value;
+const obj={number:$('ifNum').value,date:$('ifDate').value,dueDate:$('ifDue').value,customer:cust,pos,items,taxable,cgst,sgst,igst,total,notes:$('ifNotes').value,status:'Draft',paid:0,createdAt:new Date().toISOString()};
+if(id){const idx=D.invoices.findIndex(x=>x.dbId==id);if(idx>=0)Object.assign(D.invoices[idx],obj)}else{obj.dbId=DB.nextId(D,'invoice');D.invoices.push(obj)}
+saveD();UI.closeForm();Inv.renderList();T('Invoice saved','ok')},
+del(id){if(!confirm('Delete invoice?'))return;D.invoices=D.invoices.filter(x=>x.dbId!==id);saveD();UI.closeForm();Inv.renderList();T('Deleted','inf')},
+printInv(id){const inv=D.invoices.find(x=>x.dbId===id);if(!inv)return;const cust=D.customers.find(c=>c.id===inv.customer);const w=window.open('','','width=800,height=700');
+let h='<html><head><style>body{font-family:Arial;padding:30px;font-size:13px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:6px 8px;text-align:left}th{background:#f5f5f5}.total{font-weight:bold;background:#f0f0f0}h2{text-align:center;color:#333}</style></head><body>';
+h+='<h2>TAX INVOICE</h2><table><tr><td><b>'+D.settings.bizName+'</b><br>'+D.settings.address+'<br>GSTIN: '+D.settings.gstin+'</td><td style="text-align:right"><b>Invoice #: </b>'+inv.number+'<br><b>Date: </b>'+fmtDate(inv.date)+'<br><b>Due: </b>'+fmtDate(inv.dueDate)+'</td></tr></table>';
+h+='<table style="margin-top:10px"><tr><td><b>Bill To:</b><br>'+(cust?cust.name:'')+'<br>'+(cust?cust.address:'')+'<br>GSTIN: '+(cust?cust.gstin:'Unregistered')+'<br>State: '+(cust?stateFromCode(cust.state):'')+'</td><td><b>Place of Supply: </b>'+stateFromCode(inv.pos)+'</td></tr></table>';
+h+='<table style="margin-top:10px"><thead><tr><th>#</th><th>Description</th><th>HSN</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead><tbody>';
+inv.items.forEach((it,i)=>{h+='<tr><td>'+(i+1)+'</td><td>'+(it.product?prodName(it.product):'Item')+'</td><td>'+it.hsn+'</td><td>'+it.qty+'</td><td>'+fmtMoney(it.rate)+'</td><td>'+fmtMoney(it.amount)+'</td></tr>'});
+h+='<tr class="total"><td colspan="5" style="text-align:right">Taxable Amount</td><td>'+fmtMoney(inv.taxable)+'</td></tr>';
+if(inv.cgst>0)h+='<tr><td colspan="5" style="text-align:right">CGST</td><td>'+fmtMoney(inv.cgst)+'</td></tr>';
+if(inv.sgst>0)h+='<tr><td colspan="5" style="text-align:right">SGST</td><td>'+fmtMoney(inv.sgst)+'</td></tr>';
+if(inv.igst>0)h+='<tr><td colspan="5" style="text-align:right">IGST</td><td>'+fmtMoney(inv.igst)+'</td></tr>';
+h+='<tr class="total"><td colspan="5" style="text-align:right">TOTAL</td><td>'+fmtMoney(inv.total)+'</td></tr>';
+h+='</tbody></table><p style="margin-top:10px"><b>Amount in Words: </b>'+amountWords(inv.total)+'</p>';
+if(D.settings.bank)h+='<p><b>Bank: </b>'+D.settings.bank+' | A/C: '+D.settings.acct+' | IFSC: '+D.settings.ifsc+'</p>';
+h+='<p style="margin-top:30px;text-align:right"><b>Authorized Signatory</b></p>';
+h+='<p style="color:#999;font-size:11px;margin-top:20px;text-align:center">This is a computer generated invoice.</p></body></html>';
+w.document.write(h);w.document.close();w.print()},
+exportCSV(){let csv='Inv#,Date,Customer,Taxable,CGST,SGST,IGST,Total,Status\n';D.invoices.forEach(i=>{csv+=i.number+','+i.date+','+custName(i.customer)+','+i.taxable+','+i.cgst+','+i.sgst+','+i.igst+','+i.total+','+i.status+'\n'});dl('invoices.csv',csv,'text/csv');T('Exported','ok')}
+};
+
+/* CUSTOMERS */
+const Cust={
+renderList(){const search=$('custSearch').value.toLowerCase();
+let list=D.customers.filter(c=>{if(search&&!(c.name.toLowerCase().includes(search)||(c.gstin||'').toLowerCase().includes(search)))return false;return true});
+const body=$('custBody');body.innerHTML='';
+if(!list.length){body.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--tm);padding:16px">No customers</td></tr>';return}
+list.forEach((c,i)=>{const bal=D.invoices.filter(inv=>inv.customer===c.id).reduce((s,inv)=>s+inv.total,0)-D.payments.filter(p=>p.party===c.id&&p.type==='Receive').reduce((s,p)=>s+p.amount,0);
+const tr=document.createElement('tr');tr.innerHTML='<td>'+(i+1)+'</td><td>'+c.name+'</td><td style="font-family:JetBrains Mono,monospace;font-size:.76rem">'+(c.gstin||'-')+'</td><td>'+(c.state?stateFromCode(c.state):'-')+'</td><td>'+c.phone+'</td><td>'+fmtMoney(bal)+'</td><td><button class="btn btn-gh btn-xs" onclick="Cust.showForm(\''+c.id+'\')">Edit</button></td>';body.appendChild(tr)})},
+showForm(id){
+const c=id?D.customers.find(x=>x.id===id):null;
+let h='<h3 style="margin-bottom:12px">'+(c?'Edit':'Add')+' Customer</h3>';
+h+='<input type="hidden" id="cfId" value="'+(c?c.id:'')+'">';
+h+='<div class="frm-row"><div><label class="lbl">Business Name *</label><input type="text" id="cfName" value="'+(c?c.name:'')+'"></div><div><label class="lbl">GSTIN</label><input type="text" id="cfGSTIN" value="'+(c?c.gstin:'')+'" maxlength="15" oninput="Cust.autoState()"></div></div>';
+h+='<div class="frm-row-3"><div><label class="lbl">State</label><select id="cfState">'+stateOptions(c?c.state:'')+'</select></div><div><label class="lbl">Phone</label><input type="text" id="cfPhone" value="'+(c?c.phone:'')+'"></div><div><label class="lbl">Email</label><input type="email" id="cfEmail" value="'+(c?c.email:'')+'"></div></div>';
+h+='<label class="lbl">Address</label><textarea class="fc" id="cfAddr" rows="2">'+(c?c.address:'')+'</textarea>';
+h+='<div class="frm-row"><div><label class="lbl">Contact Person</label><input type="text" id="cfContact" value="'+(c?c.contact:'')+'"></div><div><label class="lbl">Payment Terms</label><select id="cfTerms"><option'+(c&&c.terms==='Net 15'?' selected':'')+'>Net 15</option><option'+((!c||c.terms==='Net 30')?' selected':'')+'>Net 30</option><option'+(c&&c.terms==='Net 60'?' selected':'')+'>Net 60</option><option'+(c&&c.terms==='Due on Receipt'?' selected':'')+'>Due on Receipt</option></select></div></div>';
+h+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px"><button class="btn btn-gh" onclick="UI.closeForm()">Cancel</button><button class="btn btn-p" onclick="Cust.save()">Save</button></div>';
+UI.openForm(h)},
+autoState(){const g=$('cfGSTIN').value;if(g.length>=2&&STATES[g.substring(0,2)])$('cfState').value=g.substring(0,2)},
+save(){const name=$('cfName').value.trim();if(!name){T('Enter name','er');return}
+const id=$('cfId').value;
+const obj={name,gstin:$('cfGSTIN').value.toUpperCase(),state:$('cfState').value,phone:$('cfPhone').value,email:$('cfEmail').value,address:$('cfAddr').value,contact:$('cfContact').value,terms:$('cfTerms').value};
+if(id){const idx=D.customers.findIndex(x=>x.id===id);if(idx>=0)Object.assign(D.customers[idx],obj)}else{obj.id='CUST-'+String(DB.nextId(D,'customer')).padStart(3,'0');D.customers.push(obj)}
+saveD();UI.closeForm();Cust.renderList();T('Customer saved','ok')}
+};
+
+/* SUPPLIERS */
+const Sup={
+renderList(){const search=$('supSearch').value.toLowerCase();
+let list=D.suppliers.filter(s=>!search||s.name.toLowerCase().includes(search)||(s.gstin||'').toLowerCase().includes(search));
+const body=$('supBody');body.innerHTML='';
+if(!list.length){body.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--tm);padding:16px">No suppliers</td></tr>';return}
+list.forEach((s,i)=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+(i+1)+'</td><td>'+s.name+'</td><td style="font-family:JetBrains Mono,monospace;font-size:.76rem">'+(s.gstin||'-')+'</td><td>'+(s.state?stateFromCode(s.state):'-')+'</td><td>'+s.phone+'</td><td>-</td><td><button class="btn btn-gh btn-xs" onclick="Sup.showForm(\''+s.id+'\')">Edit</button></td>';body.appendChild(tr)})},
+showForm(id){
+const s=id?D.suppliers.find(x=>x.id===id):null;
+let h='<h3 style="margin-bottom:12px">'+(s?'Edit':'Add')+' Supplier</h3>';
+h+='<input type="hidden" id="sfId" value="'+(s?s.id:'')+'">';
+h+='<div class="frm-row"><div><label class="lbl">Name *</label><input type="text" id="sfName" value="'+(s?s.name:'')+'"></div><div><label class="lbl">GSTIN</label><input type="text" id="sfGSTIN" value="'+(s?s.gstin:'')+'" maxlength="15" oninput="Sup.autoState()"></div></div>';
+h+='<div class="frm-row-3"><div><label class="lbl">State</label><select id="sfState">'+stateOptions(s?s.state:'')+'</select></div><div><label class="lbl">Phone</label><input type="text" id="sfPhone" value="'+(s?s.phone:'')+'"></div><div><label class="lbl">Email</label><input type="email" id="sfEmail" value="'+(s?s.email:'')+'"></div></div>';
+h+='<label class="lbl">Address</label><textarea class="fc" id="sfAddr" rows="2">'+(s?s.address:'')+'</textarea>';
+h+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px"><button class="btn btn-gh" onclick="UI.closeForm()">Cancel</button><button class="btn btn-p" onclick="Sup.save()">Save</button></div>';
+UI.openForm(h)},
+autoState(){const g=$('sfGSTIN').value;if(g.length>=2&&STATES[g.substring(0,2)])$('sfState').value=g.substring(0,2)},
+save(){const name=$('sfName').value.trim();if(!name){T('Enter name','er');return}
+const id=$('sfId').value;
+const obj={name,gstin:$('sfGSTIN').value.toUpperCase(),state:$('sfState').value,phone:$('sfPhone').value,email:$('sfEmail').value,address:$('sfAddr').value};
+if(id){const idx=D.suppliers.findIndex(x=>x.id===id);if(idx>=0)Object.assign(D.suppliers[idx],obj)}else{obj.id='SUP-'+String(DB.nextId(D,'supplier')).padStart(3,'0');D.suppliers.push(obj)}
+saveD();UI.closeForm();Sup.renderList();T('Supplier saved','ok')}
+};
+
+/* PRODUCTS */
+const Prod={
+renderList(){const search=$('prodSearch').value.toLowerCase();
+let list=D.products.filter(p=>!search||p.name.toLowerCase().includes(search)||p.hsn.includes(search));
+const body=$('prodBody');body.innerHTML='';
+if(!list.length){body.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--tm);padding:16px">No products</td></tr>';return}
+list.forEach(p=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+p.code+'</td><td>'+p.name+'</td><td>'+p.hsn+'</td><td>'+p.unit+'</td><td>'+fmtMoney(p.rate)+'</td><td>'+p.gst+'%</td><td>'+(p.stock||'-')+'</td><td><button class="btn btn-gh btn-xs" onclick="Prod.showForm(\''+p.id+'\')">Edit</button></td>';body.appendChild(tr)})},
+showForm(id){
+const p=id?D.products.find(x=>x.id===id):null;
+let h='<h3 style="margin-bottom:12px">'+(p?'Edit':'Add')+' Product</h3>';
+h+='<input type="hidden" id="pfId" value="'+(p?p.id:'')+'">';
+h+='<div class="frm-row"><div><label class="lbl">Name *</label><input type="text" id="pfName" value="'+(p?p.name:'')+'"></div><div><label class="lbl">Code/SKU</label><input type="text" id="pfCode" value="'+(p?p.code:'')+'"></div></div>';
+h+='<div class="frm-row-4"><div><label class="lbl">HSN/SAC</label><input type="text" id="pfHSN" value="'+(p?p.hsn:'')+'"></div><div><label class="lbl">Unit</label><select id="pfUnit"><option'+(p&&p.unit==='Nos'?' selected':'')+'>Nos</option><option'+(p&&p.unit==='Pcs'?' selected':'')+'>Pcs</option><option'+(p&&p.unit==='Kg'?' selected':'')+'>Kg</option><option'+(p&&p.unit==='Ltr'?' selected':'')+'>Ltr</option><option'+(p&&p.unit==='Mtr'?' selected':'')+'>Mtr</option><option'+(p&&p.unit==='Box'?' selected':'')+'>Box</option><option'+(p&&p.unit==='Hrs'?' selected':'')+'>Hrs</option></select></div><div><label class="lbl">Rate (₹)</label><input type="number" id="pfRate" value="'+(p?p.rate:0)+'"></div><div><label class="lbl">GST %</label><select id="pfGST"><option value="0"' + (p&&p.gst===0?' selected':'') + '>0%</option><option value="3"'+(p&&p.gst===3?' selected':'')+'>3%</option><option value="5"'+(p&&p.gst===5?' selected':'')+'>5%</option><option value="12"'+(p&&p.gst===12?' selected':'')+'>12%</option><option value="18"'+(p&&p.gst===18?' selected':'')+'>18%</option><option value="28"'+(p&&p.gst===28?' selected':'')+'>28%</option></select></div></div>';
+h+='<div class="frm-row"><div><label class="lbl">Stock</label><input type="number" id="pfStock" value="'+(p?p.stock:0)+'"></div><div><label class="lbl">Category</label><input type="text" id="pfCat" value="'+(p?p.category:'')+'"></div></div>';
+h+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px"><button class="btn btn-gh" onclick="UI.closeForm()">Cancel</button><button class="btn btn-p" onclick="Prod.save()">Save</button></div>';
+UI.openForm(h)},
+save(){const name=$('pfName').value.trim();if(!name){T('Enter name','er');return}
+const id=$('pfId').value;
+const obj={name,code:$('pfCode').value,hsn:$('pfHSN').value,unit:$('pfUnit').value,rate:Number($('pfRate').value)||0,gst:Number($('pfGST').value),stock:Number($('pfStock').value)||0,category:$('pfCat').value};
+if(id){const idx=D.products.findIndex(x=>x.id===id);if(idx>=0)Object.assign(D.products[idx],obj)}else{obj.id='PROD-'+String(DB.nextId(D,'product')).padStart(3,'0');D.products.push(obj)}
+saveD();UI.closeForm();Prod.renderList();T('Product saved','ok')}
+};
+
+/* PAYMENTS */
+const Pay={
+render(){const rcv=D.payments.filter(p=>p.type==='Receive').reduce((s,p)=>s+p.amount,0);const mde=D.payments.filter(p=>p.type==='Make').reduce((s,p)=>s+p.amount,0);
+$('payStats').innerHTML='<div class="st-c"><h3>'+fmtMoney(rcv)+'</h3><p>Received</p></div><div class="st-c"><h3>'+fmtMoney(mde)+'</h3><p>Paid Out</p></div><div class="st-c"><h3>'+D.payments.length+'</h3><p>Transactions</p></div>';
+const body=$('payBody');body.innerHTML='';
+const sorted=[...D.payments].sort((a,b)=>new Date(b.date)-new Date(a.date));
+sorted.forEach(p=>{const party=p.type==='Receive'?custName(p.party):supName(p.party);const tr=document.createElement('tr');tr.innerHTML='<td>'+p.number+'</td><td>'+fmtDate(p.date)+'</td><td>'+party+'</td><td><span class="tag '+(p.type==='Receive'?'tag-ok':'tag-dn')+'">'+p.type+'</span></td><td>'+fmtMoney(p.amount)+'</td><td>'+p.mode+'</td><td>'+(p.ref||'-')+'</td><td><button class="btn btn-gh btn-xs" onclick="Pay.showForm('+p.dbId+')">Edit</button></td>';body.appendChild(tr)});
+if(!sorted.length)body.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--tm)">No payments</td></tr>'},
+showForm(id){const p=id?D.payments.find(x=>x.dbId===id):null;
+let h='<h3 style="margin-bottom:12px">'+(p?'Edit':'Record')+' Payment</h3>';
+h+='<input type="hidden" id="pfId2" value="'+(p?p.dbId:'')+'">';
+h+='<div class="frm-row-3"><div><label class="lbl">Type</label><select id="pfType" onchange="Pay.typeChange()"><option'+(p&&p.type==='Receive'?' selected':'')+'>Receive</option><option'+(p&&p.type==='Make'?' selected':'')+'>Make</option></select></div><div><label class="lbl">Date</label><input type="date" id="pfDate2" value="'+(p?p.date:new Date().toISOString().split('T')[0])+'"></div><div><label class="lbl">Amount *</label><input type="number" id="pfAmt2" value="'+(p?p.amount:0)+'"></div></div>';
+h+='<div class="frm-row-3"><div><label class="lbl">Party</label><select id="pfParty"></select></div><div><label class="lbl">Mode</label><select id="pfMode"><option>Cash</option><option>UPI</option><option>NEFT/RTGS</option><option>Cheque</option><option>Card</option></select></div><div><label class="lbl">Reference</label><input type="text" id="pfRef2" value="'+(p?p.ref:'')+'"></div></div>';
+h+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px"><button class="btn btn-gh" onclick="UI.closeForm()">Cancel</button><button class="btn btn-p" onclick="Pay.save()">Save</button></div>';
+UI.openForm(h);Pay.typeChange();if(p)$('pfMode').value=p.mode},
+typeChange(){const t=$('pfType').value;const sel=$('pfParty');sel.innerHTML='<option value="">Select</option>';if(t==='Receive'){D.customers.forEach(c=>{sel.innerHTML+='<option value="'+c.id+'">'+c.name+'</option>'})}else{D.suppliers.forEach(s=>{sel.innerHTML+='<option value="'+s.id+'">'+s.name+'</option>'})}},
+save(){const amt=Number($('pfAmt2').value);if(!amt){T('Enter amount','er');return}
+const id=$('pfId2').value;const num='PAY-'+String(DB.nextId(D,'payment')).padStart(4,'0');
+const obj={number:num,type:$('pfType').value,date:$('pfDate2').value,amount:amt,party:$('pfParty').value,mode:$('pfMode').value,ref:$('pfRef2').value,createdAt:new Date().toISOString()};
+if(id){const idx=D.payments.findIndex(x=>x.dbId==id);if(idx>=0)Object.assign(D.payments[idx],obj)}else{obj.dbId=D.counters.payment;D.payments.push(obj)}
+saveD();UI.closeForm();Pay.render();T('Payment recorded','ok')},
+exportCSV(){let csv='Number,Date,Party,Type,Amount,Mode,Ref\n';D.payments.forEach(p=>{csv+=p.number+','+p.date+','+(p.type==='Receive'?custName(p.party):supName(p.party))+','+p.type+','+p.amount+','+p.mode+','+(p.ref||'')+'\n'});dl('payments.csv',csv,'text/csv');T('Exported','ok')}
+};
+
+/* PURCHASES */
+const Purch={
+renderList(){const body=$('purchBody');body.innerHTML='';
+const sorted=[...D.purchases].sort((a,b)=>new Date(b.date)-new Date(a.date));
+sorted.forEach(p=>{const st={Draft:'tag-cy',Received:'tag-ok',Pending:'tag-wr'};const tr=document.createElement('tr');tr.innerHTML='<td>'+p.number+'</td><td>'+fmtDate(p.date)+'</td><td>'+supName(p.supplier)+'</td><td>'+fmtMoney(p.taxable)+'</td><td>'+fmtMoney(p.cgst+p.sgst+p.igst)+'</td><td>'+fmtMoney(p.total)+'</td><td><span class="tag '+st[p.status]+'">'+p.status+'</span></td><td><button class="btn btn-gh btn-xs" onclick="Purch.showForm('+p.dbId+')">Edit</button></td>';body.appendChild(tr)});
+if(!sorted.length)body.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--tm)">No purchases</td></tr>'},
+showForm(id){const p=id?D.purchases.find(x=>x.dbId===id):null;
+let h='<h3 style="margin-bottom:12px">'+(p?'Edit':'New')+' Purchase</h3>';
+h+='<input type="hidden" id="pufId" value="'+(p?p.dbId:'')+'">';
+h+='<div class="frm-row-3"><div><label class="lbl">Purchase #</label><input type="text" id="pufNum" value="'+(p?p.number:'PUR-'+String(D.counters.purchase+1).padStart(4,'0'))+'" readonly></div><div><label class="lbl">Date</label><input type="date" id="pufDate" value="'+(p?p.date:new Date().toISOString().split('T')[0])+'"></div><div><label class="lbl">Supplier *</label><select id="pufSup"><option value="">Select</option>'+D.suppliers.map(s=>'<option value="'+s.id+'"'+(p&&p.supplier===s.id?' selected':'')+'>'+s.name+'</option>').join('')+'</select></div></div>';
+h+='<div class="frm-row"><div><label class="lbl">Taxable Amount</label><input type="number" id="pufTax" value="'+(p?p.taxable:0)+'" oninput="Purch.calcGST()"></div><div><label class="lbl">GST Rate %</label><select id="pufGST" onchange="Purch.calcGST()"><option value="0">0%</option><option value="5">5%</option><option value="12">12%</option><option value="18" selected>18%</option><option value="28">28%</option></select></div></div>';
+h+='<div class="frm-row-3"><div><label class="lbl">CGST</label><input type="number" id="pufCGST" value="'+(p?p.cgst:0)+'" readonly></div><div><label class="lbl">SGST</label><input type="number" id="pufSGST" value="'+(p?p.sgst:0)+'" readonly></div><div><label class="lbl">IGST</label><input type="number" id="pufIGST" value="'+(p?p.igst:0)+'" readonly></div></div>';
+h+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px"><button class="btn btn-gh" onclick="UI.closeForm()">Cancel</button><button class="btn btn-p" onclick="Purch.save()">Save</button></div>';
+UI.openForm(h)},
+calcGST(){const tax=Number($('pufTax').value)||0;const rate=Number($('pufGST').value)||0;const gst=tax*rate/100;const sup=$('pufSup').value;const supObj=D.suppliers.find(s=>s.id===sup);const bizSt=stateFromGSTIN(D.settings.gstin);const isInter=bizSt&&supObj&&supObj.state&&bizSt!==supObj.state;
+if(isInter){$('pufCGST').value=0;$('pufSGST').value=0;$('pufIGST').value=Math.round(gst*100)/100}else{$('pufCGST').value=Math.round(gst/2*100)/100;$('pufSGST').value=Math.round(gst/2*100)/100;$('pufIGST').value=0}},
+save(){const sup=$('pufSup').value;if(!sup){T('Select supplier','er');return}
+const tax=Number($('pufTax').value)||0;const cgst=Number($('pufCGST').value)||0;const sgst=Number($('pufSGST').value)||0;const igst=Number($('pufIGST').value)||0;
+const id=$('pufId').value;const obj={number:$('pufNum').value,date:$('pufDate').value,supplier:sup,taxable:tax,cgst,sgst,igst,total:Math.round((tax+cgst+sgst+igst)*100)/100,status:'Received',createdAt:new Date().toISOString()};
+if(id){const idx=D.purchases.findIndex(x=>x.dbId==id);if(idx>=0)Object.assign(D.purchases[idx],obj)}else{obj.dbId=DB.nextId(D,'purchase');D.purchases.push(obj)}
+saveD();UI.closeForm();Purch.renderList();T('Purchase saved','ok')}
+};
+
+/* EXPENSES */
+const Exp={
+render(){const total=D.expenses.reduce((s,e)=>s+e.amount,0);$('expStats').innerHTML='<div class="st-c"><h3>'+fmtMoney(total)+'</h3><p>Total Expenses</p></div><div class="st-c"><h3>'+D.expenses.length+'</h3><p>Entries</p></div>';
+const body=$('expBody');body.innerHTML='';
+const sorted=[...D.expenses].sort((a,b)=>new Date(b.date)-new Date(a.date));
+sorted.forEach(e=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+e.number+'</td><td>'+fmtDate(e.date)+'</td><td>'+e.category+'</td><td>'+e.description+'</td><td>'+fmtMoney(e.amount)+'</td><td>'+(e.gstAmt?fmtMoney(e.gstAmt):'-')+'</td><td>'+e.mode+'</td><td><button class="btn btn-gh btn-xs" onclick="Exp.showForm('+e.dbId+')">Edit</button></td>';body.appendChild(tr)});
+if(!sorted.length)body.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--tm)">No expenses</td></tr>'},
+showForm(id){const e=id?D.expenses.find(x=>x.dbId===id):null;
+const cats=['Rent','Salary','Electricity','Internet','Office Supplies','Travel','Marketing','Insurance','Professional Fees','Bank Charges','Maintenance','Miscellaneous'];
+let h='<h3 style="margin-bottom:12px">'+(e?'Edit':'Add')+' Expense</h3>';
+h+='<input type="hidden" id="efId" value="'+(e?e.dbId:'')+'">';
+h+='<div class="frm-row-3"><div><label class="lbl">Date</label><input type="date" id="efDate" value="'+(e?e.date:new Date().toISOString().split('T')[0])+'"></div><div><label class="lbl">Category</label><select id="efCat">'+cats.map(c=>'<option'+(e&&e.category===c?' selected':'')+'>'+c+'</option>').join('')+'</select></div><div><label class="lbl">Amount *</label><input type="number" id="efAmt" value="'+(e?e.amount:0)+'"></div></div>';
+h+='<div class="frm-row-3"><div><label class="lbl">Description</label><input type="text" id="efDesc" value="'+(e?e.description:'')+'"></div><div><label class="lbl">Mode</label><select id="efMode"><option>Cash</option><option>UPI</option><option>Bank</option><option>Card</option></select></div><div><label class="lbl">GST Amount</label><input type="number" id="efGST" value="'+(e?e.gstAmt||0:0)+'"></div></div>';
+h+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px"><button class="btn btn-gh" onclick="UI.closeForm()">Cancel</button><button class="btn btn-p" onclick="Exp.save()">Save</button></div>';
+UI.openForm(h)},
+save(){const amt=Number($('efAmt').value);if(!amt){T('Enter amount','er');return}
+const id=$('efId').value;const num='EXP-'+String(DB.nextId(D,'expense')).padStart(4,'0');
+const obj={number:num,date:$('efDate').value,category:$('efCat').value,amount:amt,description:$('efDesc').value,mode:$('efMode').value,gstAmt:Number($('efGST').value)||0,createdAt:new Date().toISOString()};
+if(id){const idx=D.expenses.findIndex(x=>x.dbId==id);if(idx>=0)Object.assign(D.expenses[idx],obj)}else{obj.dbId=D.counters.expense;D.expenses.push(obj)}
+saveD();UI.closeForm();Exp.render();T('Expense saved','ok')},
+exportCSV(){let csv='Number,Date,Category,Description,Amount,GST,Mode\n';D.expenses.forEach(e=>{csv+=e.number+','+e.date+','+e.category+','+e.description+','+e.amount+','+(e.gstAmt||'')+','+e.mode+'\n'});dl('expenses.csv',csv,'text/csv');T('Exported','ok')}
+};
+
+/* GST CALCULATOR */
+const GSTCalc={calc(){
+const amt=parseFloat($('gcAmt').value)||0;const rate=parseFloat($('gcRate').value)||0;const type=$('gcType').value;
+const gst=amt*rate/100;
+const isInter=type==='Inter-State';
+let h='<b>Original: '+fmtMoney(amt)+'</b><br>';
+if(isInter){h+='IGST @ '+rate+'%: <b>'+fmtMoney(gst)+'</b><br>'}else{h+='CGST @ '+(rate/2)+'%: '+fmtMoney(gst/2)+' | SGST @ '+(rate/2)+'%: '+fmtMoney(gst/2)+'<br>'}
+h+='<br><span style="font-size:1.2rem">Total with GST: <b>'+fmtMoney(amt+gst)+'</b></span>';
+$('gcResult').innerHTML=h}};
+
+/* GSTIN VALIDATOR */
+const GSTIN={validate(){
+const g=$('gstinInput').value.trim().toUpperCase();const res=$('gstinResult');
+if(g.length!==15){res.innerHTML='<span style="color:var(--wr)">GSTIN must be 15 characters. Current: '+g.length+'</span>';return}
+const stateCode=g.substring(0,2);const pan=g.substring(2,12);const entityNum=g.substring(12,13);const z=g.substring(13,14);const check=g.substring(14,15);
+const stateName=stateFromCode(stateCode);
+const validChars='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+let sum=0;for(let i=0;i<14;i++){const ch=g[i];const idx=validChars.indexOf(ch);if(idx<0){res.innerHTML='<span style="color:var(--dn)">Invalid character: '+ch+'</span>';return}
+const factor=i%2===0?1:2;let prod=idx*factor;prod=Math.floor(prod/36)+prod%36;sum+=prod}
+const checkIdx=(36-sum%36)%36;const expectedCheck=validChars[checkIdx];
+const isValid=check===expectedCheck;
+const panPattern=/^[A-Z]{5}[0-9]{4}[A-Z]$/;
+let h='<div style="color:'+(isValid&&panPattern.test(pan)?'var(--ok)':'var(--dn)')+';font-weight:700;margin-bottom:8px">'+(isValid&&panPattern.test(pan)?'VALID GSTIN':'INVALID GSTIN')+'</div>';
+h+='<b>State:</b> '+stateCode+' - '+stateName+'<br>';
+h+='<b>PAN:</b> '+pan+' ('+panPattern.test(pan)?'Valid':'Invalid format'+')<br>';
+h+='<b>Entity:</b> '+entityNum+'<br>';
+h+='<b>Check Digit:</b> '+check+' ('+expectedCheck+') '+(isValid?'CORRECT':'MISMATCH')+'<br>';
+h+='<br><span style="font-size:.78rem;color:var(--tm)">Structure: ['+stateCode+']['+pan+']['+entityNum+']['+z+']['+check+']</span>';
+res.innerHTML=h}};
+
+/* HSN/SAC CODES */
+const HSN_CODES=[
+{code:'0401',desc:'Milk and cream',gst:0,type:'HSN'},{code:'1001',desc:'Wheat',gst:0,type:'HSN'},{code:'1905',desc:'Bread, pastry, cakes',gst:5,type:'HSN'},{code:'2201',desc:'Mineral water',gst:18,type:'HSN'},{code:'3004',desc:'Medicaments',gst:12,type:'HSN'},
+{code:'6109',desc:'T-shirts, singlets',gst:5,type:'HSN'},{code:'6203',desc:'Mens suits, trousers',gst:12,type:'HSN'},{code:'6204',desc:'Womens suits, dresses',gst:12,type:'HSN'},{code:'7113',desc:'Jewellery',gst:3,type:'HSN'},{code:'8471',desc:'Computers, laptops',gst:18,type:'HSN'},
+{code:'8473',desc:'Computer parts',gst:18,type:'HSN'},{code:'8517',desc:'Telephones, smartphones',gst:18,type:'HSN'},{code:'8528',desc:'Monitors, TVs',gst:18,type:'HSN'},{code:'8544',desc:'Wires and cables',gst:18,type:'HSN'},{code:'9401',desc:'Seats and chairs',gst:18,type:'HSN'},
+{code:'9403',desc:'Other furniture',gst:18,type:'HSN'},{code:'9503',desc:'Toys',gst:12,type:'HSN'},{code:'4820',desc:'Registers, notebooks',gst:12,type:'HSN'},{code:'3401',desc:'Soap',gst:18,type:'HSN'},{code:'3304',desc:'Beauty preparations',gst:28,type:'HSN'},
+{code:'9954',desc:'Construction services',gst:18,type:'SAC'},{code:'9961',desc:'Financial services',gst:18,type:'SAC'},{code:'9965',desc:'Transport services',gst:5,type:'SAC'},{code:'9966',desc:'Rental services',gst:18,type:'SAC'},{code:'9971',desc:'IT services',gst:18,type:'SAC'},
+{code:'9972',desc:'Telecom services',gst:18,type:'SAC'},{code:'9973',desc:'Internet services',gst:18,type:'SAC'},{code:'9981',desc:'R&D services',gst:18,type:'SAC'},{code:'9982',desc:'Legal services',gst:18,type:'SAC'},{code:'9983',desc:'Accounting & audit',gst:18,type:'SAC'},
+{code:'9985',desc:'Support services',gst:18,type:'SAC'},{code:'9986',desc:'Other professional',gst:18,type:'SAC'},{code:'9987',desc:'Other business',gst:18,type:'SAC'},{code:'9991',desc:'Education services',gst:0,type:'SAC'},{code:'9992',desc:'Health care',gst:0,type:'SAC'},
+{code:'9995',desc:'Accommodation & food',gst:5,type:'SAC'},{code:'9996',desc:'Entertainment',gst:18,type:'SAC'}
+];
+const HSN={render(){HSN.filter()},filter(){const q=$('hsnSearch').value.toLowerCase();const list=HSN_CODES.filter(h=>!q||h.code.includes(q)||h.desc.toLowerCase().includes(q));
+const body=$('hsnBody');body.innerHTML='';
+list.forEach(h=>{const tr=document.createElement('tr');tr.innerHTML='<td style="font-family:JetBrains Mono">'+h.code+'</td><td>'+h.desc+'</td><td><b>'+h.gst+'%</b></td><td>'+h.type+'</td>';body.appendChild(tr)})}};
+
+/* GSTR PREPARATION */
+const GSTR={render(){GSTR.renderGSTR1();GSTR.renderGSTR3B()},
+renderGSTR1(){
+const body=$('gstr1Body');body.innerHTML='';
+const b2b=D.invoices.filter(i=>i.status!=='Cancelled'&&D.customers.find(c=>c.id===i.customer&&c.gstin));
+const b2c=D.invoices.filter(i=>i.status!=='Cancelled'&&(!D.customers.find(c=>c.id===i.customer)||!D.customers.find(c=>c.id===i.customer).gstin));
+const b2bTax=b2b.reduce((s,i)=>s+i.taxable,0);const b2bCGST=b2b.reduce((s,i)=>s+i.cgst,0);const b2bSGST=b2b.reduce((s,i)=>s+i.sgst,0);const b2bIGST=b2b.reduce((s,i)=>s+i.igst,0);
+const b2cTax=b2c.reduce((s,i)=>s+i.taxable,0);const b2cCGST=b2c.reduce((s,i)=>s+i.cgst,0);const b2cSGST=b2c.reduce((s,i)=>s+i.sgst,0);const b2cIGST=b2c.reduce((s,i)=>s+i.igst,0);
+body.innerHTML='<tr><td>B2B Invoices</td><td>'+fmtMoney(b2bTax)+'</td><td>'+fmtMoney(b2bCGST)+'</td><td>'+fmtMoney(b2bSGST)+'</td><td>'+fmtMoney(b2bIGST)+'</td><td>'+fmtMoney(b2bCGST+b2bSGST+b2bIGST)+'</td></tr><tr><td>B2C Invoices</td><td>'+fmtMoney(b2cTax)+'</td><td>'+fmtMoney(b2cCGST)+'</td><td>'+fmtMoney(b2cSGST)+'</td><td>'+fmtMoney(b2cIGST)+'</td><td>'+fmtMoney(b2cCGST+b2cSGST+b2cIGST)+'</td></tr>';
+const totTr=document.createElement('tr');totTr.style.fontWeight='700';totTr.style.background='var(--bg)';totTr.innerHTML='<td>TOTAL</td><td>'+fmtMoney(b2bTax+b2cTax)+'</td><td>'+fmtMoney(b2bCGST+b2cCGST)+'</td><td>'+fmtMoney(b2bSGST+b2cSGST)+'</td><td>'+fmtMoney(b2bIGST+b2cIGST)+'</td><td>'+fmtMoney(b2bCGST+b2cCGST+b2bSGST+b2cSGST+b2bIGST+b2cIGST)+'</td></tr>';body.appendChild(totTr)},
+renderGSTR3B(){
+const outputGST=D.invoices.filter(i=>i.status!=='Cancelled').reduce((s,i)=>s+i.cgst+i.sgst+i.igst,0);
+const inputGST=D.purchases.reduce((s,p)=>s+p.cgst+p.sgst+p.igst,0)+D.expenses.filter(e=>e.gstAmt).reduce((s,e)=>s+e.gstAmt,0);
+const netPay=Math.max(0,outputGST-inputGST);
+$('gstr3bContent').innerHTML='<div class="frm-row-3"><div class="calc-card"><h4>Output GST</h4><div class="calc-result">'+fmtMoney(outputGST)+'</div></div><div class="calc-card"><h4>Input GST (ITC)</h4><div class="calc-result">'+fmtMoney(inputGST)+'</div></div><div class="calc-card"><h4>Net Payable</h4><div class="calc-result" style="color:var(--dn)">'+fmtMoney(netPay)+'</div></div></div>'},
+generateGSTR1(){const data={gstin:D.settings.gstin,filing_period:new Date().toISOString().slice(0,7),b2b:[],b2c:[],hsn_summary:[]};
+D.invoices.filter(i=>i.status!=='Cancelled').forEach(inv=>{const cust=D.customers.find(c=>c.id===inv.customer);const entry={invoice_number:inv.number,invoice_date:inv.date,invoice_value:inv.total,taxable_value:inv.taxable,cgst:inv.cgst,sgst:inv.sgst,igst:inv.igst,place_of_supply:inv.pos};
+if(cust&&cust.gstin){entry.gstin=cust.gstin;entry.invoice_type='Regular';data.b2b.push(entry)}else{data.b2c.push(entry)}});
+dl('gstr1_'+new Date().toISOString().slice(0,7)+'.json',JSON.stringify(data,null,2),'application/json');T('GSTR-1 JSON exported','ok')}
+};
+
+/* REPORTS */
+const Rpts={render(){Rpts.renderCharts()},
+renderCharts(){if(typeof Chart==='undefined')return;
+const custSales={};D.invoices.filter(i=>i.status!=='Cancelled').forEach(i=>{custSales[i.customer]=(custSales[i.customer]||0)+i.total});
+const topCusts=Object.entries(custSales).sort((a,b)=>b[1]-a[1]).slice(0,5);
+if(Rpts._chTC)Rpts._chTC.destroy();Rpts._chTC=new Chart($('chTopCust'),{type:'bar',data:{labels:topCusts.map(([id])=>custName(id).substring(0,15)),datasets:[{data:topCusts.map(([,v])=>v),backgroundColor:['#6366f1','#06b6d4','#f59e06','#ec4899','#10b981'],borderRadius:4}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,.05)'}},y:{grid:{display:false}}}}});
+const expCats={};D.expenses.forEach(e=>{expCats[e.category]=(expCats[e.category]||0)+e.amount});
+const catLabels=Object.keys(expCats);const catVals=Object.values(expCats);
+if(Rpts._chEC)Rpts._chEC.destroy();Rpts._chEC=new Chart($('chExpCat'),{type:'doughnut',data:{labels:catLabels,datasets:[{data:catVals,backgroundColor:['#6366f1','#06b6d4','#f59e06','#ec4899','#10b981','#ef4444','#f97316','#8b5cf6'],borderWidth:0}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{color:'#6b7a94'}}}}})},
+run(type){const out=$('rptOutput');let h='<div class="card">';
+if(type==='sales'){h+='<h3 style="margin-bottom:10px">Sales Report</h3><div class="tbl-wrap"><table class="wt"><thead><tr><th>Month</th><th>Invoices</th><th>Taxable</th><th>GST</th><th>Total</th></tr></thead><tbody>';
+const months={};D.invoices.filter(i=>i.status!=='Cancelled').forEach(i=>{const m=i.date?i.date.slice(0,7):'Unknown';if(!months[m])months[m]={count:0,taxable:0,gst:0,total:0};months[m].count++;months[m].taxable+=i.taxable;months[m].gst+=i.cgst+i.sgst+i.igst;months[m].total+=i.total});
+Object.entries(months).sort((a,b)=>b[0].localeCompare(a[0])).forEach(([m,d])=>{h+='<tr><td>'+m+'</td><td>'+d.count+'</td><td>'+fmtMoney(d.taxable)+'</td><td>'+fmtMoney(d.gst)+'</td><td>'+fmtMoney(d.total)+'</td></tr>'});
+h+='</tbody></table></div>'}
+else if(type==='expense'){h+='<h3 style="margin-bottom:10px">Expense Report</h3><div class="tbl-wrap"><table class="wt"><thead><tr><th>Category</th><th>Count</th><th>Total</th></tr></thead><tbody>';
+const cats={};D.expenses.forEach(e=>{if(!cats[e.category])cats[e.category]={count:0,total:0};cats[e.category].count++;cats[e.category].total+=e.amount});
+Object.entries(cats).sort((a,b)=>b[1].total-a[1].total).forEach(([c,d])=>{h+='<tr><td>'+c+'</td><td>'+d.count+'</td><td>'+fmtMoney(d.total)+'</td></tr>'});
+h+='</tbody></table></div>'}
+else if(type==='gst'){const outG=D.invoices.filter(i=>i.status!=='Cancelled').reduce((s,i)=>s+i.cgst+i.sgst+i.igst,0);const inG=D.purchases.reduce((s,p)=>s+p.cgst+p.sgst+p.igst,0)+D.expenses.filter(e=>e.gstAmt).reduce((s,e)=>s+e.gstAmt,0);
+h+='<h3 style="margin-bottom:10px">GST Summary</h3><div class="frm-row-3"><div class="calc-card"><h4>Output GST</h4><div class="calc-result">'+fmtMoney(outG)+'</div></div><div class="calc-card"><h4>Input GST</h4><div class="calc-result">'+fmtMoney(inG)+'</div></div><div class="calc-card"><h4>Net Payable</h4><div class="calc-result" style="color:var(--dn)">'+fmtMoney(Math.max(0,outG-inG))+'</div></div></div>'}
+else if(type==='pnl'){const rev=D.invoices.filter(i=>i.status!=='Cancelled').reduce((s,i)=>s+i.taxable,0);const exp=D.expenses.reduce((s,e)=>s+e.amount,0)+D.purchases.reduce((s,p)=>s+p.taxable,0);
+h+='<h3 style="margin-bottom:10px">Profit & Loss</h3><div class="tbl-wrap"><table class="wt"><tr><td><b>Revenue</b></td><td style="text-align:right;color:var(--ok)">'+fmtMoney(rev)+'</td></tr><tr><td><b>Expenses + Purchases</b></td><td style="text-align:right;color:var(--dn)">'+fmtMoney(exp)+'</td></tr><tr style="font-weight:700;background:var(--bg)"><td><b>Net Profit/Loss</b></td><td style="text-align:right;color:'+(rev-exp>=0?'var(--ok)':'var(--dn)')+'">'+fmtMoney(rev-exp)+'</td></tr></table></div>'}
+else if(type==='aging'){h+='<h3 style="margin-bottom:10px">Receivables Aging</h3><div class="tbl-wrap"><table class="wt"><thead><tr><th>Customer</th><th>0-30 days</th><th>31-60 days</th><th>61-90 days</th><th>90+ days</th><th>Total Due</th></tr></thead><tbody>';
+D.customers.forEach(c=>{const bal=D.invoices.filter(i=>i.customer===c.id&&(i.status==='Sent'||i.status==='Overdue')).reduce((s,i)=>s+i.total-(i.paid||0),0);
+if(bal>0)h+='<tr><td>'+c.name+'</td><td>'+fmtMoney(bal)+'</td><td>-</td><td>-</td><td>-</td><td>'+fmtMoney(bal)+'</td></tr>'});
+h+='</tbody></table></div>'}
+else{h+='<h3>'+type+' Report</h3><p style="color:var(--tm)">Report data</p>'}
+h+='</div>';out.innerHTML=h}};
+
+/* SETTINGS */
+const Settings={load(){const s=D.settings;$('setBizName').value=s.bizName||'';$('setTradeName').value=s.tradeName||'';$('setGSTIN').value=s.gstin||'';$('setPAN').value=s.pan||'';$('setState').innerHTML=stateOptions(s.state||'');$('setPhone').value=s.phone||'';$('setEmail').value=s.email||'';$('setAddr').value=s.address||'';$('setBank').value=s.bank||'';$('setAcct').value=s.acct||'';$('setIFSC').value=s.ifsc||'';$('setInvPre').value=s.invPre||'INV-';$('setDueDays').value=s.dueDays||30;$('setCurr').value=s.currency||'₹'},
+save(){D.settings.bizName=$('setBizName').value;D.settings.tradeName=$('setTradeName').value;D.settings.gstin=$('setGSTIN').value.toUpperCase();D.settings.pan=$('setPAN').value.toUpperCase();D.settings.state=$('setState').value;D.settings.phone=$('setPhone').value;D.settings.email=$('setEmail').value;D.settings.address=$('setAddr').value;D.settings.bank=$('setBank').value;D.settings.acct=$('setAcct').value;D.settings.ifsc=$('setIFSC').value;D.settings.invPre=$('setInvPre').value;D.settings.dueDays=Number($('setDueDays').value);D.settings.currency=$('setCurr').value;saveD();T('Settings saved','ok')}
+};
+
+/* ACHIEVEMENTS */
+const BADGES=[
+{id:'first',name:'First Invoice',icon:'🧾',desc:'Generate first invoice',check:()=>D.invoices.length>=1},
+{id:'inv100',name:'GST Pro',icon:'📊',desc:'100+ invoices',check:()=>D.invoices.length>=100},
+{id:'inv500',name:'Bill Builder',icon:'🏗️',desc:'500+ invoices',check:()=>D.invoices.length>=500},
+{id:'rev10',name:'Revenue Milestone',icon:'💰',desc:'Record 10L revenue',check:()=>D.invoices.reduce((s,i)=>s+i.total,0)>=1000000},
+{id:'cust50',name:'Customer Champion',icon:'👥',desc:'50+ customers',check:()=>D.customers.length>=50},
+{id:'prod25',name:'Product Manager',icon:'📦',desc:'25+ products',check:()=>D.products.length>=25},
+{id:'pay100',name:'Payment Tracker',icon:'💳',desc:'100+ payments',check:()=>D.payments.length>=100},
+{id:'exp50',name:'Expense Keeper',icon:'📝',desc:'50+ expenses',check:()=>D.expenses.length>=50},
+{id:'gst20',name:'GST Calculator',icon:'🧮',desc:'Use calculator',check:()=>D.invoices.length>=10},
+{id:'gstin10',name:'GSTIN Validator',icon:'🔍',desc:'Validate GSTINs',check:()=>D.customers.filter(c=>c.gstin).length>=5}
+];
+const Achiev={render(){const g=$('achGrid');g.innerHTML='';BADGES.forEach(b=>{const u=b.check();g.innerHTML+='<div class="badge-card '+(u?'unlocked':'locked')+'"><span class="badge-icon">'+b.icon+'</span><div class="badge-name">'+b.name+'</div><div style="font-size:.62rem;color:var(--tm)">'+b.desc+'</div></div>'})}};
+
+/* DATA IO */
+const DataIO={open(){UI.openMdl('exportModal')},exportAll(){dl('gstpro_backup_'+new Date().toISOString().split('T')[0]+'.json',JSON.stringify(D,null,2),'application/json');T('Exported','ok')},importF(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.settings){D=d;saveD();Nav.go('dash');T('Imported!','ok')}else{T('Invalid file','er')}}catch(err){T('Invalid file','er')}};r.readAsText(f);e.target.value=''}};
+
+/* COMMAND PALETTE */
+const cmds=[{name:'Dashboard',action:()=>Nav.go('dash')},{name:'New Invoice',action:()=>{Nav.go('invoices');Inv.showForm()}},{name:'Add Customer',action:()=>{Nav.go('customers');Cust.showForm()}},{name:'Add Product',action:()=>{Nav.go('products');Prod.showForm()}},{name:'Record Payment',action:()=>{Nav.go('payments');Pay.showForm()}},{name:'Add Expense',action:()=>{Nav.go('expenses');Exp.showForm()}},{name:'GST Calculator',action:()=>Nav.go('gstcalc')},{name:'GSTIN Validator',action:()=>Nav.go('gstin')},{name:'HSN/SAC Codes',action:()=>Nav.go('hsn')},{name:'GST Returns',action:()=>Nav.go('gstreturns')},{name:'Reports',action:()=>Nav.go('reports')},{name:'Settings',action:()=>Nav.go('settings')},{name:'Toggle Theme',action:UI.togTheme},{name:'Export Data',action:()=>DataIO.exportAll()}];
+const CMD={si:0,open(){document.getElementById('cmdO').classList.add('open');const i=document.getElementById('cmdIn');i.value='';i.focus();CMD.si=0;CMD.filt()},close(){document.getElementById('cmdO').classList.remove('open')},filt(){CMD.si=0;CMD.render(document.getElementById('cmdIn').value.toLowerCase())},render(q){const c=document.getElementById('cmdR');c.innerHTML='';cmds.filter(x=>x.name.toLowerCase().includes(q)).forEach((cmd,i)=>{const d=document.createElement('div');d.className='cmd-i'+(i===CMD.si?' sel':'');d.innerHTML='<span>'+cmd.name+'</span>';d.onclick=()=>{CMD.close();cmd.action()};c.appendChild(d)})},key(e){const items=document.querySelectorAll('.cmd-i');if(e.key==='Escape')CMD.close();else if(e.key==='ArrowDown'){e.preventDefault();CMD.si=Math.min(CMD.si+1,items.length-1);items.forEach((it,i)=>it.classList.toggle('sel',i===CMD.si))}else if(e.key==='ArrowUp'){e.preventDefault();CMD.si=Math.max(CMD.si-1,0);items.forEach((it,i)=>it.classList.toggle('sel',i===CMD.si))}else if(e.key==='Enter'&&items.length){CMD.close();items[CMD.si]?.click()}}};
+document.getElementById('cmdO').addEventListener('click',e=>{if(e.target.id==='cmdO')CMD.close()});
+
+/* SHORTCUTS */
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();CMD.open()}if(e.key==='Escape'){document.querySelectorAll('.mdl.open').forEach(m=>m.classList.remove('open'));CMD.close();document.getElementById('admPnl').classList.remove('open')}if(e.ctrlKey&&e.shiftKey&&e.key==='L'){e.preventDefault();Adm.open()}});
+
+/* INIT */
+function AppInit(){
+Settings.load();
+$('setState').innerHTML=stateOptions(D.settings.state||'');
+Nav.go('dash');
+if(!D.customers.length&&!D.invoices.length){
+D.customers.push({id:'CUST-001',name:'Reliance Industries Ltd',gstin:'27AAACR5055N1Z8',state:'27',phone:'022-22785000',email:'',address:'Maker Chambers IV, Nariman Point, Mumbai',contact:'',terms:'Net 30'});
+D.customers.push({id:'CUST-002',name:'Tata Consultancy Services',gstin:'27AAACT2529R1ZP',state:'27',phone:'022-67789999',email:'',address:'TCS House, Raveline Street, Mumbai',contact:'',terms:'Net 30'});
+D.customers.push({id:'CUST-003',name:'Infosys Ltd',gstin:'29AAACI4639N1Z2',state:'29',phone:'080-28520261',email:'',address:'Electronics City, Bangalore',contact:'',terms:'Net 15'});
+D.counters.customer=3;
+D.suppliers.push({id:'SUP-001',name:'Dell Technologies India',gstin:'27AADCD1532E1Z0',state:'27',phone:'1800-425-4026',email:'',address:'Bangalore, Karnataka'});
+D.suppliers.push({id:'SUP-002',name:'HP India Sales',gstin:'27AADCH3854R1Z5',state:'27',phone:'1800-108-4747',email:'',address:'Bangalore, Karnataka'});
+D.counters.supplier=2;
+D.products.push({id:'PROD-001',name:'Laptop Dell Inspiron',code:'LAP-001',hsn:'8471',unit:'Nos',rate:50000,gst:18,stock:20,category:'Electronics'});
+D.products.push({id:'PROD-002',name:'Monitor LG 24 inch',code:'MON-001',hsn:'8528',unit:'Nos',rate:15000,gst:18,stock:30,category:'Electronics'});
+D.products.push({id:'PROD-003',name:'Keyboard Logitech',code:'KEY-001',hsn:'8471',unit:'Nos',rate:2000,gst:18,stock:50,category:'Accessories'});
+D.products.push({id:'PROD-004',name:'IT Consulting Services',code:'SRV-001',hsn:'9971',unit:'Hrs',rate:3000,gst:18,stock:0,category:'Services'});
+D.products.push({id:'PROD-005',name:'Office Chair',code:'FUR-001',hsn:'9401',unit:'Nos',rate:12000,gst:18,stock:15,category:'Furniture'});
+D.counters.product=5;
+D.invoices.push({dbId:1,number:'INV-0001',date:'2025-07-15',dueDate:'2025-08-14',customer:'CUST-001',pos:'27',items:[{product:'PROD-001',hsn:'8471',qty:2,rate:50000,gst:18,amount:100000,gstAmt:18000},{product:'PROD-002',hsn:'8528',qty:5,rate:15000,gst:18,amount:75000,gstAmt:13500}],taxable:175000,cgst:15750,sgst:15750,igst:0,total:206500,notes:'',status:'Paid',paid:206500,createdAt:'2025-07-15'});
+D.invoices.push({dbId:2,number:'INV-0002',date:'2025-08-01',dueDate:'2025-08-31',customer:'CUST-002',pos:'27',items:[{product:'PROD-004',hsn:'9971',qty:40,rate:3000,gst:18,amount:120000,gstAmt:21600}],taxable:120000,cgst:10800,sgst:10800,igst:0,total:141600,notes:'',status:'Sent',paid:0,createdAt:'2025-08-01'});
+D.invoices.push({dbId:3,number:'INV-0003',date:'2025-08-10',dueDate:'2025-08-25',customer:'CUST-003',pos:'29',items:[{product:'PROD-001',hsn:'8471',qty:10,rate:50000,gst:18,amount:500000,gstAmt:90000}],taxable:500000,cgst:0,sgst:0,igst:90000,total:590000,notes:'Inter-state supply',status:'Sent',paid:0,createdAt:'2025-08-10'});
+D.counters.invoice=3;
+D.payments.push({dbId:1,number:'PAY-0001',type:'Receive',date:'2025-07-20',amount:206500,party:'CUST-001',mode:'NEFT/RTGS',ref:'TXN-20250720-001',createdAt:'2025-07-20'});
+D.counters.payment=1;
+D.purchases.push({dbId:1,number:'PUR-0001',date:'2025-07-01',supplier:'SUP-001',taxable:300000,cgst:27000,sgst:27000,igst:0,total:354000,status:'Received',createdAt:'2025-07-01'});
+D.purchases.push({dbId:2,number:'PUR-0002',date:'2025-07-15',supplier:'SUP-002',taxable:100000,cgst:9000,sgst:9000,igst:0,total:118000,status:'Received',createdAt:'2025-07-15'});
+D.counters.purchase=2;
+D.expenses.push({dbId:1,number:'EXP-0001',date:'2025-07-01',category:'Rent',amount:25000,description:'Office rent July',mode:'Bank',gstAmt:0,createdAt:'2025-07-01'});
+D.expenses.push({dbId:2,number:'EXP-0002',date:'2025-07-05',category:'Internet',amount:2000,description:'Broadband bill',mode:'UPI',gstAmt:360,createdAt:'2025-07-05'});
+D.expenses.push({dbId:3,number:'EXP-0003',date:'2025-08-01',category:'Rent',amount:25000,description:'Office rent August',mode:'Bank',gstAmt:0,createdAt:'2025-08-01'});
+D.counters.expense=3;
+saveD();Nav.go('dash');T('Demo data loaded','inf')}
+setInterval(()=>{D.settings&&saveD()},30000);
+}
+
+(async function boot(){const fp=await LIC.fp();document.getElementById('licFP').value=fp;if(localStorage.getItem(LIC.STOR+'_lk')==='1'){LIC.showExp();return}if(await LIC.check())LIC.unlock();else document.getElementById('licScr').style.display='flex'})();
+</script></body></html>
