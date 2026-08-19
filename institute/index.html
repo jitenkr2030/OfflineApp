@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>InstituteHub — Institute Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--primary:#10b981;--primary-h:#059669;--primary-s:rgba(16,185,129,.12);--bg:#0a0f1a;--sf:#111827;--card:#1a2332;--tx:#e8ecf4;--tm:#6b7a90;--bd:#1f2d3d;--ok:#10b981;--wr:#f59e06;--dn:#ef4444;--pk:#ec4899;--cy:#06b6d4;--or:#f97316;--rd:10px;--sh:0 4px 24px rgba(0,0,0,.3)}
+[data-theme="light"]{--primary:#059669;--primary-h:#047857;--primary-s:rgba(5,150,105,.08);--bg:#f0fdf4;--sf:#ffffff;--card:#ffffff;--tx:#1a1a2e;--tm:#6b7280;--bd:#e5e7eb;--ok:#059669;--wr:#d97706;--dn:#dc2626;--pk:#db2777;--cy:#0891b2;--or:#ea580c;--sh:0 4px 24px rgba(0,0,0,.06)}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'DM Sans',system-ui,sans-serif}
+body{background:var(--bg);color:var(--tx);display:flex;height:100vh;overflow:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+/* License */
+#licScr{position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#0a0f1a,#0a2e1a,#0a0f1a);display:flex;align-items:center;justify-content:center}
+#licScr.hide{display:none}
+.lic-c{width:440px;max-width:92vw;background:rgba(26,35,50,.95);border:1px solid #1f2d3d;border-radius:16px;padding:36px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.lic-hd{text-align:center;margin-bottom:24px}
+.lic-ic{width:56px;height:56px;background:linear-gradient(135deg,#10b981,#06b6d4);border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:12px}
+.lic-f{margin-bottom:14px}
+.lic-f label{display:block;font-size:.82rem;font-weight:600;color:#94a3b8;margin-bottom:6px}
+.lic-f input{width:100%;padding:11px 14px;border:1px solid #334155;border-radius:8px;background:#0a1520;color:#e8ecf4;font-family:'JetBrains Mono',monospace;font-size:.88rem;outline:none}
+.lic-f input[readonly]{background:#0a0f1a;color:#6b7a90;font-size:.78rem}
+.lic-bt{width:100%;padding:12px;border:none;border-radius:8px;font-weight:600;font-size:.9rem;cursor:pointer;font-family:inherit;color:#fff}
+.lic-bt.p{background:linear-gradient(135deg,#10b981,#06b6d4)}.lic-bt.p:hover{filter:brightness(1.1)}
+.lic-st{text-align:center;margin-top:14px;font-size:.82rem}.lic-st.ok{color:#34d399}.lic-st.er{color:#fbbf24}
+.lic-dv{display:flex;align-items:center;gap:12px;margin:18px 0;color:#475569;font-size:.78rem}.lic-dv::before,.lic-dv::after{content:'';flex:1;height:1px;background:#1f2d3d}
+.lic-info{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:12px;font-size:.78rem;color:#94a3b8;line-height:1.5}
+#licExp{display:none;text-align:center}
+.lic-exp-ic{font-size:4rem;margin-bottom:16px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.95)}}
+/* Sidebar */
+.sb{width:260px;min-width:260px;background:var(--sf);border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow:hidden}
+.brand{padding:16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--bd)}
+.brand-ic{width:36px;height:36px;background:linear-gradient(135deg,#10b981,#06b6d4);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem}
+.brand-t{font-weight:700;font-size:.92rem;color:var(--primary)}
+.nav{list-style:none;padding:10px 8px;flex:1;overflow-y:auto}
+.nav li{padding:10px 12px;margin-bottom:2px;border-radius:8px;cursor:pointer;font-weight:500;font-size:.84rem;color:var(--tm);display:flex;align-items:center;gap:9px;transition:all .15s}
+.nav li:hover,.nav li.act{background:var(--primary-s);color:var(--primary)}.nav li.act{font-weight:600}
+.nav .nav-sec{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--tm);padding:12px 12px 4px;font-weight:700;cursor:default}
+.sess{padding:12px;background:var(--bg);border-top:1px solid var(--bd);font-size:.76rem}
+.badge{display:inline-block;padding:2px 10px;font-size:.72rem;font-weight:700;border-radius:5px;color:#fff}
+/* Main */
+.mn{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.hdr{padding:10px 20px;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center}
+.hdr h2{font-size:1rem;font-weight:700}.hdr-ac{display:flex;align-items:center;gap:8px}
+.sv-ind{font-size:.74rem;color:var(--tm);display:flex;align-items:center;gap:4px}
+.sv-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block}.sv-dot.sv{background:var(--wr);animation:pulse .6s infinite}
+.cnt{flex:1;overflow:hidden}
+.vw{display:none;height:100%;overflow-y:auto;padding:20px}.vw.act{display:flex;flex-direction:column}
+/* Buttons */
+.btn{border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-size:.82rem;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{filter:brightness(1.1)}.btn-p{background:var(--primary);color:#fff}.btn-ok{background:var(--ok);color:#fff}.btn-wr{background:var(--wr);color:#000}.btn-dn{background:var(--dn);color:#fff}.btn-gh{background:transparent;border:1px solid var(--bd);color:var(--tx)}.btn-cy{background:var(--cy);color:#fff}.btn-sm{padding:5px 10px;font-size:.74rem}.btn-xs{padding:3px 8px;font-size:.7rem;border-radius:5px}
+input[type="text"],input[type="password"],input[type="number"],input[type="date"],input[type="email"],select,textarea.fc{width:100%;padding:9px 10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;margin-bottom:8px;font-size:.86rem;font-family:inherit;outline:none;transition:border .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--primary)}textarea.fc{resize:vertical;line-height:1.5}
+label.lbl{display:block;font-size:.82rem;font-weight:600;margin-bottom:4px;color:var(--tm)}
+/* Cards */
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--rd);padding:18px;margin-bottom:14px;box-shadow:var(--sh)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:18px}
+.st-c{background:var(--card);border:1px solid var(--bd);border-radius:var(--rd);padding:14px;text-align:center;position:relative;overflow:hidden}
+.st-c::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.st-c:nth-child(1)::before{background:var(--primary)}.st-c:nth-child(2)::before{background:var(--ok)}.st-c:nth-child(3)::before{background:var(--wr)}.st-c:nth-child(4)::before{background:var(--pk)}.st-c:nth-child(5)::before{background:var(--cy)}.st-c:nth-child(6)::before{background:var(--or)}
+.st-c h3{font-size:1.3rem;font-weight:700;margin-bottom:2px}.st-c p{color:var(--tm);font-size:.78rem}
+/* Table */
+.tbl-wrap{border:1px solid var(--bd);border-radius:8px;overflow-x:auto;margin-bottom:14px}
+table.wt{width:100%;border-collapse:collapse;font-size:.84rem}
+table.wt th{text-align:left;padding:10px 12px;background:var(--sf);border-bottom:1px solid var(--bd);font-weight:600;color:var(--tm);white-space:nowrap}
+table.wt td{padding:9px 12px;border-bottom:1px solid var(--bd)}
+table.wt tr:hover{background:var(--primary-s)}
+/* Modal */
+.mdl{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1500;justify-content:center;align-items:center}
+.mdl.open{display:flex}
+.mdl-box{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:22px;max-width:600px;width:94%;box-shadow:var(--sh);max-height:88vh;overflow-y:auto}
+/* Toast */
+.tw{position:fixed;bottom:20px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:8px}
+.tst{padding:12px 18px;border-radius:10px;font-size:.84rem;font-weight:600;color:#fff;opacity:0;transform:translateY(12px);transition:all .3s;pointer-events:none;max-width:340px}
+.tst.show{opacity:1;transform:translateY(0)}.tst.ok{background:#059669}.tst.er{background:#dc2626}.tst.inf{background:var(--primary)}.tst.wr{background:#d97706}
+/* Admin panel */
+#admPnl{position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center}
+#admPnl.open{display:flex}.adm-b{width:680px;max-width:95vw;max-height:90vh;background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:24px;overflow-y:auto}
+.adm-t{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:14px}.adm-t th{text-align:left;padding:8px 10px;background:var(--bg);border-bottom:1px solid var(--bd);font-weight:600;color:var(--tm)}.adm-t td{padding:8px 10px;border-bottom:1px solid var(--bd)}
+.gen-k{font-family:'JetBrains Mono',monospace;background:var(--bg);padding:8px 12px;border-radius:6px;font-size:.8rem;color:var(--ok);margin-top:12px;word-break:break-all;display:none;border:1px solid var(--bd)}
+.lic-bar{display:flex;align-items:center;gap:8px;padding:5px 10px;border-radius:6px;font-size:.72rem;font-weight:600}
+.lic-bar.act{background:rgba(16,185,129,.12);color:var(--ok)}.lic-bar.wrn{background:rgba(245,158,6,.12);color:var(--wr)}
+.lic-bar-dot{width:7px;height:7px;border-radius:50%;display:inline-block}.lic-bar.act .lic-bar-dot{background:var(--ok)}.lic-bar.wrn .lic-bar-dot{background:var(--wr);animation:pulse 1s infinite}
+/* Command palette */
+.cmd-o{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;justify-content:center;padding-top:15vh}
+.cmd-o.open{display:flex}.cmd-b{width:460px;max-height:360px;background:var(--card);border:1px solid var(--bd);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.cmd-b input{padding:14px 16px;border:none;border-bottom:1px solid var(--bd);background:transparent;color:var(--tx);font-size:.95rem;outline:none}
+.cmd-r{overflow-y:auto;flex:1}.cmd-i{padding:10px 16px;cursor:pointer;font-size:.86rem;display:flex;justify-content:space-between;transition:background .1s}
+.cmd-i:hover,.cmd-i.sel{background:var(--primary-s)}
+/* Tags */
+.tag{font-size:.68rem;padding:2px 7px;border-radius:4px;font-weight:600}
+.tag-ok{background:rgba(16,185,129,.15);color:var(--ok)}.tag-dn{background:rgba(239,68,68,.12);color:var(--dn)}.tag-wr{background:rgba(245,158,6,.12);color:var(--wr)}.tag-cy{background:rgba(6,182,212,.12);color:var(--cy)}
+.charts-g{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.chart-c{background:var(--card);border:1px solid var(--bd);border-radius:var(--rd);padding:16px}.chart-c h4{font-size:.88rem;margin-bottom:10px;font-weight:600}
+.streak-flame{animation:flicker 1s infinite alternate}
+@keyframes flicker{0%{transform:scale(1)}100%{transform:scale(1.15) rotate(5deg)}}
+.badges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.badge-card{text-align:center;padding:12px 6px;border:1px solid var(--bd);border-radius:var(--rd);background:var(--sf)}
+.badge-card.unlocked{border-color:var(--wr);background:rgba(245,158,6,.05)}.badge-card.locked{opacity:.4;filter:grayscale(1)}
+.badge-icon{font-size:1.6rem;margin-bottom:3px;display:block}.badge-name{font-size:.74rem;font-weight:600}
+.note-area{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px;color:var(--tx);font-size:.84rem;min-height:60px;resize:vertical;width:100%;font-family:inherit;outline:none}
+.frm-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.frm-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.search-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.search-bar input,.search-bar select{margin-bottom:0}
+@media(max-width:900px){.sb{width:56px;min-width:56px}.brand-t,.nav li span,.nav .nav-sec,.sess{display:none}.nav li{justify-content:center;padding:12px}.charts-g{grid-template-columns:1fr}.frm-row,.frm-row-3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- LICENSE SCREEN -->
+<div id="licScr"><div class="lic-c">
+<div id="licAct"><div class="lic-hd"><div class="lic-ic">🏛️</div><h2>InstituteHub</h2><p style="color:#6b7a90;font-size:.82rem;margin-top:4px">Institute Management System</p></div>
+<div class="lic-f"><label>Machine Fingerprint</label><input type="text" id="licFP" readonly></div>
+<div class="lic-f"><label>License Key</label><input type="text" id="licKey" placeholder="INST-XXXX-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false"></div>
+<button class="lic-bt p" onclick="LIC.activate()">Activate License</button>
+<div class="lic-st" id="licSt"></div>
+<div class="lic-dv">OR</div>
+<button class="lic-bt" style="background:#334155;color:#e8ecf4" onclick="LIC.showExp()">Demo Mode</button>
+<div class="lic-info" style="margin-top:16px"><strong>How to activate:</strong><br>1. Copy Machine Fingerprint<br>2. Send to administrator<br>3. Receive license key<br>4. Paste and click Activate</div></div>
+<div id="licExp"><div style="text-align:center"><div class="lic-exp-ic">🔒</div><h1 style="color:#ef4444;font-size:1.4rem;margin-bottom:8px">License Expired</h1><p style="color:#6b7a90;font-size:.86rem;margin-bottom:18px">All data wiped. Contact admin.</p><button class="lic-bt p" onclick="LIC.showAct()" style="max-width:280px;margin:0 auto">Enter New License</button></div></div>
+</div></div>
+
+<!-- MAIN APP -->
+<div id="mainApp" style="display:none;width:100%;height:100%">
+<aside class="sb"><div>
+<div class="brand"><div class="brand-ic">🏛️</div><span class="brand-t">InstituteHub</span></div>
+<ul class="nav" id="nav">
+<li class="act" data-v="dash">📊 <span>Dashboard</span></li>
+<li class="nav-sec">Management</li>
+<li data-v="students">🎓 <span>Students</span></li>
+<li data-v="staff">👨‍🏫 <span>Staff</span></li>
+<li data-v="courses">📚 <span>Courses</span></li>
+<li class="nav-sec">Academic</li>
+<li data-v="attendance">📋 <span>Attendance</span></li>
+<li data-v="fees">💰 <span>Fees</span></li>
+<li data-v="exams">📝 <span>Exams</span></li>
+<li data-v="timetable">📅 <span>Timetable</span></li>
+<li class="nav-sec">Other</li>
+<li data-v="notices">📢 <span>Notices</span></li>
+<li data-v="library">📖 <span>Library</span></li>
+<li data-v="certificates">📜 <span>Certificates</span></li>
+<li data-v="reports">📈 <span>Reports</span></li>
+<li data-v="achievements">🏆 <span>Achievements</span></li>
+<li data-v="settings">⚙️ <span>Settings</span></li>
+</ul></div>
+<div class="sess"><div id="dispName" style="font-weight:600">Admin</div><div id="roleBadge" style="margin-top:4px"><span class="badge" style="background:var(--ok)">Active</span></div><div id="licBarSess" style="margin-top:6px"></div></div></aside>
+
+<div class="mn">
+<header class="hdr"><h2 id="pgT">Dashboard</h2><div class="hdr-ac"><div class="sv-ind" id="svInd"><span class="sv-dot"></span> Saved</div><div id="licBarHdr"></div><button class="btn btn-gh btn-sm" onclick="CMD.open()">⌘K</button><button class="btn btn-gh btn-sm" onclick="UI.togTheme()">🌗</button><button class="btn btn-gh btn-sm" onclick="DataIO.open()">📦</button></div></header>
+<div class="cnt">
+
+<!-- DASHBOARD -->
+<div id="v-dash" class="vw act">
+<div class="stats" id="dashStats"></div>
+<div class="charts-g"><div class="chart-c"><h4>Attendance Trend</h4><canvas id="chAtt"></canvas></div><div class="chart-c"><h4>Fee Collection</h4><canvas id="chFee"></canvas></div></div>
+<div class="card" style="margin-top:14px"><h3 style="margin-bottom:10px">Quick Actions</h3><div style="display:flex;gap:8px;flex-wrap:wrap">
+<button class="btn btn-p btn-sm" onclick="Nav.go('students');Students.showForm()">+ Add Student</button>
+<button class="btn btn-ok btn-sm" onclick="Nav.go('attendance')">Take Attendance</button>
+<button class="btn btn-wr btn-sm" onclick="Nav.go('fees');Fees.showPayForm()">Record Payment</button>
+<button class="btn btn-cy btn-sm" onclick="Nav.go('exams');Exams.showForm()">Create Exam</button>
+<button class="btn btn-gh btn-sm" onclick="Nav.go('notices');Notices.showForm()">Post Notice</button>
+</div></div></div>
+
+<!-- STUDENTS -->
+<div id="v-students" class="vw">
+<div id="studentListV">
+<div class="search-bar">
+<input type="text" id="stuSearch" placeholder="Search students..." oninput="Students.renderList()" style="width:220px">
+<select id="stuFilterCourse" onchange="Students.renderList()" style="width:150px"><option value="">All Courses</option></select>
+<select id="stuFilterStatus" onchange="Students.renderList()" style="width:120px"><option value="">All Status</option><option>Active</option><option>Dropped</option><option>Completed</option></select>
+<div style="flex:1"></div>
+<button class="btn btn-gh btn-sm" onclick="Students.exportCSV()">Export CSV</button>
+<button class="btn btn-p btn-sm" onclick="Students.showForm()">+ Add Student</button>
+</div>
+<div class="tbl-wrap"><table class="wt"><thead><tr><th>#</th><th>ID</th><th>Name</th><th>Course</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead><tbody id="stuBody"></tbody></table></div>
+</div>
+<div id="studentProfileV" style="display:none">
+<button class="btn btn-gh btn-sm" onclick="Students.closeProfile()" style="margin-bottom:14px">← Back to List</button>
+<div id="stuProfile"></div>
+</div></div>
+
+<!-- STAFF -->
+<div id="v-staff" class="vw">
+<div class="search-bar">
+<input type="text" id="stfSearch" placeholder="Search staff..." oninput="Staff.renderList()" style="width:220px">
+<select id="stfFilterRole" onchange="Staff.renderList()" style="width:130px"><option value="">All Roles</option><option>Teacher</option><option>Admin</option><option>Accountant</option><option>Librarian</option></select>
+<div style="flex:1"></div>
+<button class="btn btn-p btn-sm" onclick="Staff.showForm()">+ Add Staff</button>
+</div>
+<div class="tbl-wrap"><table class="wt"><thead><tr><th>#</th><th>ID</th><th>Name</th><th>Department</th><th>Role</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead><tbody id="stfBody"></tbody></table></div>
+</div>
+
+<!-- COURSES -->
+<div id="v-courses" class="vw">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+<h3>Courses & Subjects</h3><button class="btn btn-p btn-sm" onclick="Courses.showForm()">+ Add Course</button></div>
+<div id="courseList"></div>
+<hr style="border:0;border-top:1px solid var(--bd);margin:18px 0">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+<h3>Subjects</h3><button class="btn btn-p btn-sm" onclick="Courses.showSubjForm()">+ Add Subject</button></div>
+<div class="tbl-wrap"><table class="wt"><thead><tr><th>Code</th><th>Subject</th><th>Course</th><th>Sem</th><th>Credits</th><th>Teacher</th><th>Type</th><th>Actions</th></tr></thead><tbody id="subjBody"></tbody></table></div>
+</div>
+
+<!-- ATTENDANCE -->
+<div id="v-attendance" class="vw">
+<div class="card">
+<h3 style="margin-bottom:12px">Take Attendance</h3>
+<div class="frm-row-3">
+<div><label class="lbl">Date</label><input type="date" id="attDate"></div>
+<div><label class="lbl">Course</label><select id="attCourse" onchange="Att.loadStudents()"><option value="">Select</option></select></div>
+<div><label class="lbl">Batch</label><input type="text" id="attBatch" placeholder="2024-2027"></div>
+</div>
+<button class="btn btn-p btn-sm" onclick="Att.loadStudents()" style="margin-top:6px">Load Students</button>
+</div>
+<div id="attList" style="display:none">
+<div class="tbl-wrap"><table class="wt"><thead><tr><th>#</th><th>Name</th><th>ID</th><th>Status</th></tr></thead><tbody id="attBody"></tbody></table></div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn btn-gh btn-sm" onclick="Att.markAll('Present')">All Present</button>
+<button class="btn btn-gh btn-sm" onclick="Att.markAll('Absent')">All Absent</button>
+<div style="flex:1"></div>
+<div id="attSummary" style="font-size:.84rem;color:var(--tm);padding-top:6px"></div>
+<button class="btn btn-ok" onclick="Att.save()">Save Attendance</button>
+</div></div></div>
+
+<!-- FEES -->
+<div id="v-fees" class="vw">
+<div class="stats" id="feeStats"></div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+<h3>Payments</h3>
+<div style="display:flex;gap:8px">
+<button class="btn btn-gh btn-sm" onclick="Fees.exportCSV()">Export CSV</button>
+<button class="btn btn-p btn-sm" onclick="Fees.showPayForm()">+ Record Payment</button></div></div>
+<div class="tbl-wrap"><table class="wt"><thead><tr><th>Receipt</th><th>Date</th><th>Student</th><th>Amount</th><th>Mode</th><th>Reference</th><th>Actions</th></tr></thead><tbody id="feeBody"></tbody></table></div>
+</div>
+
+<!-- EXAMS -->
+<div id="v-exams" class="vw">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+<h3>Examinations</h3><button class="btn btn-p btn-sm" onclick="Exams.showForm()">+ Create Exam</button></div>
+<div id="examList"></div>
+<hr style="border:0;border-top:1px solid var(--bd);margin:18px 0">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+<h3>Marks Entry</h3>
+<div style="display:flex;gap:8px">
+<select id="markExam" onchange="Exams.loadMarkStudents()" style="width:160px"><option value="">Select Exam</option></select>
+<select id="markSubj" onchange="Exams.loadMarkStudents()" style="width:160px"><option value="">Select Subject</option></select>
+</div></div>
+<div id="marksEntry" style="display:none">
+<div class="tbl-wrap"><table class="wt"><thead><tr><th>#</th><th>Name</th><th>ID</th><th>Marks</th><th>Status</th></tr></thead><tbody id="markBody"></tbody></table></div>
+<button class="btn btn-ok" onclick="Exams.saveMarks()" style="margin-top:10px">Save Marks</button>
+</div></div>
+
+<!-- TIMETABLE -->
+<div id="v-timetable" class="vw">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+<h3>Class Timetable</h3>
+<div style="display:flex;gap:8px">
+<select id="ttCourse" onchange="Timetable.render()" style="width:150px"><option value="">Select Course</option></select>
+<button class="btn btn-p btn-sm" onclick="Timetable.showForm()">+ Add Slot</button></div></div>
+<div id="ttGrid"></div></div>
+
+<!-- NOTICES -->
+<div id="v-notices" class="vw">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+<h3>Notice Board</h3><button class="btn btn-p btn-sm" onclick="Notices.showForm()">+ Post Notice</button></div>
+<div id="noticeList"></div></div>
+
+<!-- LIBRARY -->
+<div id="v-library" class="vw">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+<h3>Library</h3>
+<div style="display:flex;gap:8px">
+<button class="btn btn-gh btn-sm" onclick="Lib.showIssueForm()">Issue Book</button>
+<button class="btn btn-p btn-sm" onclick="Lib.showBookForm()">+ Add Book</button></div></div>
+<div class="tbl-wrap"><table class="wt"><thead><tr><th>Title</th><th>Author</th><th>ISBN</th><th>Category</th><th>Total</th><th>Available</th><th>Actions</th></tr></thead><tbody id="libBody"></tbody></table></div>
+<hr style="border:0;border-top:1px solid var(--bd);margin:18px 0">
+<h3 style="margin-bottom:10px">Issued Books</h3>
+<div class="tbl-wrap"><table class="wt"><thead><tr><th>Book</th><th>Student</th><th>Issue Date</th><th>Due Date</th><th>Status</th><th>Actions</th></tr></thead><tbody id="libIssueBody"></tbody></table></div>
+</div>
+
+<!-- CERTIFICATES -->
+<div id="v-certificates" class="vw">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+<h3>Certificate Generator</h3><button class="btn btn-p btn-sm" onclick="Certs.showForm()">+ Generate</button></div>
+<div class="tbl-wrap"><table class="wt"><thead><tr><th>Cert #</th><th>Type</th><th>Student</th><th>Date</th><th>Actions</th></tr></thead><tbody id="certBody"></tbody></table></div>
+</div>
+
+<!-- REPORTS -->
+<div id="v-reports" class="vw">
+<h2 style="margin-bottom:14px">Reports & Analytics</h2>
+<div class="charts-g"><div class="chart-c"><h4>Students by Course</h4><canvas id="chCourse"></canvas></div><div class="chart-c"><h4>Gender Distribution</h4><canvas id="chGender"></canvas></div></div>
+<div class="card" style="margin-top:14px"><h3 style="margin-bottom:10px">Available Reports</h3>
+<div style="display:flex;flex-wrap:wrap;gap:8px">
+<button class="btn btn-gh btn-sm" onclick="Rpts.run('strength')">Student Strength</button>
+<button class="btn btn-gh btn-sm" onclick="Rpts.run('attendance')">Attendance Summary</button>
+<button class="btn btn-gh btn-sm" onclick="Rpts.run('fee')">Fee Collection</button>
+<button class="btn btn-gh btn-sm" onclick="Rpts.run('defaulters')">Fee Defaulters</button>
+<button class="btn btn-gh btn-sm" onclick="Rpts.run('results')">Exam Results</button>
+<button class="btn btn-gh btn-sm" onclick="Rpts.run('staff')">Staff List</button>
+</div></div>
+<div id="rptOutput" style="margin-top:14px"></div></div>
+
+<!-- ACHIEVEMENTS -->
+<div id="v-achievements" class="vw"><div class="card"><h2 style="margin-bottom:6px">🏆 Achievements</h2><p style="color:var(--tm);margin-bottom:14px">Complete tasks to unlock badges.</p><div id="achGrid" class="badges-grid"></div></div></div>
+
+<!-- SETTINGS -->
+<div id="v-settings" class="vw">
+<div class="card"><h3 style="margin-bottom:14px">Institute Settings</h3>
+<div class="frm-row"><div><label class="lbl">Institute Name</label><input type="text" id="setInstName" value="My Institute"></div><div><label class="lbl">Academic Year</label><input type="text" id="setYear" value="2024-2025"></div></div>
+<div class="frm-row"><div><label class="lbl">Phone</label><input type="text" id="setPhone"></div><div><label class="lbl">Email</label><input type="email" id="setEmail"></div></div>
+<label class="lbl">Address</label><textarea class="fc" id="setAddr" rows="2"></textarea>
+<div class="frm-row-3"><div><label class="lbl">Student ID Prefix</label><input type="text" id="setStuPre" value="ST-"></div><div><label class="lbl">Staff ID Prefix</label><input type="text" id="setStfPre" value="TCH-"></div><div><label class="lbl">Receipt Prefix</label><input type="text" id="setRcpPre" value="RCP-"></div></div>
+<div class="frm-row"><div><label class="lbl">Min Attendance %</label><input type="number" id="setMinAtt" value="75"></div><div><label class="lbl">Currency Symbol</label><input type="text" id="setCurr" value="₹"></div></div>
+<button class="btn btn-p" onclick="Settings.save()" style="margin-top:10px">Save Settings</button></div>
+<div class="card" style="margin-top:14px"><h3 style="margin-bottom:10px">Danger Zone</h3>
+<button class="btn btn-dn btn-sm" onclick="if(confirm('Delete ALL data?')){DB.reset();location.reload()}">Reset All Data</button></div>
+</div>
+
+</div></div></div>
+
+<!-- MODALS -->
+<div class="mdl" id="formModal"><div class="mdl-box" id="formContent"></div></div>
+
+<div class="mdl" id="exportModal"><div class="mdl-box"><h3 style="margin-bottom:14px">📦 Export / Import</h3>
+<div style="display:flex;flex-direction:column;gap:10px"><button class="btn btn-p" onclick="DataIO.exportAll()">⬇ Export All Data</button><button class="btn btn-gh" onclick="document.getElementById('importFile').click()">⬆ Import Data</button><input type="file" id="importFile" accept=".json" style="display:none" onchange="DataIO.importF(event)"></div>
+<div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn btn-gh" onclick="UI.closeMdl('exportModal')">Close</button></div></div></div>
+
+<div id="admPnl"><div class="adm-b"><h2 style="margin-bottom:6px">🔑 License Generator</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px"><div><label class="lbl">Fingerprint</label><input type="text" id="admFP"></div><div><label class="lbl">Days</label><input type="number" id="admDays" value="365"></div></div>
+<div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn btn-p" onclick="LIC.generate()">Generate</button><button class="btn btn-gh" onclick="LIC.revoke()">Revoke</button></div>
+<div class="gen-k" id="admGenK"></div>
+<table class="adm-t"><thead><tr><th>Fingerprint</th><th>Expires</th><th>Days</th></tr></thead><tbody id="admLicBody"></tbody></table>
+<div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn btn-gh" onclick="document.getElementById('admPnl').classList.remove('open')">Close</button></div></div></div>
+
+<div class="cmd-o" id="cmdO"><div class="cmd-b"><input type="text" id="cmdIn" placeholder="Command..." oninput="CMD.filt()" onkeydown="CMD.key(event)"><div class="cmd-r" id="cmdR"></div></div></div>
+<div class="tw" id="tw"></div>
+
+<script>
+"use strict";
+
+/* LICENSE SYSTEM */
+const LIC={SECRET:'INSTITUTE_SECRET_xK9$mP2v@qR7nZ4w',INTERVAL:30000,STOR:'inst_lic_v1',
+async fp(){const c=[];c.push(navigator.userAgent||'');c.push(navigator.language||'');c.push(navigator.platform||'');c.push(String(navigator.hardwareConcurrency||0));c.push(String(screen.width));c.push(String(screen.height));c.push(String(screen.colorDepth));c.push(Intl.DateTimeFormat().resolvedOptions().timeZone||'');try{const cv=document.createElement('canvas');cv.width=200;cv.height=50;const x=cv.getContext('2d');x.textBaseline='top';x.font='14px Arial';x.fillStyle='#f60';x.fillRect(125,1,62,20);x.fillStyle='#069';x.fillText('INST-FP',2,15);c.push(cv.toDataURL())}catch(e){c.push('c')}try{const g=document.createElement('canvas').getContext('webgl');const d=g.getExtension('WEBGL_debug_renderer_info');if(d){c.push(g.getParameter(d.UNMASKED_VENDOR_WEBGL)||'');c.push(g.getParameter(d.UNMASKED_RENDERER_WEBGL)||'')}}catch(e){c.push('g')}try{const a=new(window.AudioContext||window.webkitAudioContext)();c.push(String(a.sampleRate));a.close()}catch(e){c.push('a')}return(await LIC.sha(c.join('|||'))).substring(0,32).toUpperCase()},
+async sha(m){const b=new TextEncoder().encode(m);return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',b))).map(x=>x.toString(16).padStart(2,'0')).join('')},
+simpleH(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);h=h>>>0}return h.toString(36).toUpperCase()},
+async genKey(fp,days){const ex=new Date();ex.setDate(ex.getDate()+days);const ed=Math.floor(ex.getTime()/864e5);const es=ed.toString(16).toUpperCase().padStart(4,'0');const sg=(await LIC.sha(ed+':'+fp+':'+LIC.SECRET)).substring(0,4).toUpperCase();const pl=es+fp.substring(0,8)+sg;if(pl.length!==16)return null;return{key:'INST-'+pl.substring(0,4)+'-'+pl.substring(4,8)+'-'+pl.substring(8,12)+'-'+pl.substring(12,16),exp:ex.toISOString(),ed}},
+async valKey(key,fp){try{key=key.trim().toUpperCase();if(!key.startsWith('INST-'))return{v:false,r:'Invalid prefix'};const p=key.replace('INST-','').split('-');if(p.length!==4)return{v:false,r:'Invalid format'};const pl=p.join('');if(pl.length!==16)return{v:false,r:'Invalid length'};const ed=parseInt(pl.substring(0,4),16);if(isNaN(ed))return{v:false,r:'Invalid expiration'};if(pl.substring(4,12)!==fp.substring(0,8))return{v:false,r:'Different machine'};const expSg=(await LIC.sha(ed+':'+fp+':'+LIC.SECRET)).substring(0,4).toUpperCase();if(pl.substring(12,16)!==expSg)return{v:false,r:'Invalid signature'};const exMs=ed*864e5;if(Date.now()>exMs)return{v:false,r:'Expired'};return{v:true,exp:new Date(exMs).toISOString(),expMs:exMs,dLeft:Math.ceil((exMs-Date.now())/864e5)}}catch(e){return{v:false,r:'Error'}}},
+getStored(){try{return JSON.parse(localStorage.getItem(LIC.STOR))}catch(e){return null}},
+store(key,fp,val){localStorage.setItem(LIC.STOR,JSON.stringify({key,fp,actAt:new Date().toISOString(),exp:val.exp,expMs:val.expMs,th:LIC.simpleH(JSON.stringify({key,fp,expMs:val.expMs})+LIC.SECRET)}))},
+checkTamper(d){if(!d)return true;return d.th!==LIC.simpleH(JSON.stringify({key:d.key,fp:d.fp,expMs:d.expMs})+LIC.SECRET)},
+wipe(){const k=[];for(let i=0;i<localStorage.length;i++){const n=localStorage.key(i);if(n&&(n.startsWith('inst')||n.startsWith('instDB')))k.push(n)}k.forEach(x=>localStorage.removeItem(x));sessionStorage.clear()},
+lock(r){LIC.wipe();localStorage.setItem(LIC.STOR+'_lk','1');document.getElementById('mainApp').style.display='none';document.getElementById('licScr').classList.remove('hide');document.getElementById('licScr').style.display='flex';LIC.showExp();T('License expired.','er')},
+showAct(){document.getElementById('licAct').style.display='';document.getElementById('licExp').style.display='none'},
+showExp(){document.getElementById('licAct').style.display='none';document.getElementById('licExp').style.display=''},
+bar(){const s=LIC.getStored();if(!s)return;const dl=Math.ceil((s.expMs-Date.now())/864e5);const cl=dl<=3?'wrn':'act';const h='<div class="lic-bar '+cl+'"><span class="lic-bar-dot"></span>License: '+dl+'d left</div>';['licBarSess','licBarHdr'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML=h})},
+async activate(){const fp=document.getElementById('licFP').value,key=document.getElementById('licKey').value.trim(),st=document.getElementById('licSt');if(!key){st.textContent='Enter key';st.className='lic-st er';return}st.textContent='Validating...';const r=await LIC.valKey(key,fp);console.log('[LIC]',r);if(r.v){LIC.store(key,fp,r);st.textContent='Activated! '+r.dLeft+' days';st.className='lic-st ok';setTimeout(()=>LIC.unlock(),1000)}else{st.textContent=r.r;st.className='lic-st er'}},
+unlock(){document.getElementById('licScr').classList.add('hide');document.getElementById('licScr').style.display='none';document.getElementById('mainApp').style.display='flex';LIC.startCheck();LIC.bar();AppInit()},
+timer:null,startCheck(){if(LIC.timer)clearInterval(LIC.timer);LIC.timer=setInterval(async()=>{if(!(await LIC.check()))clearInterval(LIC.timer);else LIC.bar()},LIC.INTERVAL)},
+async check(){const s=LIC.getStored();if(!s)return false;if(LIC.checkTamper(s)){LIC.lock('Tampered');return false}if(s.fp!==(await LIC.fp())){LIC.lock('Diff machine');return false}if(Date.now()>s.expMs){LIC.lock('Expired');return false}return true},
+async generate(){const fp=document.getElementById('admFP').value.trim(),days=parseInt(document.getElementById('admDays').value)||365;if(!fp||fp.length<8){T('Enter fingerprint','er');return}const r=await LIC.genKey(fp,days);if(!r)return;const el=document.getElementById('admGenK');el.style.display='block';el.innerHTML='<strong>Key:</strong><br><span style="font-size:1rem;color:var(--ok)">'+r.key+'</span><br><small>'+new Date(r.exp).toLocaleDateString()+' ('+days+'d)</small>';let reg=JSON.parse(localStorage.getItem('inst_reg')||'[]');reg.push({fp,key:r.key,exp:r.exp,at:new Date().toISOString()});localStorage.setItem('inst_reg',JSON.stringify(reg));Adm.render()},
+revoke(){const fp=document.getElementById('admFP').value.trim();if(!fp)return;let reg=JSON.parse(localStorage.getItem('inst_reg')||'[]');reg=reg.filter(r=>r.fp!==fp);localStorage.setItem('inst_reg',JSON.stringify(reg));Adm.render();T('Revoked','inf')}
+};
+const Adm={open(){document.getElementById('admPnl').classList.add('open');Adm.render()},render(){const tb=document.getElementById('admLicBody');const reg=JSON.parse(localStorage.getItem('inst_reg')||'[]');if(!reg.length){tb.innerHTML='<tr><td colspan="3" style="padding:12px;text-align:center;color:var(--tm)">None</td></tr>';return}tb.innerHTML='';reg.forEach(r=>{const dl=Math.max(0,Math.ceil((new Date(r.exp).getTime()-Date.now())/864e5));const tr=document.createElement('tr');tr.innerHTML='<td>'+r.fp.substring(0,16)+'...</td><td>'+new Date(r.exp).toLocaleDateString()+'</td><td style="color:'+(dl>7?'var(--ok)':'var(--wr)')+'">'+dl+'d</td>';tb.appendChild(tr)})}};
+
+/* DATABASE */
+const DB={
+key:'instDB',
+defaults:{settings:{instName:'My Institute',year:'2024-2025',phone:'',email:'',address:'',stuPre:'ST-',stfPre:'TCH-',rcpPre:'RCP-',minAtt:75,currency:'₹'},students:[],staff:[],courses:[{id:1,name:'BCA',code:'CRS-001',duration:'3 Years',semesters:6,fee:50000,status:'Active'},{id:2,name:'MCA',code:'CRS-002',duration:'2 Years',semesters:4,fee:75000,status:'Active'},{id:3,name:'B.Tech',code:'CRS-003',duration:'4 Years',semesters:8,fee:120000,status:'Active'}],subjects:[],attendance:[],payments:[],exams:[],marks:[],notices:[],books:[],bookIssues:[],certificates:[],timetable:[],counters:{student:0,staff:0,receipt:0,exam:0,notice:0,book:0,cert:0,subject:0}},
+load(){try{const d=JSON.parse(localStorage.getItem(DB.key));if(d&&d.settings)return d;return JSON.parse(JSON.stringify(DB.defaults))}catch(e){return JSON.parse(JSON.stringify(DB.defaults))}},
+save(d){localStorage.setItem(DB.key,JSON.stringify(d))},
+reset(){localStorage.removeItem(DB.key)},
+nextId(d,type){d.counters[type]++;return d.counters[type]}
+};
+
+let D=DB.load();
+function saveD(){DB.save(D);showSV()}
+function showSV(){const e=document.getElementById('svInd');if(!e)return;e.innerHTML='<span class="sv-dot sv"></span> Saving...';setTimeout(()=>{e.innerHTML='<span class="sv-dot"></span> Saved'},500)}
+
+/* UI */
+function T(m,t='inf'){const w=document.getElementById('tw');const d=document.createElement('div');d.className='tst '+t;d.textContent=m;w.appendChild(d);requestAnimationFrame(()=>d.classList.add('show'));setTimeout(()=>{d.classList.remove('show');setTimeout(()=>d.remove(),300)},2500)}
+const UI={togTheme(){const t=document.documentElement.getAttribute('data-theme');document.documentElement.setAttribute('data-theme',t==='light'?'dark':'light')},openMdl(id){document.getElementById(id).classList.add('open')},closeMdl(id){document.getElementById(id).classList.remove('open')},openForm(html){document.getElementById('formContent').innerHTML=html;document.getElementById('formModal').classList.add('open')},closeForm(){document.getElementById('formModal').classList.remove('open')}};
+
+/* NAVIGATION */
+const vNames={dash:'Dashboard',students:'Students',staff:'Staff',courses:'Courses & Subjects',attendance:'Attendance',fees:'Fee Management',exams:'Examinations',timetable:'Timetable',notices:'Notice Board',library:'Library',certificates:'Certificates',reports:'Reports & Analytics',achievements:'Achievements',settings:'Settings'};
+const Nav={go(v){document.querySelectorAll('.vw').forEach(x=>x.classList.remove('act'));document.querySelectorAll('.nav li').forEach(l=>l.classList.remove('act'));const el=document.getElementById('v-'+v);if(el)el.classList.add('act');document.querySelectorAll('.nav li[data-v="'+v+'"]').forEach(l=>l.classList.add('act'));document.getElementById('pgT').textContent=vNames[v]||v;
+if(v==='dash')Dash.render();if(v==='students')Students.renderList();if(v==='staff')Staff.renderList();if(v==='courses')Courses.render();if(v==='fees')Fees.render();if(v==='exams')Exams.render();if(v==='notices')Notices.render();if(v==='library')Lib.render();if(v==='certificates')Certs.render();if(v==='reports')Rpts.render();if(v==='achievements')Achiev.render();if(v==='settings')Settings.load();if(v==='attendance')Att.init();if(v==='timetable')Timetable.init()}};
+document.querySelectorAll('.nav li[data-v]').forEach(li=>{li.addEventListener('click',()=>Nav.go(li.dataset.v))});
+
+/* HELPERS */
+function $(id){return document.getElementById(id)}
+function courseName(id){const c=D.courses.find(x=>x.id===id);return c?c.name:'—'}
+function staffName(id){const s=D.staff.find(x=>x.id===id);return s?s.firstName+' '+s.lastName:'—'}
+function fmtDate(d){return d?new Date(d).toLocaleDateString('en-IN'):'—'}
+function fmtMoney(n){return D.settings.currency+Number(n||0).toLocaleString('en-IN')}
+
+/* BADGES */
+const BADGES=[
+{id:'first',name:'First Steps',icon:'🎯',desc:'Log in',check:()=>true},
+{id:'stu10',name:'Student Manager',icon:'🎓',desc:'Add 10+ students',check:()=>D.students.length>=10},
+{id:'att30',name:'Attendance Pro',icon:'📋',desc:'30 days attendance',check:()=>D.attendance.length>=30},
+{id:'fee50',name:'Fee Collector',icon:'💰',desc:'50+ payments',check:()=>D.payments.length>=50},
+{id:'exam5',name:'Exam Creator',icon:'📝',desc:'5+ exams',check:()=>D.exams.length>=5},
+{id:'lib20',name:'Librarian',icon:'📖',desc:'20+ books',check:()=>D.books.length>=20},
+{id:'staff10',name:'Team Builder',icon:'👨‍🏫',desc:'10+ staff',check:()=>D.staff.length>=10},
+{id:'notice10',name:'Communicator',icon:'📢',desc:'10+ notices',check:()=>D.notices.length>=10},
+];
+
+/* DASHBOARD */
+const Dash={
+render(){
+const ss=$('dashStats');
+const presToday=D.attendance.filter(a=>a.date===new Date().toISOString().split('T')[0]).reduce((s,a)=>s+Object.values(a.records).filter(v=>v==='Present').length,0);
+const totToday=D.attendance.filter(a=>a.date===new Date().toISOString().split('T')[0]).reduce((s,a)=>s+Object.values(a.records).length,0);
+const feeMonth=D.payments.filter(p=>{const d=new Date(p.date);const n=new Date();return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear()}).reduce((s,p)=>s+p.amount,0);
+const totalFee=D.students.reduce((s,st)=>s+(st.totalFee||0)-(st.discount||0),0);
+const totalPaid=D.payments.reduce((s,p)=>s+p.amount,0);
+ss.innerHTML='<div class="st-c"><h3>'+D.students.length+'</h3><p>Total Students</p></div><div class="st-c"><h3>'+D.staff.length+'</h3><p>Total Staff</p></div><div class="st-c"><h3>'+presToday+'/'+totToday+'</h3><p>Present Today</p></div><div class="st-c"><h3>'+fmtMoney(feeMonth)+'</h3><p>Fee This Month</p></div><div class="st-c"><h3>'+fmtMoney(totalFee-totalPaid)+'</h3><p>Pending Fees</p></div><div class="st-c"><h3>'+D.exams.length+'</h3><p>Total Exams</p></div>';
+Dash.renderCharts()},
+renderCharts(){
+if(typeof Chart==='undefined')return;
+const attDates=[...new Set(D.attendance.map(a=>a.date))].slice(-7);
+const attData=attDates.map(d=>{const recs=D.attendance.filter(a=>a.date===d).flatMap(a=>Object.values(a.records));const p=recs.filter(v=>v==='Present').length;return recs.length?Math.round(p/recs.length*100):0});
+if(Dash._chAtt)Dash._chAtt.destroy();Dash._chAtt=new Chart($('chAtt'),{type:'line',data:{labels:attDates.map(d=>d.slice(5)),datasets:[{label:'Attendance %',data:attData,borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.1)',fill:true,tension:.3}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100,grid:{color:'rgba(255,255,255,.05)'}},x:{grid:{display:false}}}}});
+const feeMonths=[];const feeVals=[];for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);const key=d.toISOString().slice(0,7);feeMonths.push(d.toLocaleString('en',{month:'short'}));feeVals.push(D.payments.filter(p=>p.date&&p.date.startsWith(key)).reduce((s,p)=>s+p.amount,0))}
+if(Dash._chFee)Dash._chFee.destroy();Dash._chFee=new Chart($('chFee'),{type:'bar',data:{labels:feeMonths,datasets:[{label:'Collection',data:feeVals,backgroundColor:'#10b981',borderRadius:4}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,.05)'}},x:{grid:{display:false}}}}})}};
+
+/* STUDENTS */
+const Students={
+renderList(){
+const search=$('stuSearch').value.toLowerCase();
+const fCourse=$('stuFilterCourse').value;
+const fStatus=$('stuFilterStatus').value;
+let list=D.students.filter(s=>{
+if(search&&!((s.firstName+' '+s.lastName).toLowerCase().includes(search)||s.id.toLowerCase().includes(search)||s.phone.includes(search)))return false;
+if(fCourse&&s.course!=fCourse)return false;
+if(fStatus&&s.status!==fStatus)return false;
+return true});
+const body=$('stuBody');body.innerHTML='';
+if(!list.length){body.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--tm);padding:20px">No students found</td></tr>';return}
+list.forEach((s,i)=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+(i+1)+'</td><td>'+s.id+'</td><td>'+s.firstName+' '+s.lastName+'</td><td>'+courseName(s.course)+'</td><td>'+s.phone+'</td><td><span class="tag tag-'+(s.status==='Active'?'ok':'dn')+'">'+s.status+'</span></td><td><button class="btn btn-gh btn-xs" onclick="Students.viewProfile('+s.dbId+')">View</button> <button class="btn btn-gh btn-xs" onclick="Students.showForm('+s.dbId+')">Edit</button></td>';body.appendChild(tr)});
+$('studentListV').style.display='';$('studentProfileV').style.display='none'},
+populateCourseFilter(){const sel=$('stuFilterCourse');sel.innerHTML='<option value="">All Courses</option>';D.courses.forEach(c=>{sel.innerHTML+='<option value="'+c.id+'">'+c.name+'</option>'})},
+showForm(id){
+const s=id?D.students.find(x=>x.dbId===id):null;
+let h='<h3 style="margin-bottom:14px">'+(s?'Edit':'Add')+' Student</h3>';
+h+='<input type="hidden" id="sfId" value="'+(s?s.dbId:'')+'">';
+h+='<div class="frm-row"><div><label class="lbl">First Name *</label><input type="text" id="sfFirst" value="'+(s?s.firstName:'')+'"></div><div><label class="lbl">Last Name *</label><input type="text" id="sfLast" value="'+(s?s.lastName:'')+'"></div></div>';
+h+='<div class="frm-row-3"><div><label class="lbl">Date of Birth</label><input type="date" id="sfDob" value="'+(s?s.dob:'')+'"></div><div><label class="lbl">Gender</label><select id="sfGender"><option'+(s&&s.gender==='Male'?' selected':'')+'>Male</option><option'+(s&&s.gender==='Female'?' selected':'')+'>Female</option><option'+(s&&s.gender==='Other'?' selected':'')+'>Other</option></select></div><div><label class="lbl">Phone *</label><input type="text" id="sfPhone" value="'+(s?s.phone:'')+'"></div></div>';
+h+='<div class="frm-row"><div><label class="lbl">Email</label><input type="email" id="sfEmail" value="'+(s?s.email:'')+'"></div><div><label class="lbl">Aadhar</label><input type="text" id="sfAadhar" value="'+(s?s.aadhar:'')+'"></div></div>';
+h+='<label class="lbl">Address</label><textarea class="fc" id="sfAddr" rows="2">'+(s?s.address:'')+'</textarea>';
+h+='<div class="frm-row-3"><div><label class="lbl">Course *</label><select id="sfCourse">'+D.courses.map(c=>'<option value="'+c.id+'"'+(s&&s.course==c.id?' selected':'')+'>'+c.name+'</option>').join('')+'</select></div><div><label class="lbl">Batch</label><input type="text" id="sfBatch" value="'+(s?s.batch:'')+'" placeholder="2024-2027"></div><div><label class="lbl">Admission Date</label><input type="date" id="sfAdmDate" value="'+(s?s.admissionDate:new Date().toISOString().split('T')[0])+'"></div></div>';
+h+='<div class="frm-row-3"><div><label class="lbl">Father Name</label><input type="text" id="sfFather" value="'+(s?s.fatherName:'')+'"></div><div><label class="lbl">Mother Name</label><input type="text" id="sfMother" value="'+(s?s.motherName:'')+'"></div><div><label class="lbl">Guardian Phone</label><input type="text" id="sfGuardPhone" value="'+(s?s.guardianPhone:'')+'"></div></div>';
+h+='<div class="frm-row"><div><label class="lbl">Total Fee</label><input type="number" id="sfTotalFee" value="'+(s?s.totalFee:0)+'"></div><div><label class="lbl">Discount</label><input type="number" id="sfDiscount" value="'+(s?s.discount:0)+'"></div></div>';
+h+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px"><button class="btn btn-gh" onclick="UI.closeForm()">Cancel</button>';
+if(s)h+='<button class="btn btn-dn btn-sm" onclick="Students.del('+s.dbId+')">Delete</button>';
+h+='<button class="btn btn-p" onclick="Students.save()">Save</button></div>';
+UI.openForm(h)},
+save(){
+const first=$('sfFirst').value.trim(),last=$('sfLast').value.trim(),phone=$('sfPhone').value.trim();
+if(!first||!last||!phone){T('Fill required fields','er');return}
+const id=$('sfId').value;
+const obj={firstName:first,lastName:last,dob:$('sfDob').value,gender:$('sfGender').value,phone,email:$('sfEmail').value,aadhar:$('sfAadhar').value,address:$('sfAddr').value,course:Number($('sfCourse').value),batch:$('sfBatch').value,admissionDate:$('sfAdmDate').value,fatherName:$('sfFather').value,motherName:$('sfMother').value,guardianPhone:$('sfGuardPhone').value,totalFee:Number($('sfTotalFee').value)||0,discount:Number($('sfDiscount').value)||0,status:'Active'};
+if(id){const idx=D.students.findIndex(x=>x.dbId==id);if(idx>=0)Object.assign(D.students[idx],obj)}else{obj.dbId=DB.nextId(D,'student');obj.id=D.settings.stuPre+String(obj.dbId).padStart(3,'0');D.students.push(obj)}
+saveD();UI.closeForm();Students.renderList();T('Student saved','ok')},
+del(id){if(!confirm('Delete student?'))return;D.students=D.students.filter(x=>x.dbId!==id);saveD();UI.closeForm();Students.renderList();T('Deleted','inf')},
+viewProfile(id){
+const s=D.students.find(x=>x.dbId===id);if(!s)return;
+$('studentListV').style.display='none';$('studentProfileV').style.display='';
+const paid=D.payments.filter(p=>p.studentId===s.id).reduce((a,p)=>a+p.amount,0);
+const balance=(s.totalFee||0)-(s.discount||0)-paid;
+const att=D.attendance.flatMap(a=>Object.entries(a.records||{}).filter(([k])=>k===s.id).map(([_,v])=>v));
+const pres=att.filter(v=>v==='Present').length;
+const pct=att.length?Math.round(pres/att.length*100):0;
+let h='<div class="card"><div style="display:flex;justify-content:space-between;align-items:start"><div><h2>'+s.firstName+' '+s.lastName+'</h2><p style="color:var(--tm)">'+s.id+' | '+courseName(s.course)+' | '+s.batch+' | <span class="tag tag-'+(s.status==='Active'?'ok':'dn')+'">'+s.status+'</span></p></div><div style="display:flex;gap:6px"><button class="btn btn-gh btn-sm" onclick="Students.showForm('+s.dbId+')">Edit</button></div></div></div>';
+h+='<div class="stats"><div class="st-c"><h3>'+pct+'%</h3><p>Attendance</p></div><div class="st-c"><h3>'+fmtMoney(paid)+'</h3><p>Fees Paid</p></div><div class="st-c"><h3>'+fmtMoney(balance)+'</h3><p>Balance</p></div><div class="st-c"><h3>'+att.length+'</h3><p>Days Tracked</p></div></div>';
+h+='<div class="card"><h3 style="margin-bottom:10px">Personal Details</h3><div class="frm-row"><div><b>DOB:</b> '+fmtDate(s.dob)+'</div><div><b>Gender:</b> '+s.gender+'</div></div><div class="frm-row"><div><b>Phone:</b> '+s.phone+'</div><div><b>Email:</b> '+(s.email||'—')+'</div></div><div class="frm-row"><div><b>Father:</b> '+(s.fatherName||'—')+'</div><div><b>Mother:</b> '+(s.motherName||'—')+'</div></div><div><b>Address:</b> '+(s.address||'—')+'</div></div>';
+const spay=D.payments.filter(p=>p.studentId===s.id);
+if(spay.length){h+='<div class="card"><h3 style="margin-bottom:10px">Payment History</h3><div class="tbl-wrap"><table class="wt"><thead><tr><th>Receipt</th><th>Date</th><th>Amount</th><th>Mode</th></tr></thead><tbody>';spay.forEach(p=>{h+='<tr><td>'+p.id+'</td><td>'+fmtDate(p.date)+'</td><td>'+fmtMoney(p.amount)+'</td><td>'+p.mode+'</td></tr>'});h+='</tbody></table></div></div>'}
+$('stuProfile').innerHTML=h},
+exportCSV(){let csv='ID,Name,Course,Batch,Phone,Email,Status\n';D.students.forEach(s=>{csv+=s.id+',"'+s.firstName+' '+s.lastName+'",'+courseName(s.course)+','+s.batch+','+s.phone+','+(s.email||'')+','+s.status+'\n'});dl('students.csv',csv,'text/csv');T('Exported','ok')}
+};
+
+/* STAFF */
+const Staff={
+renderList(){
+const search=$('stfSearch').value.toLowerCase();
+const fRole=$('stfFilterRole').value;
+let list=D.staff.filter(s=>{
+if(search&&!((s.firstName+' '+s.lastName).toLowerCase().includes(search)||s.id.toLowerCase().includes(search)))return false;
+if(fRole&&s.role!==fRole)return false;
+return true});
+const body=$('stfBody');body.innerHTML='';
+if(!list.length){body.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--tm);padding:20px">No staff found</td></tr>';return}
+list.forEach((s,i)=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+(i+1)+'</td><td>'+s.id+'</td><td>'+s.firstName+' '+s.lastName+'</td><td>'+s.department+'</td><td>'+s.role+'</td><td>'+s.phone+'</td><td><span class="tag tag-'+(s.status==='Active'?'ok':'dn')+'">'+s.status+'</span></td><td><button class="btn btn-gh btn-xs" onclick="Staff.showForm('+s.dbId+')">Edit</button></td>';body.appendChild(tr)})},
+showForm(id){
+const s=id?D.staff.find(x=>x.dbId===id):null;
+let h='<h3 style="margin-bottom:14px">'+(s?'Edit':'Add')+' Staff</h3>';
+h+='<input type="hidden" id="tfId" value="'+(s?s.dbId:'')+'">';
+h+='<div class="frm-row"><div><label class="lbl">First Name *</label><input type="text" id="tfFirst" value="'+(s?s.firstName:'')+'"></div><div><label class="lbl">Last Name *</label><input type="text" id="tfLast" value="'+(s?s.lastName:'')+'"></div></div>';
+h+='<div class="frm-row-3"><div><label class="lbl">Phone *</label><input type="text" id="tfPhone" value="'+(s?s.phone:'')+'"></div><div><label class="lbl">Email</label><input type="email" id="tfEmail" value="'+(s?s.email:'')+'"></div><div><label class="lbl">Gender</label><select id="tfGender"><option'+(s&&s.gender==='Male'?' selected':'')+'>Male</option><option'+(s&&s.gender==='Female'?' selected':'')+'>Female</option></select></div></div>';
+h+='<div class="frm-row-3"><div><label class="lbl">Department</label><input type="text" id="tfDept" value="'+(s?s.department:'')+'"></div><div><label class="lbl">Role</label><select id="tfRole"><option>Teacher</option><option>Admin</option><option>Accountant</option><option>Librarian</option></select></div><div><label class="lbl">Salary</label><input type="number" id="tfSalary" value="'+(s?s.salary:0)+'"></div></div>';
+h+='<div class="frm-row"><div><label class="lbl">Joining Date</label><input type="date" id="tfJoinDate" value="'+(s?s.joiningDate:new Date().toISOString().split('T')[0])+'"></div><div><label class="lbl">Qualification</label><input type="text" id="tfQual" value="'+(s?s.qualification:'')+'"></div></div>';
+h+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px"><button class="btn btn-gh" onclick="UI.closeForm()">Cancel</button><button class="btn btn-p" onclick="Staff.save()">Save</button></div>';
+UI.openForm(h);
+if(s)$('tfRole').value=s.role},
+save(){
+const first=$('tfFirst').value.trim(),last=$('tfLast').value.trim(),phone=$('tfPhone').value.trim();
+if(!first||!last||!phone){T('Fill required fields','er');return}
+const id=$('tfId').value;
+const obj={firstName:first,lastName:last,phone,email:$('tfEmail').value,gender:$('tfGender').value,department:$('tfDept').value,role:$('tfRole').value,salary:Number($('tfSalary').value)||0,joiningDate:$('tfJoinDate').value,qualification:$('tfQual').value,status:'Active'};
+if(id){const idx=D.staff.findIndex(x=>x.dbId==id);if(idx>=0)Object.assign(D.staff[idx],obj)}else{obj.dbId=DB.nextId(D,'staff');obj.id=D.settings.stfPre+String(obj.dbId).padStart(3,'0');D.staff.push(obj)}
+saveD();UI.closeForm();Staff.renderList();T('Staff saved','ok')}
+};
+
+/* COURSES */
+const Courses={
+render(){
+let h='';
+D.courses.forEach(c=>{const cnt=D.students.filter(s=>s.course==c.id&&s.status==='Active').length;
+h+='<div class="card" style="display:flex;justify-content:space-between;align-items:center"><div><h4>'+c.name+' ('+c.code+')</h4><span style="color:var(--tm);font-size:.82rem">'+c.duration+' | '+c.semesters+' sem | Fee: '+fmtMoney(c.fee)+' | '+cnt+' students</span></div><div style="display:flex;gap:6px"><span class="tag tag-'+(c.status==='Active'?'ok':'dn')+'">'+c.status+'</span><button class="btn btn-gh btn-xs" onclick="Courses.showForm('+c.id+')">Edit</button></div></div>'});
+$('courseList').innerHTML=h||'<p style="color:var(--tm)">No courses</p>';
+Courses.renderSubjects()},
+renderSubjects(){
+const body=$('subjBody');body.innerHTML='';
+D.subjects.forEach(s=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+s.code+'</td><td>'+s.name+'</td><td>'+courseName(s.course)+'</td><td>'+s.semester+'</td><td>'+s.credits+'</td><td>'+staffName(s.teacher)+'</td><td>'+s.type+'</td><td><button class="btn btn-gh btn-xs" onclick="Courses.showSubjForm('+s.dbId+')">Edit</button></td>';body.appendChild(tr)});
+if(!D.subjects.length)body.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--tm)">No subjects</td></tr>'},
+showForm(id){
+const c=id?D.courses.find(x=>x.id===id):null;
+let h='<h3 style="margin-bottom:14px">'+(c?'Edit':'Add')+' Course</h3>';
+h+='<input type="hidden" id="cfId" value="'+(c?c.id:'')+'">';
+h+='<div class="frm-row"><div><label class="lbl">Course Name *</label><input type="text" id="cfName" value="'+(c?c.name:'')+'"></div><div><label class="lbl">Code</label><input type="text" id="cfCode" value="'+(c?c.code:'')+'"></div></div>';
+h+='<div class="frm-row-3"><div><label class="lbl">Duration</label><input type="text" id="cfDur" value="'+(c?c.duration:'')+'" placeholder="3 Years"></div><div><label class="lbl">Semesters</label><input type="number" id="cfSem" value="'+(c?c.semesters:6)+'"></div><div><label class="lbl">Annual Fee</label><input type="number" id="cfFee" value="'+(c?c.fee:0)+'"></div></div>';
+h+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px"><button class="btn btn-gh" onclick="UI.closeForm()">Cancel</button><button class="btn btn-p" onclick="Courses.save()">Save</button></div>';
+UI.openForm(h)},
+save(){
+const name=$('cfName').value.trim();if(!name){T('Enter name','er');return}
+const id=$('cfId').value;
+const obj={name,code:$('cfCode').value,duration:$('cfDur').value,semesters:Number($('cfSem').value),fee:Number($('cfFee').value)||0,status:'Active'};
+if(id){const idx=D.courses.findIndex(x=>x.id==id);if(idx>=0)Object.assign(D.courses[idx],obj)}else{obj.id=Math.max(0,...D.courses.map(c=>c.id))+1;D.courses.push(obj)}
+saveD();UI.closeForm();Courses.render();T('Course saved','ok')},
+showSubjForm(id){
+const s=id?D.subjects.find(x=>x.dbId===id):null;
+let h='<h3 style="margin-bottom:14px">'+(s?'Edit':'Add')+' Subject</h3>';
+h+='<input type="hidden" id="sfId2" value="'+(s?s.dbId:'')+'">';
+h+='<div class="frm-row"><div><label class="lbl">Subject Name *</label><input type="text" id="sfName2" value="'+(s?s.name:'')+'"></div><div><label class="lbl">Code</label><input type="text" id="sfCode2" value="'+(s?s.code:'')+'"></div></div>';
+h+='<div class="frm-row-3"><div><label class="lbl">Course</label><select id="sfCourse2">'+D.courses.map(c=>'<option value="'+c.id+'"'+(s&&s.course==c.id?' selected':'')+'>'+c.name+'</option>').join('')+'</select></div><div><label class="lbl">Semester</label><input type="number" id="sfSem2" value="'+(s?s.semester:1)+'"></div><div><label class="lbl">Credits</label><input type="number" id="sfCred2" value="'+(s?s.credits:4)+'"></div></div>';
+h+='<div class="frm-row"><div><label class="lbl">Teacher</label><select id="sfTeacher2"><option value="">None</option>'+D.staff.filter(t=>t.role==='Teacher').map(t=>'<option value="'+t.dbId+'"'+(s&&s.teacher==t.dbId?' selected':'')+'>'+t.firstName+' '+t.lastName+'</option>').join('')+'</select></div><div><label class="lbl">Type</label><select id="sfType2"><option'+(s&&s.type==='Theory'?' selected':'')+'>Theory</option><option'+(s&&s.type==='Practical'?' selected':'')+'>Practical</option><option'+(s&&s.type==='Elective'?' selected':'')+'>Elective</option></select></div></div>';
+h+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px"><button class="btn btn-gh" onclick="UI.closeForm()">Cancel</button><button class="btn btn-p" onclick="Courses.saveSubj()">Save</button></div>';
+UI.openForm(h)},
+saveSubj(){
+const name=$('sfName2').value.trim();if(!name){T('Enter name','er');return}
+const id=$('sfId2').value;
+const obj={name,code:$('sfCode2').value,course:Number($('sfCourse2').value),semester:Number($('sfSem2').value),credits:Number($('sfCred2').value),teacher:$('sfTeacher2').value?Number($('sfTeacher2').value):null,type:$('sfType2').value};
+if(id){const idx=D.subjects.findIndex(x=>x.dbId==id);if(idx>=0)Object.assign(D.subjects[idx],obj)}else{obj.dbId=DB.nextId(D,'subject');obj.id='SUB-'+String(obj.dbId).padStart(3,'0');D.subjects.push(obj)}
+saveD();UI.closeForm();Courses.render();T('Subject saved','ok')}
+};
+
+/* ATTENDANCE */
+const Att={
+init(){$('attDate').value=new Date().toISOString().split('T')[0];const sel=$('attCourse');sel.innerHTML='<option value="">Select</option>';D.courses.forEach(c=>{sel.innerHTML+='<option value="'+c.id+'">'+c.name+'</option>'})},
+loadStudents(){
+const cid=$('attCourse').value,batch=$('attBatch').value.trim(),date=$('attDate').value;
+if(!cid||!date){T('Select course and date','er');return}
+const list=D.students.filter(s=>s.course==cid&&s.status==='Active'&&(batch?s.batch===batch:true));
+if(!list.length){T('No students found','er');return}
+$('attList').style.display='';
+const body=$('attBody');body.innerHTML='';
+const existing=D.attendance.find(a=>a.date===date&&a.course==cid);
+list.forEach((s,i)=>{
+const status=existing?existing.records[s.id]||'Present':'Present';
+const tr=document.createElement('tr');tr.innerHTML='<td>'+(i+1)+'</td><td>'+s.firstName+' '+s.lastName+'</td><td>'+s.id+'</td><td><select class="attSel" data-sid="'+s.id+'" style="width:110px;margin-bottom:0;padding:4px 8px"><option'+(status==='Present'?' selected':'')+'>Present</option><option'+(status==='Absent'?' selected':'')+'>Absent</option><option'+(status==='Leave'?' selected':'')+'>Leave</option></select></td>';body.appendChild(tr)});
+Att.updateSummary()},
+markAll(status){document.querySelectorAll('.attSel').forEach(s=>{s.value=status});Att.updateSummary()},
+updateSummary(){const sels=document.querySelectorAll('.attSel');const vals=Array.from(sels).map(s=>s.value);const p=vals.filter(v=>v==='Present').length,a=vals.filter(v=>v==='Absent').length,l=vals.filter(v=>v==='Leave').length;$('attSummary').textContent='Present: '+p+' | Absent: '+a+' | Leave: '+l+' | Total: '+vals.length},
+save(){
+const date=$('attDate').value,cid=Number($('attCourse').value),batch=$('attBatch').value.trim();
+const records={};document.querySelectorAll('.attSel').forEach(s=>{records[s.dataset.sid]=s.value});
+const existing=D.attendance.findIndex(a=>a.date===date&&a.course===cid);
+if(existing>=0){D.attendance[existing].records=records}else{D.attendance.push({date,course:cid,batch,records})}
+saveD();T('Attendance saved','ok')}
+};
+
+/* FEES */
+const Fees={
+render(){
+const totalCollected=D.payments.reduce((s,p)=>s+p.amount,0);
+const totalDue=D.students.reduce((s,st)=>s+(st.totalFee||0)-(st.discount||0),0)-totalCollected;
+$('feeStats').innerHTML='<div class="st-c"><h3>'+fmtMoney(totalCollected)+'</h3><p>Total Collected</p></div><div class="st-c"><h3>'+fmtMoney(totalDue)+'</h3><p>Total Pending</p></div><div class="st-c"><h3>'+D.payments.length+'</h3><p>Total Payments</p></div>';
+const body=$('feeBody');body.innerHTML='';
+const sorted=[...D.payments].sort((a,b)=>new Date(b.date)-new Date(a.date));
+sorted.forEach(p=>{const s=D.students.find(x=>x.id===p.studentId);const tr=document.createElement('tr');tr.innerHTML='<td>'+p.id+'</td><td>'+fmtDate(p.date)+'</td><td>'+(s?s.firstName+' '+s.lastName:p.studentId)+'</td><td>'+fmtMoney(p.amount)+'</td><td>'+p.mode+'</td><td>'+(p.reference||'—')+'</td><td><button class="btn btn-gh btn-xs" onclick="Fees.printReceipt(\''+p.id+'\')">Receipt</button></td>';body.appendChild(tr)});
+if(!sorted.length)body.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--tm)">No payments</td></tr>'},
+showPayForm(){
+let h='<h3 style="margin-bottom:14px">Record Payment</h3>';
+h+='<div><label class="lbl">Student *</label><select id="pfStudent"><option value="">Select Student</option>'+D.students.filter(s=>s.status==='Active').map(s=>'<option value="'+s.id+'">'+s.id+' - '+s.firstName+' '+s.lastName+'</option>').join('')+'</select></div>';
+h+='<div class="frm-row"><div><label class="lbl">Amount *</label><input type="number" id="pfAmount" value="0"></div><div><label class="lbl">Mode</label><select id="pfMode"><option>Cash</option><option>Online</option><option>UPI</option><option>Cheque</option><option>Bank Transfer</option></select></div></div>';
+h+='<div class="frm-row"><div><label class="lbl">Date</label><input type="date" id="pfDate" value="'+new Date().toISOString().split('T')[0]+'"></div><div><label class="lbl">Reference</label><input type="text" id="pfRef" placeholder="Transaction ID"></div></div>';
+h+='<label class="lbl">Remarks</label><input type="text" id="pfRemarks">';
+h+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px"><button class="btn btn-gh" onclick="UI.closeForm()">Cancel</button><button class="btn btn-p" onclick="Fees.savePay()">Save Payment</button></div>';
+UI.openForm(h)},
+savePay(){
+const sid=$('pfStudent').value,amount=Number($('pfAmount').value);
+if(!sid||amount<=0){T('Select student and enter amount','er');return}
+const rcid=DB.nextId(D,'receipt');
+const obj={id:D.settings.rcpPre+String(rcid).padStart(3,'0'),studentId:sid,amount,mode:$('pfMode').value,date:$('pfDate').value,reference:$('pfRef').value,remarks:$('pfRemarks').value,createdAt:new Date().toISOString()};
+D.payments.push(obj);
+saveD();UI.closeForm();Fees.render();T('Payment recorded: '+obj.id,'ok')},
+printReceipt(rcpId){
+const p=D.payments.find(x=>x.id===rcpId);if(!p)return;
+const s=D.students.find(x=>x.id===p.studentId);
+const w=window.open('','','width=600,height=500');
+w.document.write('<html><body style="font-family:Arial;padding:40px"><h2 style="text-align:center">'+D.settings.instName+'</h2><h3 style="text-align:center">Fee Receipt</h3><hr><p><b>Receipt:</b> '+p.id+'</p><p><b>Student:</b> '+(s?s.firstName+' '+s.lastName:p.studentId)+'</p><p><b>Amount:</b> '+fmtMoney(p.amount)+'</p><p><b>Mode:</b> '+p.mode+'</p><p><b>Date:</b> '+fmtDate(p.date)+'</p><p><b>Reference:</b> '+(p.reference||'N/A')+'</p><hr><p style="text-align:right;color:#666">Authorized Signatory</p></body></html>');
+w.document.close();w.print()},
+exportCSV(){let csv='Receipt,Date,Student,Amount,Mode,Reference\n';D.payments.forEach(p=>{csv+=p.id+','+p.date+','+p.studentId+','+p.amount+','+p.mode+','+(p.reference||'')+'\n'});dl('fees.csv',csv,'text/csv');T('Exported','ok')}
+};
+
+/* EXAMS */
+const Exams={
+render(){
+let h='';
+D.exams.forEach(e=>{h+='<div class="card" style="display:flex;justify-content:space-between;align-items:center"><div><h4>'+e.name+'</h4><span style="color:var(--tm);font-size:.82rem">'+courseName(e.course)+' | Sem '+e.semester+' | '+fmtDate(e.startDate)+'</span></div><span class="tag tag-'+(e.status==='Completed'?'ok':e.status==='Ongoing'?'wr':'cy')+'">'+e.status+'</span></div>'});
+if(!D.exams.length)h='<p style="color:var(--tm)">No exams</p>';
+$('examList').innerHTML=h;
+const sel=$('markExam');sel.innerHTML='<option value="">Select Exam</option>';D.exams.forEach(e=>{sel.innerHTML+='<option value="'+e.id+'">'+e.name+' - '+courseName(e.course)+'</option>'});
+const ss=$('markSubj');ss.innerHTML='<option value="">Select Subject</option>';D.subjects.forEach(s=>{ss.innerHTML+='<option value="'+s.dbId+'">'+s.name+'</option>'})},
+showForm(){
+let h='<h3 style="margin-bottom:14px">Create Exam</h3>';
+h+='<div class="frm-row"><div><label class="lbl">Exam Name *</label><input type="text" id="efName" placeholder="Mid Term"></div><div><label class="lbl">Course</label><select id="efCourse">'+D.courses.map(c=>'<option value="'+c.id+'">'+c.name+'</option>').join('')+'</select></div></div>';
+h+='<div class="frm-row-3"><div><label class="lbl">Semester</label><input type="number" id="efSem" value="1"></div><div><label class="lbl">Start Date</label><input type="date" id="efStart"></div><div><label class="lbl">End Date</label><input type="date" id="efEnd"></div></div>';
+h+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px"><button class="btn btn-gh" onclick="UI.closeForm()">Cancel</button><button class="btn btn-p" onclick="Exams.save()">Save</button></div>';
+UI.openForm(h)},
+save(){
+const name=$('efName').value.trim();if(!name){T('Enter name','er');return}
+const id=DB.nextId(D,'exam');
+D.exams.push({id,name,course:Number($('efCourse').value),semester:Number($('efSem').value),startDate:$('efStart').value,endDate:$('efEnd').value,status:'Upcoming'});
+saveD();UI.closeForm();Exams.render();T('Exam created','ok')},
+loadMarkStudents(){
+const eid=Number($('markExam').value),sid=Number($('markSubj').value);
+if(!eid||!sid){$('marksEntry').style.display='none';return}
+const exam=D.exams.find(e=>e.id===eid);if(!exam)return;
+const list=D.students.filter(s=>s.course==exam.course&&s.status==='Active');
+$('marksEntry').style.display='';
+const body=$('markBody');body.innerHTML='';
+list.forEach((s,i)=>{
+const existing=D.marks.find(m=>m.examId===eid&&m.subjectId===sid&&m.studentId===s.id);
+const val=existing?existing.marks:'';
+const tr=document.createElement('tr');tr.innerHTML='<td>'+(i+1)+'</td><td>'+s.firstName+' '+s.lastName+'</td><td>'+s.id+'</td><td><input type="number" class="markInput" data-sid="'+s.id+'" value="'+val+'" style="width:80px;margin-bottom:0;padding:4px 8px" min="0" max="100"></td><td class="markStatus"></td>';body.appendChild(tr)})},
+saveMarks(){
+const eid=Number($('markExam').value),sid=Number($('markSubj').value);
+document.querySelectorAll('.markInput').forEach(inp=>{
+const stId=inp.dataset.sid,val=Number(inp.value);
+if(isNaN(val))return;
+const idx=D.marks.findIndex(m=>m.examId===eid&&m.subjectId===sid&&m.studentId===stId);
+if(idx>=0){D.marks[idx].marks=val}else{D.marks.push({examId:eid,subjectId:sid,studentId:stId,marks:val,maxMarks:100})}
+saveD();T('Marks saved','ok')}
+};
+
+/* TIMETABLE */
+const Timetable={
+init(){const sel=$('ttCourse');sel.innerHTML='<option value="">Select Course</option>';D.courses.forEach(c=>{sel.innerHTML+='<option value="'+c.id+'">'+c.name+'</option>'});Timetable.render()},
+render(){
+const cid=$('ttCourse').value;const grid=$('ttGrid');
+if(!cid){grid.innerHTML='<p style="color:var(--tm)">Select a course</p>';return}
+const days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const slots=['09:00','10:00','11:00','11:30','12:30','13:30','14:30'];
+let h='<div class="tbl-wrap"><table class="wt"><thead><tr><th>Time</th>';
+days.forEach(d=>{h+='<th>'+d+'</th>'});
+h+='</tr></thead><tbody>';
+slots.forEach(slot=>{h+='<tr><td><b>'+slot+'</b></td>';
+days.forEach(day=>{
+const entry=D.timetable.find(t=>t.course==cid&&t.day===day&&t.slot===slot);
+if(entry){
+const subj=D.subjects.find(s=>s.dbId===entry.subject);
+h+='<td style="font-size:.78rem"><b>'+(subj?subj.name:'—')+'</b><br><span style="color:var(--tm)">'+staffName(entry.teacher)+'</span></td>'}
+else{h+='<td style="color:var(--tm);font-size:.78rem">—</td>'}});
+h+='</tr>'});
+h+='</tbody></table></div>';
+grid.innerHTML=h},
+showForm(){
+let h='<h3 style="margin-bottom:14px">Add Timetable Slot</h3>';
+h+='<div class="frm-row"><div><label class="lbl">Course</label><select id="ttfCourse">'+D.courses.map(c=>'<option value="'+c.id+'">'+c.name+'</option>').join('')+'</select></div><div><label class="lbl">Day</label><select id="ttfDay"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option></select></div></div>';
+h+='<div class="frm-row-3"><div><label class="lbl">Time Slot</label><input type="text" id="ttfSlot" placeholder="09:00"></div><div><label class="lbl">Subject</label><select id="ttfSubj">'+D.subjects.map(s=>'<option value="'+s.dbId+'">'+s.name+'</option>').join('')+'</select></div><div><label class="lbl">Teacher</label><select id="ttfTeach"><option value="">None</option>'+D.staff.filter(t=>t.role==='Teacher').map(t=>'<option value="'+t.dbId+'">'+t.firstName+' '+t.lastName+'</option>').join('')+'</select></div></div>';
+h+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px"><button class="btn btn-gh" onclick="UI.closeForm()">Cancel</button><button class="btn btn-p" onclick="Timetable.save()">Save</button></div>';
+UI.openForm(h)},
+save(){
+D.timetable.push({course:Number($('ttfCourse').value),day:$('ttfDay').value,slot:$('ttfSlot').value,subject:Number($('ttfSubj').value),teacher:$('ttfTeach').value?Number($('ttfTeach').value):null});
+saveD();UI.closeForm();Timetable.render();T('Slot added','ok')}
+};
+
+/* NOTICES */
+const Notices={
+render(){let h='';const sorted=[...D.notices].sort((a,b)=>new Date(b.date)-new Date(a.date));
+sorted.forEach(n=>{h+='<div class="card" style="border-left:3px solid '+(n.priority==='Urgent'?'var(--dn)':n.priority==='Important'?'var(--wr)':'var(--primary)')+'"><div style="display:flex;justify-content:space-between;align-items:start"><div><h4>'+n.title+'</h4><p style="font-size:.82rem;color:var(--tm);margin:4px 0">'+n.body+'</p><span style="font-size:.72rem;color:var(--tm)">'+fmtDate(n.date)+' | '+n.audience+'</span></div><span class="tag tag-'+(n.priority==='Urgent'?'dn':n.priority==='Important'?'wr':'ok')+'">'+n.priority+'</span></div></div>'});
+if(!sorted.length)h='<p style="color:var(--tm)">No notices</p>';
+$('noticeList').innerHTML=h},
+showForm(){
+let h='<h3 style="margin-bottom:14px">Post Notice</h3>';
+h+='<label class="lbl">Title *</label><input type="text" id="nfTitle">';
+h+='<label class="lbl">Message *</label><textarea class="fc" id="nfBody" rows="3"></textarea>';
+h+='<div class="frm-row-3"><div><label class="lbl">Audience</label><select id="nfAud"><option>All</option><option>Students</option><option>Staff</option></select></div><div><label class="lbl">Priority</label><select id="nfPrio"><option>Normal</option><option>Important</option><option>Urgent</option></select></div><div><label class="lbl">Expiry</label><input type="date" id="nfExp"></div></div>';
+h+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px"><button class="btn btn-gh" onclick="UI.closeForm()">Cancel</button><button class="btn btn-p" onclick="Notices.save()">Post</button></div>';
+UI.openForm(h)},
+save(){const title=$('nfTitle').value.trim();if(!title){T('Enter title','er');return}
+const id=DB.nextId(D,'notice');
+D.notices.push({id,title,body:$('nfBody').value,audience:$('nfAud').value,priority:$('nfPrio').value,expiry:$('nfExp').value,date:new Date().toISOString().split('T')[0]});
+saveD();UI.closeForm();Notices.render();T('Notice posted','ok')}
+};
+
+/* LIBRARY */
+const Lib={
+render(){const body=$('libBody');body.innerHTML='';
+D.books.forEach(b=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+b.title+'</td><td>'+b.author+'</td><td>'+b.isbn+'</td><td>'+b.category+'</td><td>'+b.copies+'</td><td>'+b.available+'</td><td><button class="btn btn-gh btn-xs" onclick="Lib.showBookForm('+b.dbId+')">Edit</button></td>';body.appendChild(tr)});
+if(!D.books.length)body.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--tm)">No books</td></tr>';
+const ib=$('libIssueBody');ib.innerHTML='';
+D.bookIssues.filter(i=>!i.returnDate).forEach(i=>{const book=D.books.find(b=>b.dbId===i.bookId);const stu=D.students.find(s=>s.id===i.studentId);const overdue=new Date(i.dueDate)<new Date();
+const tr=document.createElement('tr');tr.innerHTML='<td>'+(book?book.title:'—')+'</td><td>'+(stu?stu.firstName+' '+stu.lastName:i.studentId)+'</td><td>'+fmtDate(i.issueDate)+'</td><td>'+fmtDate(i.dueDate)+'</td><td><span class="tag tag-'+(overdue?'dn':'ok')+'">'+(overdue?'Overdue':'Active')+'</span></td><td><button class="btn btn-ok btn-xs" onclick="Lib.returnBook('+i.dbId+')">Return</button></td>';ib.appendChild(tr)})},
+showBookForm(id){
+const b=id?D.books.find(x=>x.dbId===id):null;
+let h='<h3 style="margin-bottom:14px">'+(b?'Edit':'Add')+' Book</h3>';
+h+='<input type="hidden" id="bfId" value="'+(b?b.dbId:'')+'">';
+h+='<div class="frm-row"><div><label class="lbl">Title *</label><input type="text" id="bfTitle" value="'+(b?b.title:'')+'"></div><div><label class="lbl">Author</label><input type="text" id="bfAuthor" value="'+(b?b.author:'')+'"></div></div>';
+h+='<div class="frm-row-3"><div><label class="lbl">ISBN</label><input type="text" id="bfIsbn" value="'+(b?b.isbn:'')+'"></div><div><label class="lbl">Category</label><select id="bfCat"><option>Textbook</option><option>Reference</option><option>Fiction</option><option>Technical</option></select></div><div><label class="lbl">Copies</label><input type="number" id="bfCopies" value="'+(b?b.copies:1)+'"></div></div>';
+h+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px"><button class="btn btn-gh" onclick="UI.closeForm()">Cancel</button><button class="btn btn-p" onclick="Lib.saveBook()">Save</button></div>';
+UI.openForm(h);
+if(b)$('bfCat').value=b.category},
+saveBook(){const title=$('bfTitle').value.trim();if(!title){T('Enter title','er');return}
+const id=$('bfId').value;const copies=Number($('bfCopies').value)||1;
+const obj={title,author:$('bfAuthor').value,isbn:$('bfIsbn').value,category:$('bfCat').value,copies,available:copies};
+if(id){const idx=D.books.findIndex(x=>x.dbId==id);if(idx>=0)Object.assign(D.books[idx],obj)}else{obj.dbId=DB.nextId(D,'book');D.books.push(obj)}
+saveD();UI.closeForm();Lib.render();T('Book saved','ok')},
+showIssueForm(){let h='<h3 style="margin-bottom:14px">Issue Book</h3>';
+h+='<div><label class="lbl">Book</label><select id="ifBook">'+D.books.filter(b=>b.available>0).map(b=>'<option value="'+b.dbId+'">'+b.title+'</option>').join('')+'</select></div>';
+h+='<div><label class="lbl">Student</label><select id="ifStu">'+D.students.filter(s=>s.status==='Active').map(s=>'<option value="'+s.id+'">'+s.id+' - '+s.firstName+' '+s.lastName+'</option>').join('')+'</select></div>';
+h+='<div class="frm-row"><div><label class="lbl">Issue Date</label><input type="date" id="ifDate" value="'+new Date().toISOString().split('T')[0]+'"></div><div><label class="lbl">Due Date</label><input type="date" id="ifDue" value="'+new Date(Date.now()+14*86400000).toISOString().split('T')[0]+'"></div></div>';
+h+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px"><button class="btn btn-gh" onclick="UI.closeForm()">Cancel</button><button class="btn btn-p" onclick="Lib.issueBook()">Issue</button></div>';
+UI.openForm(h)},
+issueBook(){const bookId=Number($('ifBook').value);const book=D.books.find(b=>b.dbId===bookId);if(!book||book.available<=0){T('Not available','er');return}
+const dbId=DB.nextId(D,'book');
+D.bookIssues.push({dbId,bookId,studentId:$('ifStu').value,issueDate:$('ifDate').value,dueDate:$('ifDue').value,returnDate:null,fine:0});
+book.available--;saveD();UI.closeForm();Lib.render();T('Book issued','ok')},
+returnBook(id){const issue=D.bookIssues.find(i=>i.dbId===id);if(!issue)return;
+issue.returnDate=new Date().toISOString().split('T')[0];
+const book=D.books.find(b=>b.dbId===issue.bookId);if(book)book.available++;
+const overdue=Math.max(0,Math.floor((new Date(issue.returnDate)-new Date(issue.dueDate))/86400000));
+if(overdue>0)T('Returned (Overdue '+overdue+' days)','wr');else T('Returned','ok');
+saveD();Lib.render()}
+};
+
+/* CERTIFICATES */
+const Certs={
+render(){const body=$('certBody');body.innerHTML='';
+D.certificates.forEach(c=>{const s=D.students.find(x=>x.id===c.studentId);
+const tr=document.createElement('tr');tr.innerHTML='<td>'+c.certNo+'</td><td>'+c.type+'</td><td>'+(s?s.firstName+' '+s.lastName:c.studentId)+'</td><td>'+fmtDate(c.date)+'</td><td><button class="btn btn-gh btn-xs" onclick="Certs.print(\''+c.certNo+'\')">Print</button></td>';body.appendChild(tr)});
+if(!D.certificates.length)body.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--tm)">No certificates</td></tr>'},
+showForm(){let h='<h3 style="margin-bottom:14px">Generate Certificate</h3>';
+h+='<div class="frm-row"><div><label class="lbl">Type</label><select id="cfType"><option>Bonafide</option><option>Transfer Certificate</option><option>Character Certificate</option><option>Course Completion</option></select></div><div><label class="lbl">Student</label><select id="cfStu">'+D.students.map(s=>'<option value="'+s.id+'">'+s.id+' - '+s.firstName+' '+s.lastName+'</option>').join('')+'</select></div></div>';
+h+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px"><button class="btn btn-gh" onclick="UI.closeForm()">Cancel</button><button class="btn btn-p" onclick="Certs.generate()">Generate</button></div>';
+UI.openForm(h)},
+generate(){const type=$('cfType').value,sid=$('cfStu').value;
+const id=DB.nextId(D,'cert');
+const certNo='CERT-'+String(id).padStart(3,'0');
+D.certificates.push({dbId:id,certNo,type,studentId:sid,date:new Date().toISOString().split('T')[0]});
+saveD();UI.closeForm();Certs.render();T('Certificate generated: '+certNo,'ok')},
+print(certNo){const c=D.certificates.find(x=>x.certNo===certNo);if(!c)return;
+const s=D.students.find(x=>x.id===c.studentId);if(!s)return;
+const w=window.open('','','width=700,height=500');
+w.document.write('<html><body style="font-family:serif;padding:60px;text-align:center"><h1>'+D.settings.instName+'</h1><hr><h2>'+c.type+'</h2><p>This is to certify that <b>'+s.firstName+' '+s.lastName+'</b> (ID: '+s.id+) was a bonafide student of this institute, enrolled in <b>'+courseName(s.course)+'</b> ('+s.batch+').</p><br><br><p style="text-align:right">Date: '+fmtDate(c.date)+'<br>Certificate #: '+c.certNo+'<br><br>Principal</p></body></html>');
+w.document.close();w.print()}
+};
+
+/* REPORTS */
+const Rpts={
+render(){Rpts.renderCharts()},
+renderCharts(){if(typeof Chart==='undefined')return;
+const courseLabels=D.courses.map(c=>c.name);
+const courseData=D.courses.map(c=>D.students.filter(s=>s.course==c.id&&s.status==='Active').length);
+if(Rpts._chC)Rpts._chC.destroy();Rpts._chC=new Chart($('chCourse'),{type:'doughnut',data:{labels:courseLabels,datasets:[{data:courseData,backgroundColor:['#10b981','#06b6d4','#f59e06','#ec4899','#8b5cf6'],borderWidth:0}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{color:'#6b7a90'}}}}});
+const male=D.students.filter(s=>s.gender==='Male').length,female=D.students.filter(s=>s.gender==='Female').length;
+if(Rpts._chG)Rpts._chG.destroy();Rpts._chG=new Chart($('chGender'),{type:'pie',data:{labels:['Male','Female'],datasets:[{data:[male,female],backgroundColor:['#06b6d4','#ec4899'],borderWidth:0}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{color:'#6b7a90'}}}}})},
+run(type){
+let h='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3>';
+const out=$('rptOutput');
+if(type==='strength'){h+='Student Strength Report</h3></div><div class="tbl-wrap"><table class="wt"><thead><tr><th>Course</th><th>Active</th><th>Dropped</th><th>Completed</th><th>Total</th></tr></thead><tbody>';
+D.courses.forEach(c=>{const act=D.students.filter(s=>s.course==c.id&&s.status==='Active').length;const drp=D.students.filter(s=>s.course==c.id&&s.status==='Dropped').length;const comp=D.students.filter(s=>s.course==c.id&&s.status==='Completed').length;
+h+='<tr><td>'+c.name+'</td><td>'+act+'</td><td>'+drp+'</td><td>'+comp+'</td><td>'+(act+drp+comp)+'</td></tr>'});
+h+='</tbody></table></div>'}
+else if(type==='defaulters'){h+='Fee Defaulters</h3></div><div class="tbl-wrap"><table class="wt"><thead><tr><th>Student</th><th>Course</th><th>Total Fee</th><th>Paid</th><th>Balance</th></tr></thead><tbody>';
+D.students.filter(s=>s.status==='Active').forEach(s=>{const paid=D.payments.filter(p=>p.studentId===s.id).reduce((a,p)=>a+p.amount,0);const bal=(s.totalFee||0)-(s.discount||0)-paid;
+if(bal>0)h+='<tr><td>'+s.firstName+' '+s.lastName+'</td><td>'+courseName(s.course)+'</td><td>'+fmtMoney(s.totalFee)+'</td><td>'+fmtMoney(paid)+'</td><td style="color:var(--dn)">'+fmtMoney(bal)+'</td></tr>'});
+h+='</tbody></table></div>'}
+else if(type==='results'){h+='Exam Results</h3></div><div class="tbl-wrap"><table class="wt"><thead><tr><th>Student</th><th>Exam</th><th>Subject</th><th>Marks</th></tr></thead><tbody>';
+D.marks.forEach(m=>{const stu=D.students.find(s=>s.id===m.studentId);const exam=D.exams.find(e=>e.id===m.examId);const subj=D.subjects.find(s=>s.dbId===m.subjectId);
+h+='<tr><td>'+(stu?stu.firstName+' '+stu.lastName:m.studentId)+'</td><td>'+(exam?exam.name:'—')+'</td><td>'+(subj?subj.name:'—')+'</td><td>'+m.marks+'/'+m.maxMarks+'</td></tr>'});
+if(!D.marks.length)h+='<tr><td colspan="4" style="text-align:center;color:var(--tm)">No marks entered</td></tr>';
+h+='</tbody></table></div>'}
+else{h+=type.charAt(0).toUpperCase()+type.slice(1)+' Report</h3><p style="color:var(--tm)">Report data will appear here</p></div>'}
+h+='</div>';
+out.innerHTML=h}};
+
+/* SETTINGS */
+const Settings={
+load(){const s=D.settings;$('setInstName').value=s.instName||'';$('setYear').value=s.year||'';$('setPhone').value=s.phone||'';$('setEmail').value=s.email||'';$('setAddr').value=s.address||'';$('setStuPre').value=s.stuPre||'ST-';$('setStfPre').value=s.stfPre||'TCH-';$('setRcpPre').value=s.rcpPre||'RCP-';$('setMinAtt').value=s.minAtt||75;$('setCurr').value=s.currency||'₹'},
+save(){D.settings.instName=$('setInstName').value;D.settings.year=$('setYear').value;D.settings.phone=$('setPhone').value;D.settings.email=$('setEmail').value;D.settings.address=$('setAddr').value;D.settings.stuPre=$('setStuPre').value;D.settings.stfPre=$('setStfPre').value;D.settings.rcpPre=$('setRcpPre').value;D.settings.minAtt=Number($('setMinAtt').value);D.settings.currency=$('setCurr').value;saveD();T('Settings saved','ok')}
+};
+
+/* ACHIEVEMENTS */
+const Achiev={
+render(){const g=$('achGrid');g.innerHTML='';BADGES.forEach(b=>{const u=b.check();g.innerHTML+='<div class="badge-card '+(u?'unlocked':'locked')+'"><span class="badge-icon">'+b.icon+'</span><div class="badge-name">'+b.name+'</div><div style="font-size:.64rem;color:var(--tm)">'+b.desc+'</div></div>'})}};
+
+/* DATA IO */
+function dl(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click()}
+const DataIO={
+open(){UI.openMdl('exportModal')},
+exportAll(){dl('institute_backup_'+new Date().toISOString().split('T')[0]+'.json',JSON.stringify(D,null,2),'application/json');T('Exported','ok')},
+importF(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.settings){D=d;saveD();Nav.go('dash');T('Imported!','ok')}else{T('Invalid file','er')}}catch(err){T('Invalid file','er')}};r.readAsText(f);e.target.value=''}};
+
+/* COMMAND PALETTE */
+const cmds=[
+{name:'Dashboard',action:()=>Nav.go('dash')},
+{name:'Students',action:()=>Nav.go('students')},
+{name:'Staff',action:()=>Nav.go('staff')},
+{name:'Courses',action:()=>Nav.go('courses')},
+{name:'Attendance',action:()=>Nav.go('attendance')},
+{name:'Fees',action:()=>Nav.go('fees')},
+{name:'Exams',action:()=>Nav.go('exams')},
+{name:'Timetable',action:()=>Nav.go('timetable')},
+{name:'Notices',action:()=>Nav.go('notices')},
+{name:'Library',action:()=>Nav.go('library')},
+{name:'Certificates',action:()=>Nav.go('certificates')},
+{name:'Reports',action:()=>Nav.go('reports')},
+{name:'Achievements',action:()=>Nav.go('achievements')},
+{name:'Settings',action:()=>Nav.go('settings')},
+{name:'Add Student',action:()=>{Nav.go('students');Students.showForm()}},
+{name:'Add Staff',action:()=>{Nav.go('staff');Staff.showForm()}},
+{name:'Record Payment',action:()=>{Nav.go('fees');Fees.showPayForm()}},
+{name:'Toggle Theme',action:UI.togTheme},
+{name:'Export Data',action:()=>DataIO.exportAll()}
+];
+const CMD={si:0,open(){document.getElementById('cmdO').classList.add('open');const i=document.getElementById('cmdIn');i.value='';i.focus();CMD.si=0;CMD.filt()},close(){document.getElementById('cmdO').classList.remove('open')},filt(){CMD.si=0;CMD.render(document.getElementById('cmdIn').value.toLowerCase())},render(q){const c=document.getElementById('cmdR');c.innerHTML='';cmds.filter(x=>x.name.toLowerCase().includes(q)).forEach((cmd,i)=>{const d=document.createElement('div');d.className='cmd-i'+(i===CMD.si?' sel':'');d.innerHTML='<span>'+cmd.name+'</span>';d.onclick=()=>{CMD.close();cmd.action()};c.appendChild(d)})},key(e){const items=document.querySelectorAll('.cmd-i');if(e.key==='Escape')CMD.close();else if(e.key==='ArrowDown'){e.preventDefault();CMD.si=Math.min(CMD.si+1,items.length-1);items.forEach((it,i)=>it.classList.toggle('sel',i===CMD.si))}else if(e.key==='ArrowUp'){e.preventDefault();CMD.si=Math.max(CMD.si-1,0);items.forEach((it,i)=>it.classList.toggle('sel',i===CMD.si))}else if(e.key==='Enter'&&items.length){CMD.close();items[CMD.si]?.click()}}};
+document.getElementById('cmdO').addEventListener('click',e=>{if(e.target.id==='cmdO')CMD.close()});
+
+/* GLOBAL SHORTCUTS */
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();CMD.open()}if(e.key==='Escape'){document.querySelectorAll('.mdl.open').forEach(m=>m.classList.remove('open'));CMD.close();document.getElementById('admPnl').classList.remove('open')}if(e.ctrlKey&&e.shiftKey&&e.key==='L'){e.preventDefault();Adm.open()}});
+
+/* INIT */
+function AppInit(){
+Students.populateCourseFilter();
+Nav.go('dash');
+// Seed demo data if empty
+if(!D.students.length&&D.courses.length){
+D.students.push({dbId:1,id:'ST-001',firstName:'Rahul',lastName:'Sharma',dob:'1999-05-15',gender:'Male',phone:'9876543210',email:'rahul@mail.com',aadhar:'',address:'Delhi',course:1, batch:'2024-2027',admissionDate:'2024-07-01',fatherName:'Ramesh',motherName:'Sunita',guardianPhone:'9876543210',totalFee:50000,discount:5000,status:'Active'});
+D.students.push({dbId:2,id:'ST-002',firstName:'Priya',lastName:'Singh',dob:'2000-03-20',gender:'Female',phone:'8765432109',email:'priya@mail.com',aadhar:'',address:'Mumbai',course:1, batch:'2024-2027',admissionDate:'2024-07-01',fatherName:'Vikram',motherName:'Anita',guardianPhone:'8765432109',totalFee:50000,discount:0,status:'Active'});
+D.students.push({dbId:3,id:'ST-003',firstName:'Amit',lastName:'Kumar',dob:'1998-11-10',gender:'Male',phone:'7654321098',email:'amit@mail.com',aadhar:'',address:'Bangalore',course:2, batch:'2024-2026',admissionDate:'2024-07-01',fatherName:'Suresh',motherName:'Geeta',guardianPhone:'7654321098',totalFee:75000,discount:10000,status:'Active'});
+D.counters.student=3;
+D.staff.push({dbId:1,id:'TCH-001',firstName:'Dr. Anil',lastName:'Verma',phone:'9999999999',email:'anil@inst.com',gender:'Male',department:'Computer Science',role:'Teacher',salary:60000,joiningDate:'2020-01-15',qualification:'PhD',status:'Active'});
+D.counters.staff=1;
+D.subjects.push({dbId:1,id:'SUB-001',name:'Data Structures',code:'CS-301',course:1,semester:3,credits:4,teacher:1,type:'Theory'});
+D.subjects.push({dbId:2,id:'SUB-002',name:'Database Systems',code:'CS-302',course:1,semester:3,credits:4,teacher:1,type:'Theory'});
+D.counters.subject=2;
+D.notices.push({dbId:1,id:1,title:'Welcome to InstituteHub',body:'Institute management system is now active. Configure settings to get started.',audience:'All',priority:'Important',date:new Date().toISOString().split('T')[0],expiry:''});
+D.counters.notice=1;
+saveD();
+Students.populateCourseFilter();
+Nav.go('dash');
+T('Demo data loaded','inf')}
+setInterval(()=>{D.settings&&saveD()},30000);
+}
+
+(async function boot(){const fp=await LIC.fp();document.getElementById('licFP').value=fp;if(localStorage.getItem(LIC.STOR+'_lk')==='1'){LIC.showExp();return}if(await LIC.check())LIC.unlock();else document.getElementById('licScr').style.display='flex'})();
+</script>
+</body>
+</html>
