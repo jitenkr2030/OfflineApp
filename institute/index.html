@@ -769,7 +769,7 @@ saveD();UI.closeForm();Certs.render();T('Certificate generated: '+certNo,'ok')},
 print(certNo){const c=D.certificates.find(x=>x.certNo===certNo);if(!c)return;
 const s=D.students.find(x=>x.id===c.studentId);if(!s)return;
 const w=window.open('','','width=700,height=500');
-w.document.write('<html><body style="font-family:serif;padding:60px;text-align:center"><h1>'+D.settings.instName+'</h1><hr><h2>'+c.type+'</h2><p>This is to certify that <b>'+s.firstName+' '+s.lastName+'</b> (ID: '+s.id+) was a bonafide student of this institute, enrolled in <b>'+courseName(s.course)+'</b> ('+s.batch+').</p><br><br><p style="text-align:right">Date: '+fmtDate(c.date)+'<br>Certificate #: '+c.certNo+'<br><br>Principal</p></body></html>');
+w.document.write('<html><body style="font-family:serif;padding:60px;text-align:center"><h1>'+D.settings.instName+'</h1><hr><h2>'+c.type+'</h2><p>This is to certify that <b>'+s.firstName+' '+s.lastName+'</b> (ID: '+s.id+' was a bonafide student of this institute, enrolled in <b>'+courseName(s.course)+'</b> ('+s.batch+').</p><br><br><p style="text-align:right">Date: '+fmtDate(c.date)+'<br>Certificate #: '+c.certNo+'<br><br>Principal</p></body></html>');
 w.document.close();w.print()}
 };
 
