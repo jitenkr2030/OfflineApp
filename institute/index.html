@@ -657,8 +657,8 @@ const stId=inp.dataset.sid,val=Number(inp.value);
 if(isNaN(val))return;
 const idx=D.marks.findIndex(m=>m.examId===eid&&m.subjectId===sid&&m.studentId===stId);
 if(idx>=0){D.marks[idx].marks=val}else{D.marks.push({examId:eid,subjectId:sid,studentId:stId,marks:val,maxMarks:100})}
-saveD();T('Marks saved','ok')}
-};
+saveD();T('Marks saved','ok')})
+}};
 
 /* TIMETABLE */
 const Timetable={
