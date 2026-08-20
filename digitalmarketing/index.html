@@ -416,10 +416,9 @@ function showSV(){const e=document.getElementById('svInd');if(!e)return;e.innerH
 function T(m,t='inf'){const w=document.getElementById('tw');const d=document.createElement('div');d.className='tst '+t;d.textContent=m;w.appendChild(d);requestAnimationFrame(()=>d.classList.add('show'));setTimeout(()=>{d.classList.remove('show');setTimeout(()=>d.remove(),300)},2500)}
 const UI={togTheme(){const t=document.documentElement.getAttribute('data-theme');document.documentElement.setAttribute('data-theme',t==='light'?'dark':'light')},openMdl(id){document.getElementById(id).classList.add('open')},closeMdl(id){document.getElementById(id).classList.remove('open')}};
 
-const vT={dash:'Dashboard',tools:'Marketing Tools',courses:'Curriculum',reports:'Analytics',achievements:'Achievements'};
+const vT={dash:'Dashboard',tools:'Marketing Tools',courses:'Curriculum',reports:'Analytics',achievements:'Achievements',instructor:'Instructor Console'};
 function switchV(vid,el){document.querySelectorAll('.vw').forEach(v=>v.classList.remove('act'));document.querySelectorAll('.nav li').forEach(l=>l.classList.remove('act'));document.getElementById('v-'+vid).classList.add('act');if(el)el.classList.add('act');document.getElementById('pgT').textContent=vT[vid]||vid;
-if(vid==='dash')Dash.render();if(vid==='tools')Tools.init();if(vid==='courses')Courses.renderList();if(vid==='reports')Reports.render();if(vid==='achievements')Achiev.render()}
-if(vid==='instructor')Instr.render();
+if(vid==='dash')Dash.render();if(vid==='tools')Tools.init();if(vid==='courses')Courses.renderList();if(vid==='reports')Reports.render();if(vid==='achievements')Achiev.render();if(vid==='instructor')Instr.render()}
 document.querySelectorAll('.nav li').forEach(li=>{li.addEventListener('click',()=>switchV(li.dataset.v,li))});
 
 function updateUI(){

@@ -512,7 +512,6 @@ const UI={togTheme(){const t=document.documentElement.getAttribute('data-theme')
 const vT={dash:'Dashboard',ide:'Live Editor',courses:'Curriculum',reports:'Analytics',achievements:'Achievements',instructor:'Instructor'};
 function switchV(vid,el){document.querySelectorAll('.vw').forEach(v=>v.classList.remove('act'));document.querySelectorAll('.nav li').forEach(l=>l.classList.remove('act'));document.getElementById('v-'+vid).classList.add('act');if(el)el.classList.add('act');document.getElementById('pgT').textContent=vT[vid]||vid;
 if(vid==='dash')Dash.render();if(vid==='ide')IDE.init();if(vid==='courses')Courses.renderList();if(vid==='reports')Reports.render();if(vid==='achievements')Achiev.render();if(vid==='instructor')Instr.render()}
-if(vid==='instructor')Instr.render();
 document.querySelectorAll('.nav li').forEach(li=>{li.addEventListener('click',()=>switchV(li.dataset.v,li))});
 
 /* ======== UI UPDATE ======== */
