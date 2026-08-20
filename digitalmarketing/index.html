@@ -194,6 +194,54 @@ label.lbl{display:block;font-size:.84rem;font-weight:600;margin-bottom:5px;color
 
 <div id="admPnl"><div class="adm-b"><h2 style="margin-bottom:6px">🔑 License Generator</h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px"><div><label class="lbl">Fingerprint</label><input type="text" id="admFP"></div><div><label class="lbl">Days</label><input type="number" id="admDays" value="90"></div></div><div style="display:flex;gap:8px;margin-bottom:14px"><button class="btn btn-p" onclick="Lic.generate()">Generate</button><button class="btn btn-gh" onclick="Lic.revoke()">Revoke</button></div><div class="gen-k" id="admGenK"></div><table class="adm-t"><thead><tr><th>Fingerprint</th><th>Expires</th><th>Days</th></tr></thead><tbody id="admLicBody"></tbody></table><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn btn-gh" onclick="document.getElementById('admPnl').classList.remove('open')">Close</button></div></div></div>
 
+<div id="view-instructor" class="vw">
+<div class="card" style="border-color:var(--wr);">
+<h2>Instructor Console</h2>
+<p style="color:var(--tm);margin:4px 0 18px;">Manage students, modules, and announcements.</p>
+<h3 style="color:var(--primary);margin-bottom:10px;">Student Roster</h3>
+<div style="border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-bottom:22px;">
+<table style="width:100%;border-collapse:collapse;font-size:.88rem;">
+<thead><tr style="background:var(--sf);border-bottom:1px solid var(--bd);">
+<th style="padding:10px 14px;text-align:left;">Name</th>
+<th style="padding:10px 14px;text-align:left;">ID</th>
+<th style="padding:10px 14px;text-align:left;">Progress</th>
+<th style="padding:10px 14px;text-align:left;">Time</th>
+</tr></thead>
+<tbody id="rosterBody"></tbody>
+</table>
+</div>
+<hr style="border:0;border-top:1px solid var(--bd);margin:18px 0;">
+<h3 style="color:var(--primary);margin-bottom:10px;">Post Announcement</h3>
+<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:22px;">
+<input type="text" id="annTitle" placeholder="Title">
+<textarea id="annBody" rows="2" placeholder="Message..." style="padding:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;font-family:inherit;"></textarea>
+<div style="display:flex;gap:8px;align-items:center;">
+<select id="annPriority" style="width:auto;margin-bottom:0;"><option value="info">Info</option><option value="warning">Warning</option><option value="urgent">Urgent</option></select>
+<button class="btn btn-wr" onclick="Instr.postAnn()">Post</button>
+</div></div>
+<hr style="border:0;border-top:1px solid var(--bd);margin:18px 0;">
+<h3 style="color:var(--primary);margin-bottom:10px;">Module Editor</h3>
+<select id="instrModSelect" onchange="Instr.modeChange()" style="margin-bottom:14px;"><option value="new">+ Create New Module</option></select>
+<input type="hidden" id="editModId">
+<input type="text" id="editModTitle" placeholder="Module Title" style="width:100%;margin-bottom:8px;padding:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;">
+<textarea id="editModContent" rows="2" placeholder="Lesson..." style="width:100%;margin-bottom:8px;padding:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;"></textarea>
+<textarea id="editModCode" rows="3" placeholder="Code..." style="width:100%;margin-bottom:8px;padding:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;font-family:monospace;"></textarea>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+<div><label style="font-size:.82rem;font-weight:600;color:var(--tm);">Difficulty</label><select id="editModDiff" style="width:100%;"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></div>
+<div><label style="font-size:.82rem;font-weight:600;color:var(--tm);">Time (min)</label><input type="number" id="editModTime" value="10" style="width:100%;margin-bottom:0;"></div>
+<div><label style="font-size:.82rem;font-weight:600;color:var(--tm);">Prereq (#)</label><input type="number" id="editModPrereq" placeholder="0" style="width:100%;margin-bottom:0;"></div>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+<label style="font-weight:600;color:var(--primary);">Questions (min 5)</label>
+<button class="btn btn-p btn-xs" onclick="Instr.addQ()">+ Add</button>
+</div>
+<div id="qBuilder" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
+<div style="display:flex;gap:8px;justify-content:flex-end;">
+<button class="btn btn-dn btn-sm" id="instrDelBtn" style="display:none;" onclick="Instr.del()">Delete</button>
+<button class="btn btn-p" onclick="Instr.save()">Save Module</button>
+</div>
+</div>
+</div>
 <div class="cmd-o" id="cmdO"><div class="cmd-b"><input type="text" id="cmdIn" placeholder="Command..." oninput="CMD.filt()" onkeydown="CMD.key(event)"><div class="cmd-r" id="cmdR"></div></div></div>
 <div class="tw" id="tw"></div>
 
@@ -371,12 +419,15 @@ const UI={togTheme(){const t=document.documentElement.getAttribute('data-theme')
 const vT={dash:'Dashboard',tools:'Marketing Tools',courses:'Curriculum',reports:'Analytics',achievements:'Achievements'};
 function switchV(vid,el){document.querySelectorAll('.vw').forEach(v=>v.classList.remove('act'));document.querySelectorAll('.nav li').forEach(l=>l.classList.remove('act'));document.getElementById('v-'+vid).classList.add('act');if(el)el.classList.add('act');document.getElementById('pgT').textContent=vT[vid]||vid;
 if(vid==='dash')Dash.render();if(vid==='tools')Tools.init();if(vid==='courses')Courses.renderList();if(vid==='reports')Reports.render();if(vid==='achievements')Achiev.render()}
+if(vid==='instructor')Instr.render();
 document.querySelectorAll('.nav li').forEach(li=>{li.addEventListener('click',()=>switchV(li.dataset.v,li))});
 
 function updateUI(){
+    const nb = document.getElementById('navInstructor');
+
 document.getElementById('dispName').textContent=S.isLoggedIn?S.studentName:'Guest';
 const rb=document.getElementById('roleBadge'),ab=document.getElementById('authBtn');
-if(S.isLoggedIn){rb.innerHTML='<span class="badge" style="background:var(--ok)">Active</span>';ab.textContent='🚪 Logout'}else{rb.innerHTML='<span class="badge" style="background:var(--dn)">Logged Out</span>';ab.textContent='🔐 Login'}
+if(S.isLoggedIn){rb.innerHTML='<span class="badge" style="background:var(--ok)">Active</span>';ab.textContent='🚪 Logout'}else{if(S.isInstructor){nb.style.display="";rb.innerHTML='<span class="badge" style="background:var(--wr);color:#000">Instructor</span>'}else rb.innerHTML='<span class="badge" style="background:var(--dn)">Logged Out</span>';ab.textContent='🔐 Login'}
 let done=0,passed=0,ev=0;Object.values(S.progress).forEach(p=>{if(p.completed)done++;if(p.score==='Passed')passed++;if(p.score!=='Pending')ev++});
 document.getElementById('sDone').textContent=done+'/'+MODS.length;document.getElementById('sScore').textContent=ev?Math.round(passed/ev*100)+'%':'0%';document.getElementById('sTime').textContent=Math.floor(S.secondsActive/60)+'m';document.getElementById('sCampaigns').textContent=Object.values(S.progress).filter(p=>p.completed&&p.score==='Passed').length;document.getElementById('sStreak').textContent=S.streak;
 document.getElementById('welcomeB').textContent=S.isLoggedIn?'Welcome back, '+S.studentName+'!':'Welcome to DigiMktg Academy';
@@ -386,6 +437,7 @@ const db=document.getElementById('dashBadges');db.innerHTML='';BADGES.slice(0,8)
 
 document.getElementById('authBtn').onclick=()=>{S.isLoggedIn?Auth.logout():UI.openMdl('authModal')};
 const Auth={login(){const n=document.getElementById('authName').value.trim(),id=document.getElementById('authId').value.trim();if(!n||!id){T('Enter name and ID','er');return}S.isLoggedIn=true;S.studentId=id;S.studentName=n;MODS.forEach(m=>{if(!S.progress[m.id])S.progress[m.id]={completed:false,score:'Pending',pct:null,timeTaken:null}});const today=new Date().toDateString();if(S.lastLogin){const d=Math.floor((new Date(today)-new Date(S.lastLogin))/864e5);S.streak=d===1?S.streak+1:d>1?1:S.streak}else S.streak=1;S.lastLogin=today;if(new Date().getHours()>=22)S.studiedLate=true;save();UI.closeMdl('authModal');switchV('dash',document.querySelector('.nav li'));T('Welcome, '+n+'!','ok')},
+login2(){},instructor(){if(document.getElementById('instrPin').value==='8700189551'){S.isInstructor=true;save();UI.closeMdl('instrModal');switchV('instructor',document.getElementById('navInstructor'));T('Instructor mode','ok')}else T('Wrong PIN','er')},
 logout(){if(!confirm('Log out?'))return;S.isLoggedIn=false;S.studentId=null;S.studentName=null;save();switchV('dash',document.querySelector('.nav li'));T('Logged out','inf')}};
 
 const Tools={
@@ -444,7 +496,8 @@ const Achiev={render(){const g=document.getElementById('achGrid');g.innerHTML=''
 function dl(n,c,t){const b=new Blob([c],{type:t});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n;a.click()}
 const DataIO={export(){dl('digimktg_backup_'+new Date().toISOString().split('T')[0]+'.json',JSON.stringify({S,exportedAt:new Date().toISOString()},null,2),'application/json');T('Exported','ok')},importF(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.S){S=d.S;save();switchV('dash',document.querySelector('.nav li'));T('Imported!','ok')}}catch(err){T('Invalid file','er')}};r.readAsText(f);e.target.value=''}};
 
-const cmds=[{name:'Dashboard',action:()=>switchV('dash',document.querySelectorAll('.nav li')[0])},{name:'Marketing Tools',action:()=>switchV('tools',document.querySelectorAll('.nav li')[1])},{name:'Curriculum',action:()=>switchV('courses',document.querySelectorAll('.nav li')[2])},{name:'Analytics',action:()=>switchV('reports',document.querySelectorAll('.nav li')[3])},{name:'Achievements',action:()=>switchV('achievements',document.querySelectorAll('.nav li')[4])},{name:'Toggle Theme',action:UI.togTheme},{name:'Export Data',action:()=>DataIO.export()}];
+const cmds=[{name:'Instructor Panel',action:()=>openModal('instrModal')},
+    {name:'Dashboard',action:()=>switchV('dash',document.querySelectorAll('.nav li')[0])},{name:'Marketing Tools',action:()=>switchV('tools',document.querySelectorAll('.nav li')[1])},{name:'Curriculum',action:()=>switchV('courses',document.querySelectorAll('.nav li')[2])},{name:'Analytics',action:()=>switchV('reports',document.querySelectorAll('.nav li')[3])},{name:'Achievements',action:()=>switchV('achievements',document.querySelectorAll('.nav li')[4])},{name:'Toggle Theme',action:UI.togTheme},{name:'Export Data',action:()=>DataIO.export()}];
 const CMD={si:0,open(){document.getElementById('cmdO').classList.add('open');const i=document.getElementById('cmdIn');i.value='';i.focus();CMD.si=0;CMD.filt()},close(){document.getElementById('cmdO').classList.remove('open')},filt(){CMD.si=0;CMD.render(document.getElementById('cmdIn').value.toLowerCase())},render(q){const c=document.getElementById('cmdR');c.innerHTML='';cmds.filter(x=>x.name.toLowerCase().includes(q)).forEach((cmd,i)=>{const d=document.createElement('div');d.className='cmd-i'+(i===CMD.si?' sel':'');d.innerHTML='<span>'+cmd.name+'</span>';d.onclick=()=>{CMD.close();cmd.action()};c.appendChild(d)})},key(e){const items=document.querySelectorAll('.cmd-i');if(e.key==='Escape')CMD.close();else if(e.key==='ArrowDown'){e.preventDefault();CMD.si=Math.min(CMD.si+1,items.length-1);items.forEach((it,i)=>it.classList.toggle('sel',i===CMD.si))}else if(e.key==='ArrowUp'){e.preventDefault();CMD.si=Math.max(CMD.si-1,0);items.forEach((it,i)=>it.classList.toggle('sel',i===CMD.si))}else if(e.key==='Enter'&&items.length){CMD.close();items[CMD.si]?.click()}}};
 document.getElementById('cmdO').addEventListener('click',e=>{if(e.target.id==='cmdO')CMD.close()});
 
@@ -452,6 +505,22 @@ document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'){
 
 function AppInit(){MODS.forEach(m=>{if(!S.progress[m.id])S.progress[m.id]={completed:false,score:'Pending',pct:null,timeTaken:null}});switchV('dash',document.querySelector('.nav li'));setInterval(()=>{if(S.isLoggedIn){S.secondsActive++;if(S.secondsActive%15===0)save()}},1000);save()}
 (async function boot(){const fp=await Lic.fp();document.getElementById('licFP').value=fp;if(localStorage.getItem(Lic.STOR+'_lk')==='1'){Lic.showExp();return}if(await Lic.check())Lic.unlock();else document.getElementById('licScr').style.display='flex'})();
+
+const Instr = {
+    render() {
+        const tb = document.getElementById('rosterBody'); tb.innerHTML = '';
+        const ids = Object.keys(DB.students);
+        if (!ids.length) { tb.innerHTML = '<tr><td colspan="4" style="padding:14px;text-align:center;color:var(--text-muted)">No students.</td></tr>'; }
+        else ids.forEach(id => { const s = DB.students[id]; let d = 0; if (s.progress) Object.values(s.progress).forEach(p => { if (p.completed) d++; }); const tr = document.createElement('tr'); tr.style.borderBottom = '1px solid var(--border)'; tr.innerHTML = '<td style="padding:10px 14px;font-weight:600">' + s.name + '</td><td style="padding:10px 14px;color:var(--text-muted)">' + id + '</td><td style="padding:10px 14px;color:var(--success)">' + d + '/' + DB.modules.length + '</td><td style="padding:10px 14px">' + Math.floor((s.secondsActive || 0) / 60) + 'm</td>'; tb.appendChild(tr); });
+        const sel = document.getElementById('instrModSelect'); sel.innerHTML = '<option value="new">+ Create New</option>';
+        DB.modules.forEach(m => { const o = document.createElement('option'); o.value = m.id; o.textContent = m.title; sel.appendChild(o); });
+    },
+    postAnn() { const t = document.getElementById('annTitle').value.trim(); const b = document.getElementById('annBody').value.trim(); if (!t || !b) { toast('Fill all fields.', 'error'); return; } if (!DB.announcements) DB.announcements = []; DB.announcements.push({ title: t, body: b, priority: document.getElementById('annPriority').value, ts: Date.now() }); save(); document.getElementById('annTitle').value = ''; document.getElementById('annBody').value = ''; toast('Posted!', 'success'); },
+    modeChange() { const v = document.getElementById('instrModSelect').value; const db2 = document.getElementById('instrDelBtn'); if (v === 'new') { ['editModId', 'editModTitle', 'editModContent', 'editModCode'].forEach(id => document.getElementById(id).value = ''); document.getElementById('editModDiff').value = 'Beginner'; document.getElementById('editModTime').value = 10; document.getElementById('editModPrereq').value = ''; document.getElementById('qBuilder').innerHTML = ''; for (let i = 0; i < 5; i++) Instr.addQ(); db2.style.display = 'none'; } else { const m = DB.modules.find(x => x.id == v); if (!m) return; document.getElementById('editModId').value = m.id; document.getElementById('editModTitle').value = m.title; document.getElementById('editModContent').value = m.content; document.getElementById('editModCode').value = m.code; document.getElementById('editModDiff').value = m.difficulty || 'Beginner'; document.getElementById('editModTime').value = m.timeLimit || 10; document.getElementById('editModPrereq').value = m.prerequisite || ''; const qc = document.getElementById('qBuilder'); qc.innerHTML = ''; m.questions.forEach(q => Instr.addQ(q)); db2.style.display = ''; } },
+    addQ(qd) { const c = document.getElementById('qBuilder'); const i = c.children.length + 1; const d = document.createElement('div'); d.style.cssText = 'padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);'; d.innerHTML = '<div style="font-size:.78rem;font-weight:700;color:var(--primary);margin-bottom:6px;">Q' + i + '</div><input type="text" class="qt" placeholder="Question" value="' + (qd ? qd.q.replace(/"/g, '&quot;') : '') + '"><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;"><input class="qo0" placeholder="A" value="' + (qd ? qd.options[0].replace(/"/g, '&quot;') : '') + '"><input class="qo1" placeholder="B" value="' + (qd ? qd.options[1].replace(/"/g, '&quot;') : '') + '"><input class="qo2" placeholder="C" value="' + (qd ? qd.options[2].replace(/"/g, '&quot;') : '') + '"><input class="qo3" placeholder="D" value="' + (qd ? qd.options[3].replace(/"/g, '&quot;') : '') + '"></div><div style="margin-top:6px;display:flex;gap:8px;align-items:center;"><label style="font-size:.78rem;">Correct(0-3):</label><input type="number" class="qc" min="0" max="3" value="' + (qd ? qd.correct : 0) + '" style="width:50px;margin-bottom:0;"><input type="text" class="qe" placeholder="Explanation" value="' + (qd && qd.explain ? qd.explain.replace(/"/g, '&quot;') : '') + '" style="flex:1;margin-bottom:0;"></div>'; c.appendChild(d); },
+    save() { const eid = document.getElementById('editModId').value; const title = document.getElementById('editModTitle').value.trim(); const content = document.getElementById('editModContent').value.trim(); const code = document.getElementById('editModCode').value.trim(); const diff = document.getElementById('editModDiff').value; const time = parseInt(document.getElementById('editModTime').value) || 10; const prereq = document.getElementById('editModPrereq').value ? parseInt(document.getElementById('editModPrereq').value) : null; if (!title || !content) { toast('Title & content required.', 'error'); return; } const cards = document.querySelectorAll('#qBuilder > div'); if (cards.length < 5) { toast('Min 5 questions.', 'error'); return; } let questions = []; for (const card of cards) { const q = card.querySelector('.qt').value.trim(); const opts = [card.querySelector('.qo0').value.trim(), card.querySelector('.qo1').value.trim(), card.querySelector('.qo2').value.trim(), card.querySelector('.qo3').value.trim()]; const correct = parseInt(card.querySelector('.qc').value); const explain = card.querySelector('.qe').value.trim(); if (!q || opts.some(o => !o)) { toast('Complete all fields.', 'error'); return; } questions.push({ q, options: opts, correct: isNaN(correct) ? 0 : Math.min(3, Math.max(0, correct)), explain: explain || undefined }); } if (eid) { const m = DB.modules.find(x => x.id == eid); if (m) { m.title = title; m.content = content; m.code = code; m.difficulty = diff; m.timeLimit = time; m.prerequisite = prereq; m.questions = questions; } } else { const nid = Date.now(); DB.modules.push({ id: nid, title, content, code, difficulty: diff, timeLimit: time, prerequisite: prereq, questions }); Object.keys(DB.students).forEach(sid => { if (DB.students[sid].progress) DB.students[sid].progress[nid] = { completed: false, score: 'Pending' }; }); if (S.isLoggedIn) S.progress[nid] = { completed: false, score: 'Pending' }; } save(); toast('Saved!', 'success'); Instr.modeChange(); },
+    del() { const eid = document.getElementById('editModId').value; if (!eid || !confirm('Delete?')) return; DB.modules = DB.modules.filter(m => m.id != eid); save(); Instr.modeChange(); toast('Deleted.', 'info'); }
+};
 </script>
 </body>
 </html>

@@ -175,7 +175,7 @@ label.lbl{display:block;font-size:.84rem;font-weight:600;margin-bottom:5px;color
 <li data-v="courses">📚 <span>Curriculum</span></li>
 <li data-v="reports">📈 <span>Analytics</span></li>
 <li data-v="achievements">🏆 <span>Achievements</span></li>
-<li id="navInstr" style="display:none" data-v="instructor">🛠️ <span>Instructor</span></li>
+<li id="navInstructor" style="display:none" data-v="instructor">🛠️ <span>Instructor</span></li>
 </ul></div>
 <div class="sess"><div id="dispName" style="font-weight:600">Guest</div><div id="roleBadge" style="margin-top:4px"><span class="badge" style="background:var(--dn)">Logged Out</span></div><div id="licBarSess" style="margin-top:8px"></div></div></aside>
 
@@ -281,6 +281,54 @@ label.lbl{display:block;font-size:.84rem;font-weight:600;margin-bottom:5px;color
 <div id="admPnl"><div class="adm-b"><h2 style="margin-bottom:6px">🔑 License Generator (Admin)</h2><p style="color:var(--tm);font-size:.84rem;margin-bottom:18px">Press Ctrl+Shift+L</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px"><div><label class="lbl">Machine Fingerprint</label><input type="text" id="admFP" placeholder="Paste fingerprint"></div><div><label class="lbl">Duration (days)</label><input type="number" id="admDays" value="90" min="1" max="3650"></div></div><div style="display:flex;gap:8px;margin-bottom:14px"><button class="btn btn-p" onclick="Lic.generate()">Generate Key</button><button class="btn btn-gh" onclick="Lic.revoke()">Revoke</button></div><div class="gen-k" id="admGenK"></div><div class="lic-dv">Active Licenses</div><table class="adm-t"><thead><tr><th>Fingerprint</th><th>Activated</th><th>Expires</th><th>Days Left</th></tr></thead><tbody id="admLicBody"></tbody></table><div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="btn btn-gh" onclick="document.getElementById('admPnl').classList.remove('open')">Close</button></div></div></div>
 
 <!-- CMD PALETTE -->
+<div id="view-instructor" class="vw">
+<div class="card" style="border-color:var(--wr);">
+<h2>Instructor Console</h2>
+<p style="color:var(--tm);margin:4px 0 18px;">Manage students, modules, and announcements.</p>
+<h3 style="color:var(--primary);margin-bottom:10px;">Student Roster</h3>
+<div style="border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-bottom:22px;">
+<table style="width:100%;border-collapse:collapse;font-size:.88rem;">
+<thead><tr style="background:var(--sf);border-bottom:1px solid var(--bd);">
+<th style="padding:10px 14px;text-align:left;">Name</th>
+<th style="padding:10px 14px;text-align:left;">ID</th>
+<th style="padding:10px 14px;text-align:left;">Progress</th>
+<th style="padding:10px 14px;text-align:left;">Time</th>
+</tr></thead>
+<tbody id="rosterBody"></tbody>
+</table>
+</div>
+<hr style="border:0;border-top:1px solid var(--bd);margin:18px 0;">
+<h3 style="color:var(--primary);margin-bottom:10px;">Post Announcement</h3>
+<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:22px;">
+<input type="text" id="annTitle" placeholder="Title">
+<textarea id="annBody" rows="2" placeholder="Message..." style="padding:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;font-family:inherit;"></textarea>
+<div style="display:flex;gap:8px;align-items:center;">
+<select id="annPriority" style="width:auto;margin-bottom:0;"><option value="info">Info</option><option value="warning">Warning</option><option value="urgent">Urgent</option></select>
+<button class="btn btn-wr" onclick="Instr.postAnn()">Post</button>
+</div></div>
+<hr style="border:0;border-top:1px solid var(--bd);margin:18px 0;">
+<h3 style="color:var(--primary);margin-bottom:10px;">Module Editor</h3>
+<select id="instrModSelect" onchange="Instr.modeChange()" style="margin-bottom:14px;"><option value="new">+ Create New Module</option></select>
+<input type="hidden" id="editModId">
+<input type="text" id="editModTitle" placeholder="Module Title" style="width:100%;margin-bottom:8px;padding:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;">
+<textarea id="editModContent" rows="2" placeholder="Lesson..." style="width:100%;margin-bottom:8px;padding:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;"></textarea>
+<textarea id="editModCode" rows="3" placeholder="Code..." style="width:100%;margin-bottom:8px;padding:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;font-family:monospace;"></textarea>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+<div><label style="font-size:.82rem;font-weight:600;color:var(--tm);">Difficulty</label><select id="editModDiff" style="width:100%;"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></div>
+<div><label style="font-size:.82rem;font-weight:600;color:var(--tm);">Time (min)</label><input type="number" id="editModTime" value="10" style="width:100%;margin-bottom:0;"></div>
+<div><label style="font-size:.82rem;font-weight:600;color:var(--tm);">Prereq (#)</label><input type="number" id="editModPrereq" placeholder="0" style="width:100%;margin-bottom:0;"></div>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+<label style="font-weight:600;color:var(--primary);">Questions (min 5)</label>
+<button class="btn btn-p btn-xs" onclick="Instr.addQ()">+ Add</button>
+</div>
+<div id="qBuilder" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
+<div style="display:flex;gap:8px;justify-content:flex-end;">
+<button class="btn btn-dn btn-sm" id="instrDelBtn" style="display:none;" onclick="Instr.del()">Delete</button>
+<button class="btn btn-p" onclick="Instr.save()">Save Module</button>
+</div>
+</div>
+</div>
 <div class="cmd-o" id="cmdO"><div class="cmd-b"><input type="text" id="cmdIn" placeholder="Command..." oninput="CMD.filt()" onkeydown="CMD.key(event)"><div class="cmd-r" id="cmdR"></div></div></div>
 <div class="tw" id="tw"></div>
 
@@ -464,13 +512,15 @@ const UI={togTheme(){const t=document.documentElement.getAttribute('data-theme')
 const vT={dash:'Dashboard',ide:'Live Editor',courses:'Curriculum',reports:'Analytics',achievements:'Achievements',instructor:'Instructor'};
 function switchV(vid,el){document.querySelectorAll('.vw').forEach(v=>v.classList.remove('act'));document.querySelectorAll('.nav li').forEach(l=>l.classList.remove('act'));document.getElementById('v-'+vid).classList.add('act');if(el)el.classList.add('act');document.getElementById('pgT').textContent=vT[vid]||vid;
 if(vid==='dash')Dash.render();if(vid==='ide')IDE.init();if(vid==='courses')Courses.renderList();if(vid==='reports')Reports.render();if(vid==='achievements')Achiev.render();if(vid==='instructor')Instr.render()}
+if(vid==='instructor')Instr.render();
 document.querySelectorAll('.nav li').forEach(li=>{li.addEventListener('click',()=>switchV(li.dataset.v,li))});
 
 /* ======== UI UPDATE ======== */
 function updateUI(){
+    
 document.getElementById('dispName').textContent=S.isLoggedIn?S.studentName:'Guest';
-const rb=document.getElementById('roleBadge'),nb=document.getElementById('navInstr'),ab=document.getElementById('authBtn');
-if(S.isLoggedIn){rb.innerHTML='<span class="badge" style="background:var(--ok)">Active</span>';nb.style.display='none';ab.textContent='🚪 Logout'}else{rb.innerHTML='<span class="badge" style="background:var(--dn)">Logged Out</span>';nb.style.display='none';ab.textContent='🔐 Login'}
+const rb=document.getElementById('roleBadge'),nb=document.getElementById('navInstructor'),ab=document.getElementById('authBtn');
+if(S.isLoggedIn){rb.innerHTML='<span class="badge" style="background:var(--ok)">Active</span>';nb.style.display='none';ab.textContent='🚪 Logout'}else{if(S.isInstructor){nb.style.display="";rb.innerHTML='<span class="badge" style="background:var(--wr);color:#000">Instructor</span>'}else rb.innerHTML='<span class="badge" style="background:var(--dn)">Logged Out</span>';nb.style.display='none';ab.textContent='🔐 Login'}
 let done=0,passed=0,ev=0;Object.values(S.progress).forEach(p=>{if(p.completed)done++;if(p.score==='Passed')passed++;if(p.score!=='Pending')ev++});
 document.getElementById('sDone').textContent=done+'/'+MODS.length;document.getElementById('sScore').textContent=ev?Math.round(passed/ev*100)+'%':'0%';document.getElementById('sTime').textContent=Math.floor(S.secondsActive/60)+'m';document.getElementById('sProjects').textContent=Object.values(S.progress).filter(p=>p.completed&&p.score==='Passed').length;document.getElementById('sStreak').textContent=S.streak;
 document.getElementById('welcomeB').textContent=S.isLoggedIn?'Welcome back, '+S.studentName+'!':'Welcome to FullStack Academy';
@@ -485,6 +535,7 @@ login(){const n=document.getElementById('authName').value.trim(),id=document.get
 S.isLoggedIn=true;S.studentId=id;S.studentName=n;MODS.forEach(m=>{if(!S.progress[m.id])S.progress[m.id]={completed:false,score:'Pending',pct:null,timeTaken:null}});
 const today=new Date().toDateString();if(S.lastLogin){const d=Math.floor((new Date(today)-new Date(S.lastLogin))/864e5);S.streak=d===1?S.streak+1:d>1?1:S.streak}else S.streak=1;S.lastLogin=today;if(new Date().getHours()>=22)S.studiedLate=true;
 save();UI.closeMdl('authModal');switchV('dash',document.querySelector('.nav li'));T('Welcome, '+n+'!','ok')},
+instructor(){if(document.getElementById('instrPin').value==='8700189551'){S.isInstructor=true;save();closeMdl('instrModal');switchV('instructor',document.getElementById('navInstructor'));T('Instructor mode','ok')}else T('Wrong PIN','er')},
 logout(){if(!confirm('Log out?'))return;S.isLoggedIn=false;S.studentId=null;S.studentName=null;save();switchV('dash',document.querySelector('.nav li'));T('Logged out','inf')}
 };
 
@@ -571,7 +622,8 @@ function dl(name,content,type){const b=new Blob([content],{type});const a=docume
 const DataIO={export(){dl('fullstack_backup_'+new Date().toISOString().split('T')[0]+'.json',JSON.stringify({S,exportedAt:new Date().toISOString()},null,2),'application/json');T('Exported','ok')},importF(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.S){S=d.S;save();switchV('dash',document.querySelector('.nav li'));T('Imported!','ok')}}catch(err){T('Invalid file','er')}};r.readAsText(f);e.target.value=''}};
 
 /* ======== COMMAND PALETTE ======== */
-const cmds=[{name:'Dashboard',action:()=>switchV('dash',document.querySelectorAll('.nav li')[0])},{name:'Live Editor',action:()=>switchV('ide',document.querySelectorAll('.nav li')[1])},{name:'Curriculum',action:()=>switchV('courses',document.querySelectorAll('.nav li')[2])},{name:'Analytics',action:()=>switchV('reports',document.querySelectorAll('.nav li')[3])},{name:'Achievements',action:()=>switchV('achievements',document.querySelectorAll('.nav li')[4])},{name:'Toggle Theme',action:UI.togTheme},{name:'Run Preview',action:()=>IDE.runPreview()},{name:'Export Data',action:()=>DataIO.export()}];
+const cmds=[{name:'Instructor Panel',action:()=>openModal('instrModal')},
+    {name:'Dashboard',action:()=>switchV('dash',document.querySelectorAll('.nav li')[0])},{name:'Live Editor',action:()=>switchV('ide',document.querySelectorAll('.nav li')[1])},{name:'Curriculum',action:()=>switchV('courses',document.querySelectorAll('.nav li')[2])},{name:'Analytics',action:()=>switchV('reports',document.querySelectorAll('.nav li')[3])},{name:'Achievements',action:()=>switchV('achievements',document.querySelectorAll('.nav li')[4])},{name:'Toggle Theme',action:UI.togTheme},{name:'Run Preview',action:()=>IDE.runPreview()},{name:'Export Data',action:()=>DataIO.export()}];
 const CMD={si:0,open(){document.getElementById('cmdO').classList.add('open');const i=document.getElementById('cmdIn');i.value='';i.focus();CMD.si=0;CMD.filt()},close(){document.getElementById('cmdO').classList.remove('open')},filt(){CMD.si=0;CMD.render(document.getElementById('cmdIn').value.toLowerCase())},render(q){const c=document.getElementById('cmdR');c.innerHTML='';cmds.filter(x=>x.name.toLowerCase().includes(q)).forEach((cmd,i)=>{const d=document.createElement('div');d.className='cmd-i'+(i===CMD.si?' sel':'');d.innerHTML='<span>'+cmd.name+'</span>';d.onclick=()=>{CMD.close();cmd.action()};c.appendChild(d)})},key(e){const items=document.querySelectorAll('.cmd-i');if(e.key==='Escape')CMD.close();else if(e.key==='ArrowDown'){e.preventDefault();CMD.si=Math.min(CMD.si+1,items.length-1);items.forEach((it,i)=>it.classList.toggle('sel',i===CMD.si))}else if(e.key==='ArrowUp'){e.preventDefault();CMD.si=Math.max(CMD.si-1,0);items.forEach((it,i)=>it.classList.toggle('sel',i===CMD.si))}else if(e.key==='Enter'&&items.length){CMD.close();items[CMD.si]?.click()}}};
 document.getElementById('cmdO').addEventListener('click',e=>{if(e.target.id==='cmdO')CMD.close()});
 
