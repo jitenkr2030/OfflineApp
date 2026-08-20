@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIIT Machine Learning LMS</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- CodeMirror 5 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/monokai.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/comment/comment.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <style>
+        /* ============================================================
+           ROOT VARIABLES
+           ============================================================ */
+        :root {
+            --primary: #8b5cf6;
+            --primary-hover: #7c3aed;
+            --primary-soft: rgba(99,102,241,0.12);
+            --bg: #0b1120;
+            --surface: #151d2e;
+            --card: #1a2438;
+            --text: #e8ecf4;
+            --text-muted: #7a8ba5;
+            --border: #253046;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --danger: #ef4444;
+            --pink: #f472b6;
+            --cyan: #22d3ee;
+            --orange: #fb923c;
+            --code-bg: #0a0e1a;
+            --terminal-bg: #000;
+            --terminal-text: #00ff66;
+            --radius: 10px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.25);
+        }
+        [data-theme="light"] {
+            --primary: #7c3aed;
+            --primary-hover: #4338ca;
+            --primary-soft: rgba(79,70,229,0.08);
+            --bg: #f0f2f7;
+            --surface: #ffffff;
+            --card: #ffffff;
+            --text: #1a1d26;
+            --text-muted: #6b7280;
+            --border: #dde1ea;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --pink: #ec4899;
+            --cyan: #0891b2;
+            --orange: #ea580c;
+            --code-bg: #1e1e2e;
+            --terminal-bg: #0f172a;
+            --terminal-text: #38bdf8;
+            --shadow: 0 4px 24px rgba(0,0,0,0.08);
+        }
+
+        /* ============================================================
+           RESET & BASE
+           ============================================================ */
+        *{box-sizing:border-box;margin:0;padding:0;font-family:'DM Sans',system-ui,sans-serif;}
+        html,body{height:100%;overflow:hidden;}
+        body{background:var(--bg);color:var(--text);display:flex;}
+        ::-webkit-scrollbar{width:5px;height:5px;}
+        ::-webkit-scrollbar-track{background:transparent;}
+        ::-webkit-scrollbar-thumb{background:#334155;border-radius:3px;}
+
+        /* ============================================================
+           LICENSE LOCK SCREEN
+           ============================================================ */
+        #licenseScreen {
+            position: fixed; inset: 0; z-index: 99999;
+            background: linear-gradient(135deg, #0b1120 0%, #1a0a2e 50%, #0b1120 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: #e8ecf4;
+        }
+        #licenseScreen.hidden { display: none; }
+        .lic-container {
+            width: 440px; max-width: 92vw;
+            background: rgba(26,36,56,0.95);
+            border: 1px solid #253046;
+            border-radius: 16px;
+            padding: 36px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            backdrop-filter: blur(20px);
+        }
+        .lic-logo {
+            text-align: center; margin-bottom: 24px;
+        }
+        .lic-logo-icon {
+            width: 56px; height: 56px;
+            background: linear-gradient(135deg, #6366f1, #f472b6);
+            border-radius: 14px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; font-weight: 700; color: #fff;
+            margin-bottom: 12px;
+        }
+        .lic-logo h2 { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; }
+        .lic-logo p { color: #7a8ba5; font-size: 0.82rem; margin-top: 4px; }
+        .lic-field { margin-bottom: 14px; }
+        .lic-field label {
+            display: block; font-size: 0.82rem; font-weight: 600;
+            margin-bottom: 6px; color: #94a3b8;
+        }
+        .lic-field input {
+            width: 100%; padding: 11px 14px;
+            border: 1px solid #334155; border-radius: 8px;
+            background: #0f172a; color: #e8ecf4;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.88rem; outline: none;
+            transition: border-color 0.2s;
+        }
+        .lic-field input:focus { border-color: #6366f1; }
+        .lic-field input[readonly] {
+            background: #0a0e1a; color: #7a8ba5; cursor: default;
+            font-size: 0.78rem;
+        }
+        .lic-btn {
+            width: 100%; padding: 12px;
+            border: none; border-radius: 8px;
+            font-weight: 600; font-size: 0.9rem;
+            cursor: pointer; transition: all 0.2s;
+            font-family: inherit;
+        }
+        .lic-btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+        }
+        .lic-btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .lic-btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff;
+        }
+        .lic-status {
+            text-align: center; margin-top: 14px;
+            font-size: 0.82rem; font-weight: 500;
+        }
+        .lic-status.valid { color: #34d399; }
+        .lic-status.expired { color: #ef4444; }
+        .lic-status.error { color: #fbbf24; }
+        .lic-divider {
+            display: flex; align-items: center; gap: 12px;
+            margin: 18px 0; color: #475569; font-size: 0.78rem;
+        }
+        .lic-divider::before, .lic-divider::after {
+            content: ''; flex: 1; height: 1px; background: #253046;
+        }
+        .lic-info-box {
+            background: rgba(99,102,241,0.08);
+            border: 1px solid rgba(99,102,241,0.2);
+            border-radius: 8px; padding: 12px;
+            font-size: 0.78rem; color: #94a3b8;
+            line-height: 1.5;
+        }
+        .lic-info-box code {
+            background: rgba(0,0,0,0.3); padding: 1px 6px;
+            border-radius: 4px; font-family: 'JetBrains Mono', monospace;
+            font-size: 0.74rem; color: #6366f1;
+        }
+        .lic-expired-screen {
+            text-align: center;
+        }
+        .lic-expired-icon {
+            font-size: 4rem; margin-bottom: 16px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.6;transform:scale(0.95);} }
+        .lic-expired-screen h1 {
+            font-size: 1.5rem; color: #ef4444; margin-bottom: 8px;
+        }
+        .lic-expired-screen p {
+            color: #7a8ba5; font-size: 0.88rem; margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        /* ============================================================
+           LICENSE STATUS BAR (in main app)
+           ============================================================ */
+        .lic-bar {
+            display: flex; align-items: center; gap: 8px;
+            padding: 6px 12px; border-radius: 6px;
+            font-size: 0.74rem; font-weight: 600;
+            cursor: pointer; transition: all 0.15s;
+        }
+        .lic-bar:hover { filter: brightness(1.1); }
+        .lic-bar.active { background: rgba(52,211,153,0.12); color: #34d399; }
+        .lic-bar.warning { background: rgba(251,191,36,0.12); color: #fbbf24; }
+        .lic-bar.expired { background: rgba(239,68,68,0.12); color: #ef4444; }
+        .lic-bar-dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            display: inline-block;
+        }
+        .lic-bar.active .lic-bar-dot { background: #34d399; }
+        .lic-bar.warning .lic-bar-dot { background: #fbbf24; animation: pulse 1s infinite; }
+        .lic-bar.expired .lic-bar-dot { background: #ef4444; animation: pulse 0.5s infinite; }
+
+        /* ============================================================
+           ADMIN LICENSE GENERATOR PANEL
+           ============================================================ */
+        #adminPanel {
+            position: fixed; inset: 0; z-index: 8000;
+            background: rgba(0,0,0,0.7);
+            display: none; align-items: center; justify-content: center;
+        }
+        #adminPanel.open { display: flex; }
+        .admin-box {
+            width: 680px; max-width: 95vw; max-height: 90vh;
+            background: #1a2438; border: 1px solid #334155;
+            border-radius: 16px; padding: 28px;
+            overflow-y: auto;
+        }
+        .admin-box h2 {
+            font-size: 1.15rem; margin-bottom: 6px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .admin-table {
+            width: 100%; border-collapse: collapse;
+            font-size: 0.82rem; margin-top: 14px;
+        }
+        .admin-table th {
+            text-align: left; padding: 8px 10px;
+            background: #0f172a; border-bottom: 1px solid #334155;
+            font-weight: 600; color: #94a3b8;
+        }
+        .admin-table td {
+            padding: 8px 10px; border-bottom: 1px solid #253046;
+        }
+        .admin-table tr:hover td { background: rgba(99,102,241,0.05); }
+        .gen-key {
+            font-family: 'JetBrains Mono', monospace;
+            background: #0a0e1a; padding: 8px 12px;
+            border-radius: 6px; font-size: 0.8rem;
+            color: #34d399; margin-top: 12px;
+            word-break: break-all; display: none;
+            border: 1px solid #253046;
+        }
+
+        /* ============================================================
+           SIDEBAR
+           ============================================================ */
+        .sidebar{width:264px;min-width:264px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;}
+        .brand{padding:20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+        .brand-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--primary),var(--pink));border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:.8rem;}
+        .brand-text{font-weight:700;font-size:1rem;color:var(--primary);letter-spacing:-.02em;}
+        .nav-links{list-style:none;padding:14px 10px;flex:1;overflow-y:auto;}
+        .nav-links li{padding:11px 14px;margin-bottom:3px;border-radius:8px;cursor:pointer;font-weight:500;font-size:.88rem;color:var(--text-muted);display:flex;align-items:center;gap:10px;transition:all .15s;}
+        .nav-links li:hover,.nav-links li.active{background:var(--primary-soft);color:var(--primary);}
+        .nav-links li.active{font-weight:600;}
+        .session-box{padding:14px;background:var(--bg);border-top:1px solid var(--border);font-size:.8rem;}
+        .role-badge{display:inline-block;padding:2px 10px;font-size:.72rem;font-weight:700;border-radius:5px;color:#fff;}
+
+        /* ============================================================
+           MAIN LAYOUT
+           ============================================================ */
+        .main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+        .header{padding:12px 22px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:10px;}
+        .header h2{font-size:1.05rem;font-weight:700;letter-spacing:-.01em;}
+        .header-actions{display:flex;align-items:center;gap:8px;}
+        .save-indicator{font-size:.75rem;color:var(--text-muted);display:flex;align-items:center;gap:5px;}
+        .save-dot{width:7px;height:7px;border-radius:50%;background:var(--success);display:inline-block;}
+        .save-dot.saving{background:var(--warning);animation:pulse .6s infinite;}
+        .content{flex:1;overflow:hidden;position:relative;}
+        .view{display:none;height:100%;overflow-y:auto;padding:22px;}
+        .view.active{display:flex;flex-direction:column;}
+
+        /* ============================================================
+           BUTTONS & INPUTS
+           ============================================================ */
+        .btn{border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-size:.84rem;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
+        .btn:hover{filter:brightness(1.1);}
+        .btn-primary{background:var(--primary);color:#fff;}
+        .btn-success{background:var(--success);color:#fff;}
+        .btn-warning{background:var(--warning);color:#000;}
+        .btn-danger{background:var(--danger);color:#fff;}
+        .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text);}
+        .btn-sm{padding:5px 10px;font-size:.76rem;}
+        .btn-xs{padding:3px 8px;font-size:.7rem;border-radius:5px;}
+        input[type="text"],input[type="password"],input[type="number"],select,textarea.form-ctrl{width:100%;padding:10px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:8px;margin-bottom:10px;font-size:.88rem;font-family:inherit;outline:none;transition:border .15s;}
+        input:focus,select:focus,textarea:focus{border-color:var(--primary);}
+        textarea.form-ctrl{resize:vertical;line-height:1.5;}
+
+        /* ============================================================
+           CARDS, STATS, BADGES, etc.
+           ============================================================ */
+        .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:16px;box-shadow:var(--shadow);}
+        .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:20px;}
+        .stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;text-align:center;position:relative;overflow:hidden;}
+        .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+        .stat-card:nth-child(1)::before{background:var(--primary);}
+        .stat-card:nth-child(2)::before{background:var(--success);}
+        .stat-card:nth-child(3)::before{background:var(--warning);}
+        .stat-card:nth-child(4)::before{background:var(--pink);}
+        .stat-card:nth-child(5)::before{background:var(--cyan);}
+        .stat-card h3{font-size:1.6rem;font-weight:700;margin-bottom:2px;}
+        .stat-card p{color:var(--text-muted);font-size:.82rem;}
+
+        /* IDE */
+        .ide-wrap{display:flex;height:100%;overflow:hidden;}
+        .file-panel{width:220px;min-width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;}
+        .file-panel-header{padding:12px;font-size:.82rem;font-weight:700;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+        .file-list{list-style:none;padding:8px;overflow-y:auto;flex:1;}
+        .file-item{padding:8px 10px;border-radius:6px;cursor:pointer;font-size:.82rem;font-family:'JetBrains Mono',monospace;color:var(--text-muted);display:flex;align-items:center;gap:6px;margin-bottom:2px;transition:all .12s;}
+        .file-item:hover{background:var(--primary-soft);color:var(--text);}
+        .file-item.active{background:var(--primary-soft);color:var(--primary);font-weight:600;border-left:3px solid var(--primary);}
+        .file-actions-bar{padding:8px;border-top:1px solid var(--border);display:flex;gap:4px;}
+        .editor-area{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+        .editor-toolbar{padding:6px 14px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:.82rem;}
+        .editor-toolbar .filename{font-weight:600;font-family:'JetBrains Mono',monospace;}
+        .editor-container{flex:1;overflow:hidden;position:relative;}
+        .editor-container .CodeMirror{height:100%;font-size:14px;font-family:'JetBrains Mono',monospace;}
+        .terminal-panel{height:220px;min-height:120px;background:var(--terminal-bg);border-top:1px solid var(--border);display:flex;flex-direction:column;}
+        .terminal-header{padding:5px 14px;background:rgba(0,0,0,.25);border-bottom:1px solid var(--border);font-size:.73rem;font-weight:700;color:var(--text-muted);display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;}
+        .terminal-body{padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--terminal-text);overflow-y:auto;flex:1;white-space:pre-wrap;word-break:break-all;}
+        .terminal-input-row{display:flex;align-items:center;padding:5px 14px;background:rgba(0,0,0,.3);border-top:1px solid var(--border);}
+        .terminal-prompt{color:var(--warning);font-family:'JetBrains Mono',monospace;font-size:.78rem;margin-right:8px;font-weight:700;}
+        .terminal-input{flex:1;background:transparent;border:none;color:#fff;font-family:'JetBrains Mono',monospace;font-size:.78rem;outline:none;}
+
+        /* Curriculum */
+        .module-card{background:var(--surface);border:1px solid var(--border);padding:16px;border-radius:var(--radius);display:flex;justify-content:space-between;align-items:center;transition:all .15s;gap:14px;}
+        .module-card:hover{border-color:var(--primary);box-shadow:0 0 0 1px var(--primary);}
+        .module-card.locked{opacity:.55;pointer-events:none;}
+        .module-num{width:30px;height:30px;background:var(--primary);color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;}
+        .module-num.locked-icon{background:var(--text-muted);}
+        .tag{font-size:.68rem;padding:2px 7px;border-radius:4px;font-weight:600;}
+        .tag-beginner{background:rgba(52,211,153,.15);color:var(--success);}
+        .tag-intermediate{background:rgba(251,191,36,.15);color:var(--warning);}
+        .tag-advanced{background:rgba(239,68,68,.15);color:var(--danger);}
+        .tag-time{background:rgba(99,102,241,.12);color:var(--primary);}
+        .bookmark-btn{cursor:pointer;font-size:1.1rem;background:none;border:none;padding:4px;transition:transform .2s;}
+        .bookmark-btn:hover{transform:scale(1.2);}
+
+        /* Quiz */
+        .quiz-option{display:flex;align-items:center;gap:10px;font-size:.86rem;cursor:pointer;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;transition:all .12s;}
+        .quiz-option:hover{border-color:var(--primary);}
+        .quiz-option input{accent-color:var(--primary);}
+        .quiz-timer{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1rem;padding:4px 12px;border-radius:6px;}
+        .quiz-timer.ok{background:rgba(52,211,153,.15);color:var(--success);}
+        .quiz-timer.warn{background:rgba(251,191,36,.15);color:var(--warning);}
+        .quiz-timer.danger{background:rgba(239,68,68,.15);color:var(--danger);animation:pulse .6s infinite;}
+
+        /* Badges */
+        .badges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
+        .badge-card{text-align:center;padding:16px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);}
+        .badge-card.unlocked{border-color:var(--warning);background:rgba(251,191,36,.05);}
+        .badge-card.locked{opacity:.45;filter:grayscale(1);}
+        .badge-icon{font-size:2rem;margin-bottom:6px;display:block;}
+        .badge-name{font-size:.78rem;font-weight:600;}
+        .badge-desc{font-size:.68rem;color:var(--text-muted);margin-top:2px;}
+
+        /* Charts */
+        .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+        .chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+        .chart-card h4{font-size:.9rem;margin-bottom:12px;font-weight:600;}
+
+        /* Command Palette */
+        .cmd-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;justify-content:center;padding-top:15vh;}
+        .cmd-overlay.open{display:flex;}
+        .cmd-box{width:460px;max-height:360px;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow);}
+        .cmd-box input{padding:14px 16px;border:none;border-bottom:1px solid var(--border);background:transparent;color:var(--text);font-size:.95rem;outline:none;}
+        .cmd-results{overflow-y:auto;flex:1;}
+        .cmd-item{padding:10px 16px;cursor:pointer;font-size:.86rem;display:flex;justify-content:space-between;align-items:center;transition:background .1s;}
+        .cmd-item:hover,.cmd-item.selected{background:var(--primary-soft);}
+        .cmd-key{font-size:.7rem;font-family:'JetBrains Mono',monospace;padding:2px 6px;border:1px solid var(--border);border-radius:4px;color:var(--text-muted);}
+
+        /* Modals */
+        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1500;justify-content:center;align-items:center;}
+        .modal-overlay.open{display:flex;}
+        .modal-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;max-width:440px;width:90%;box-shadow:var(--shadow);max-height:80vh;overflow-y:auto;}
+
+        /* Toast */
+        .toast-wrap{position:fixed;bottom:20px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:8px;}
+        .toast{padding:12px 18px;border-radius:10px;font-size:.84rem;font-weight:600;color:#fff;opacity:0;transform:translateY(12px);transition:all .3s;pointer-events:none;max-width:340px;}
+        .toast.show{opacity:1;transform:translateY(0);}
+        .toast.success{background:#059669;} .toast.error{background:#dc2626;} .toast.info{background:var(--primary);} .toast.warning{background:#d97706;}
+
+        /* Misc */
+        .announcement-bar{background:linear-gradient(90deg,var(--primary),var(--pink));padding:10px 18px;border-radius:var(--radius);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;font-size:.85rem;font-weight:600;color:#fff;}
+        .note-area{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-size:.85rem;min-height:80px;resize:vertical;width:100%;font-family:inherit;outline:none;}
+        .streak-flame{font-size:1.3rem;animation:flicker 1s infinite alternate;}
+        @keyframes flicker{0%{transform:scale(1)}100%{transform:scale(1.15) rotate(5deg);}}
+
+        @media(max-width:900px){
+            .sidebar{width:56px;min-width:56px;}
+            .brand-text,.nav-links li span,.session-box{display:none;}
+            .nav-links li{justify-content:center;padding:12px;}
+            .file-panel{width:150px;min-width:150px;}
+            .charts-grid{grid-template-columns:1fr;}
+        }
+    </style>
+</head>
+<body>
+
+<!-- ============================================================
+     LICENSE SCREEN (shown when no valid license)
+     ============================================================ -->
+<div id="licenseScreen">
+    <div class="lic-container" id="licContainer">
+        <!-- Activation Form (default) -->
+        <div id="licActivateView">
+            <div class="lic-logo">
+                <div class="lic-logo-icon">Py</div>
+                <h2>SIIT Machine Learning</h2>
+                <p>License Activation Required</p>
+            </div>
+
+            <div class="lic-field">
+                <label>Machine Fingerprint (auto-detected)</label>
+                <input type="text" id="licFingerprint" readonly>
+            </div>
+
+            <div class="lic-field">
+                <label>License Key</label>
+                <input type="text" id="licKeyInput" placeholder="SIIT-XXXX-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false">
+            </div>
+
+            <button class="lic-btn lic-btn-primary" onclick="LIC.activate()">Activate License</button>
+
+            <div class="lic-status" id="licStatus"></div>
+
+            <div class="lic-divider">OR</div>
+
+            <button class="lic-btn" style="background:#334155;color:#e8ecf4;" onclick="LIC.showExpired()">Enter as Demo (limited)</button>
+
+            <div class="lic-info-box" style="margin-top:18px;">
+                <strong>How to get a license:</strong><br>
+                1. Copy your <code>Machine Fingerprint</code> shown above<br>
+                2. Send it to the administrator<br>
+                3. Administrator will generate a license key for your PC<br>
+                4. Paste the key above and click <code>Activate</code>
+            </div>
+        </div>
+
+        <!-- Expired View -->
+        <div id="licExpiredView" style="display:none;">
+            <div class="lic-expired-screen">
+                <div class="lic-expired-icon">🔒</div>
+                <h1>License Expired</h1>
+                <p>Your license has expired or been revoked.<br>All application data has been wiped for security.<br>Contact the administrator for a new license.</p>
+                <button class="lic-btn lic-btn-primary" onclick="LIC.showActivate()" style="max-width:300px;margin:0 auto;">Enter New License</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     MAIN APPLICATION
+     ============================================================ -->
+<div id="mainApp" style="display:none;width:100%;height:100%;">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div>
+            <div class="brand">
+                <div class="brand-icon">Py</div>
+                <span class="brand-text">SIIT Machine Learning</span>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li class="active" data-view="dashboard">📊 <span>Dashboard</span></li>
+                <li data-view="ide">💻 <span>IDE & Terminal</span></li>
+                <li data-view="courses">📚 <span>Curriculum</span></li>
+                <li data-view="reports">📈 <span>Analytics</span></li>
+                <li data-view="achievements">🏆 <span>Achievements</span></li>
+                <li id="navInstructor" style="display:none;" data-view="instructor">🛠️ <span>Instructor</span></li>
+            </ul>
+        </div>
+        <div class="session-box" id="sessionBox">
+            <div style="margin-bottom:4px;font-weight:600;">User</div>
+            <div id="dispName">Guest</div>
+            <div id="roleBadge" style="margin-top:4px;"><span class="role-badge" style="background:var(--danger);">Logged Out</span></div>
+            <div id="licStatusBar" style="margin-top:8px;"></div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main">
+        <header class="header">
+            <h2 id="pageTitle">Dashboard</h2>
+            <div class="header-actions">
+                <div class="save-indicator" id="saveIndicator"><span class="save-dot"></span> Saved</div>
+                <div id="licBarHeader"></div>
+                <button class="btn btn-ghost btn-sm" onclick="CMD.open()">⌘</button>
+                <button class="btn btn-ghost btn-sm" onclick="toggleTheme()">🌗</button>
+                <button class="btn btn-success btn-sm" id="authBtn">🔐 Login</button>
+                <button class="btn btn-warning btn-sm" id="instrBtn">🔑 Instructor</button>
+            </div>
+        </header>
+
+        <div class="content">
+            <!-- DASHBOARD -->
+            <div id="view-dashboard" class="view active">
+                <div id="announcementArea"></div>
+                <div class="card">
+                    <h2 id="welcomeBanner">Welcome to SIIT ML Platform</h2>
+                    <p style="color:var(--text-muted);margin:6px 0 14px;">Log in to track progress, write code, and complete assessments.</p>
+                    <div id="authPrompt"></div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card"><h3 id="sCompleted">0</h3><p>Modules Done</p></div>
+                    <div class="stat-card"><h3 id="sScore">0%</h3><p>Accuracy</p></div>
+                    <div class="stat-card"><h3 id="sTime">0m</h3><p>Time Active</p></div>
+                    <div class="stat-card"><h3 id="sFiles">0</h3><p>Files</p></div>
+                    <div class="stat-card"><h3 id="sStreak">0</h3><p><span class="streak-flame">🔥</span> Streak</p></div>
+                </div>
+                <div class="card"><h3 style="margin-bottom:12px;">Recent Achievements</h3><div id="dashBadges" class="badges-grid" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr));"></div></div>
+            </div>
+
+            <!-- IDE -->
+            <div id="view-ide" class="view" style="padding:0;">
+                <div class="ide-wrap">
+                    <div class="file-panel">
+                        <div class="file-panel-header">📁 FILES <button class="btn btn-primary btn-xs" onclick="IDE.newFile()">+ New</button></div>
+                        <ul class="file-list" id="fileList"></ul>
+                        <div class="file-actions-bar">
+                            <button class="btn btn-ghost btn-xs" onclick="IDE.rename()">Rename</button>
+                            <button class="btn btn-danger btn-xs" onclick="IDE.del()">Delete</button>
+                        </div>
+                    </div>
+                    <div class="editor-area">
+                        <div class="editor-toolbar">
+                            <span class="filename" id="activeFileName">main.py</span>
+                            <div style="display:flex;gap:6px;">
+                                <button class="btn btn-success btn-xs" onclick="IDE.run()">▶ Run</button>
+                                <button class="btn btn-ghost btn-xs" onclick="IDE.download()">⬇ Save</button>
+                                <button class="btn btn-ghost btn-xs" onclick="IDE.copy()">📋 Copy</button>
+                            </div>
+                        </div>
+                        <div class="editor-container" id="editorContainer"></div>
+                        <div class="terminal-panel">
+                            <div class="terminal-header"><span>TERMINAL — ML Lab</span><button class="btn btn-ghost btn-xs" style="border:none;padding:0;font-size:.72rem;" onclick="TERM.clear()">Clear</button></div>
+                            <div class="terminal-body" id="termOut">SIIT Terminal Ready.\n</div>
+                            <div class="terminal-input-row">
+                                <span class="terminal-prompt">siit:~$</span>
+                                <input class="terminal-input" id="termIn" placeholder="python main.py | ls | clear" onkeydown="TERM.key(event)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CURRICULUM -->
+            <div id="view-courses" class="view">
+                <div id="courseListView">
+                    <div class="card">
+                        <div class="card-header"><h3>Machine Learning Curriculum</h3></div>
+                        <div id="moduleListWrap" style="display:flex;flex-direction:column;gap:10px;"></div>
+                    </div>
+                </div>
+                <div id="lessonView" style="display:none;">
+                    <div class="card">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                            <button class="btn btn-ghost btn-sm" onclick="Courses.back()">← Back</button>
+                            <div style="display:flex;gap:6px;">
+                                <button class="btn btn-ghost btn-sm" onclick="Courses.openInIDE()">💻 In IDE</button>
+                                <button class="btn btn-ghost btn-sm" id="bookmarkLessonBtn" onclick="Courses.toggleBookmark()">🔖</button>
+                            </div>
+                        </div>
+                        <h2 id="lessonTitle" style="margin-bottom:10px;"></h2>
+                        <div id="lessonBody" style="line-height:1.7;margin-bottom:18px;"></div>
+                        <details style="margin-bottom:18px;">
+                            <summary style="cursor:pointer;font-weight:600;font-size:.9rem;color:var(--primary);margin-bottom:8px;">📝 My Notes</summary>
+                            <textarea class="note-area" id="moduleNote" placeholder="Your notes..." oninput="Courses.saveNote()"></textarea>
+                        </details>
+                        <div id="quizBox" style="background:var(--card);padding:18px;border-radius:var(--radius);border:1px solid var(--border);">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                                <div id="quizProgress" style="font-size:.8rem;font-weight:700;color:var(--primary);"></div>
+                                <div id="quizTimer" class="quiz-timer ok" style="display:none;"></div>
+                            </div>
+                            <h4 id="quizQ" style="margin-bottom:12px;line-height:1.4;"></h4>
+                            <div id="quizOpts" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
+                            <button class="btn btn-primary" id="quizNextBtn" onclick="Quiz.next()">Next Question</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- REPORTS -->
+            <div id="view-reports" class="view">
+                <div class="card">
+                    <h2>Student Report</h2>
+                    <p id="reportSub" style="color:var(--text-muted);font-size:.85rem;margin:4px 0 14px;"></p>
+                    <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+                        <table style="width:100%;border-collapse:collapse;font-size:.88rem;">
+                            <thead><tr style="background:var(--surface);border-bottom:1px solid var(--border);">
+                                <th style="padding:10px 14px;text-align:left;">Module</th>
+                                <th style="padding:10px 14px;text-align:left;">Status</th>
+                                <th style="padding:10px 14px;text-align:left;">Grade</th>
+                                <th style="padding:10px 14px;text-align:left;">Time</th>
+                            </tr></thead>
+                            <tbody id="reportBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="charts-grid">
+                    <div class="chart-card"><h4>Module Scores</h4><canvas id="chartScores"></canvas></div>
+                    <div class="chart-card"><h4>Completion</h4><canvas id="chartCompletion"></canvas></div>
+                </div>
+            </div>
+
+            <!-- ACHIEVEMENTS -->
+            <div id="view-achievements" class="view">
+                <div class="card">
+                    <h2 style="margin-bottom:6px;">🏆 Achievements</h2>
+                    <p style="color:var(--text-muted);margin-bottom:16px;">Complete challenges to unlock badges.</p>
+                    <div id="achievementsGrid" class="badges-grid"></div>
+                </div>
+            </div>
+
+            <!-- INSTRUCTOR -->
+            <div id="view-instructor" class="view">
+                <div class="card" style="border-color:var(--warning);">
+                    <h2>🛠️ Instructor Console</h2>
+                    <p style="color:var(--text-muted);margin:4px 0 18px;">Manage students, modules, and announcements.</p>
+                    <h3 style="color:var(--primary);margin-bottom:10px;">📋 Student Roster</h3>
+                    <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:22px;">
+                        <table style="width:100%;border-collapse:collapse;font-size:.88rem;">
+                            <thead><tr style="background:var(--surface);border-bottom:1px solid var(--border);">
+                                <th style="padding:10px 14px;text-align:left;">Name</th>
+                                <th style="padding:10px 14px;text-align:left;">ID</th>
+                                <th style="padding:10px 14px;text-align:left;">Progress</th>
+                                <th style="padding:10px 14px;text-align:left;">Time</th>
+                            </tr></thead>
+                            <tbody id="rosterBody"></tbody>
+                        </table>
+                    </div>
+                    <hr style="border:0;border-top:1px solid var(--border);margin:18px 0;">
+                    <h3 style="color:var(--primary);margin-bottom:10px;">📢 Post Announcement</h3>
+                    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:22px;">
+                        <input type="text" id="annTitle" placeholder="Title">
+                        <textarea class="form-ctrl" id="annBody" rows="2" placeholder="Message..."></textarea>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <select id="annPriority" style="width:auto;margin-bottom:0;"><option value="info">Info</option><option value="warning">Warning</option><option value="urgent">Urgent</option></select>
+                            <button class="btn btn-warning" onclick="Instr.postAnn()">Post</button>
+                        </div>
+                    </div>
+                    <hr style="border:0;border-top:1px solid var(--border);margin:18px 0;">
+                    <h3 style="color:var(--primary);margin-bottom:10px;">📝 Module Editor</h3>
+                    <select id="instrModSelect" onchange="Instr.modeChange()" style="margin-bottom:14px;"><option value="new">+ Create New Module</option></select>
+                    <input type="hidden" id="editModId">
+                    <input type="text" id="editModTitle" placeholder="Module Title">
+                    <textarea class="form-ctrl" id="editModContent" rows="2" placeholder="Lesson..."></textarea>
+                    <textarea class="form-ctrl" id="editModCode" rows="3" placeholder="Code..."></textarea>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+                        <div><label style="font-size:.82rem;font-weight:600;">Difficulty</label><select id="editModDiff"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></div>
+                        <div><label style="font-size:.82rem;font-weight:600;">Time (min)</label><input type="number" id="editModTime" value="10"></div>
+                        <div><label style="font-size:.82rem;font-weight:600;">Prereq (#)</label><input type="number" id="editModPrereq" placeholder="0"></div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                        <label style="font-weight:600;color:var(--primary);">Questions (min 5)</label>
+                        <button class="btn btn-primary btn-xs" onclick="Instr.addQ()">+ Add</button>
+                    </div>
+                    <div id="qBuilder" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn btn-warning" style="flex:1;" onclick="Instr.save()">Publish</button>
+                        <button class="btn btn-danger" id="instrDelBtn" style="display:none;" onclick="Instr.del()">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     ADMIN LICENSE GENERATOR PANEL
+     ============================================================ -->
+<div id="adminPanel">
+    <div class="admin-box">
+        <h2>🔑 License Generator (Admin Only)</h2>
+        <p style="color:#7a8ba5;font-size:.84rem;margin-bottom:18px;">Generate license keys tied to specific machines. Access via <code style="background:#0f172a;padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:#6366f1;">Ctrl+Shift+L</code></p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+            <div>
+                <label style="font-size:.82rem;font-weight:600;color:#94a3b8;">Target Machine Fingerprint</label>
+                <input type="text" id="adminFingerprint" placeholder="Paste fingerprint here">
+            </div>
+            <div>
+                <label style="font-size:.82rem;font-weight:600;color:#94a3b8;">License Duration (days)</label>
+                <input type="number" id="adminDays" value="30" min="1" max="3650">
+            </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:14px;">
+            <button class="btn btn-primary" onclick="LIC.generate()">Generate License Key</button>
+            <button class="btn btn-ghost" onclick="LIC.revoke()">Revoke by Fingerprint</button>
+        </div>
+        <div class="gen-key" id="adminGenKey"></div>
+
+        <div class="lic-divider">Active Licenses</div>
+
+        <table class="admin-table">
+            <thead>
+                <tr><th>Fingerprint</th><th>Activated</th><th>Expires</th><th>Days Left</th><th>Action</th></tr>
+            </thead>
+            <tbody id="adminLicenses"></tbody>
+        </table>
+
+        <div style="display:flex;justify-content:flex-end;margin-top:18px;">
+            <button class="btn btn-ghost" onclick="Admin.close()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="authModal"><div class="modal-box"><h3>Student Login</h3><p style="color:var(--text-muted);font-size:.84rem;margin:6px 0 14px;">Enter name and ID.</p><label style="font-size:.84rem;font-weight:600;">Full Name</label><input type="text" id="authName" placeholder="Alex Morgan"><label style="font-size:.84rem;font-weight:600;">Student ID</label><input type="text" id="authId" placeholder="SIIT-8842"><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;"><button class="btn btn-ghost" onclick="closeModal('authModal')">Cancel</button><button class="btn btn-success" onclick="Auth.login()">Login / Register</button></div></div></div>
+<div class="modal-overlay" id="instrModal"><div class="modal-box"><h3>Instructor PIN</h3><input type="password" id="instrPin" placeholder="PIN"><div style="display:flex;gap:8px;justify-content:flex-end;"><button class="btn btn-ghost" onclick="closeModal('instrModal')">Cancel</button><button class="btn btn-primary" onclick="Auth.instructor()">Verify</button></div></div></div>
+
+<!-- Command Palette -->
+<div class="cmd-overlay" id="cmdPalette"><div class="cmd-box"><input type="text" id="cmdInput" placeholder="Command..." oninput="CMD.filter()" onkeydown="CMD.key(event)"><div class="cmd-results" id="cmdResults"></div></div></div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- ============================================================
+     JAVASCRIPT — LICENSING SYSTEM + LMS
+     ============================================================ -->
+<script>
+"use strict";
+
+/* ==========================================================
+   SECTION A: LICENSING SYSTEM
+   ========================================================== */
+
+const LIC = {
+    // ------- CONFIGURATION -------
+    SECRET: 'MLAP_LMS_SECRET_KEY_xK9$mP2v@qR7nZ4w',   // Change this for your deployment
+    CHECK_INTERVAL: 30000,     // Validate every 30 seconds
+    GRACE_MS: 0,               // No grace period (0 = instant expiry)
+    STORAGE_KEY: 'mlap_license_v1',
+    APP_DATA_PREFIX: 'mlap',   // All localStorage keys starting with this get wiped on expiry
+    DEMO_MODE: false,
+
+    // ------- PC FINGERPRINTING -------
+    async getFingerprint() {
+        const components = [];
+
+        // Navigator properties
+        components.push(navigator.userAgent || '');
+        components.push(navigator.language || '');
+        components.push(navigator.platform || '');
+        components.push(String(navigator.hardwareConcurrency || 0));
+        components.push(String(navigator.maxTouchPoints || 0));
+        components.push(String(navigator.deviceMemory || 0));
+
+        // Screen properties
+        components.push(String(screen.width));
+        components.push(String(screen.height));
+        components.push(String(screen.colorDepth));
+        components.push(String(screen.pixelDepth));
+
+        // Timezone
+        components.push(Intl.DateTimeFormat().resolvedOptions().timeZone || '');
+
+        // Canvas fingerprint
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = 200; canvas.height = 50;
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillStyle = '#f60';
+            ctx.fillRect(125, 1, 62, 20);
+            ctx.fillStyle = '#069';
+            ctx.fillText('SIIT-LMS-Fingerprint', 2, 15);
+            ctx.fillStyle = 'rgba(102,204,0,0.7)';
+            ctx.fillText('Machine-ID', 4, 35);
+            components.push(canvas.toDataURL());
+        } catch (e) {
+            components.push('canvas-error');
+        }
+
+        // WebGL fingerprint
+        try {
+            const gl = document.createElement('canvas').getContext('webgl');
+            const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+            if (dbg) {
+                components.push(gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) || '');
+                components.push(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || '');
+            }
+        } catch (e) {
+            components.push('webgl-error');
+        }
+
+        // Audio context fingerprint
+        try {
+            const actx = new (window.AudioContext || window.webkitAudioContext)();
+            components.push(String(actx.sampleRate));
+            components.push(String(actx.destination.maxChannelCount));
+            actx.close();
+        } catch (e) {
+            components.push('audio-error');
+        }
+
+        const raw = components.join('|||');
+        const hash = await LIC.sha256(raw);
+        return hash.substring(0, 32).toUpperCase();
+    },
+
+    // ------- HASH FUNCTION -------
+    async sha256(message) {
+        const msgBuffer = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    },
+
+    // ------- LICENSE KEY FORMAT -------
+    // Key: SIIT-XXXX-XXXX-XXXX-XXXX-XXXX
+    // Encodes: expiryDays (from epoch) + fingerprint_hash[0:8] + signature
+    // Signature = SHA256(expiryDays + fingerprint + SECRET)[0:8]
+
+    async generateKey(fingerprint, daysFromNow) {
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + daysFromNow);
+        const expiryDays = Math.floor(expiryDate.getTime() / 86400000);
+        const expiryStr = expiryDays.toString(16).toUpperCase().padStart(4, '0');
+        const fpPart = fingerprint.substring(0, 8);
+        const dataToSign = expiryDays + ':' + fingerprint + ':' + LIC.SECRET;
+        const sigHash = await LIC.sha256(dataToSign);
+        const sig = sigHash.substring(0, 4).toUpperCase();
+        const payload = expiryStr + fpPart + sig;
+        // Format as SIIT-XXXX-XXXX-XXXX-XXXX
+        const formatted = 'SIIT-' + payload.substring(0, 4) + '-' + payload.substring(4, 8) + '-' + payload.substring(8, 12) + '-' + payload.substring(12, 16);
+        return { key: formatted, expiryDate: expiryDate.toISOString(), expiryDays: expiryDays };
+    },
+
+    async validateKey(key, fingerprint) {
+        try {
+            key = key.trim().toUpperCase();
+            if (!key.startsWith('SIIT-')) return { valid: false, reason: 'Invalid format' };
+
+            const parts = key.replace('SIIT-', '').split('-');
+            if (parts.length !== 4) return { valid: false, reason: 'Invalid format' };
+
+            const payload = parts.join('');
+            if (payload.length !== 16) return { valid: false, reason: 'Invalid length' };
+
+            const expiryStr = payload.substring(0, 4);
+            const fpPart = payload.substring(4, 12);
+            const sig = payload.substring(12, 16);
+
+            // Decode expiry
+            const expiryDays = parseInt(expiryStr, 16);
+            if (isNaN(expiryDays)) return { valid: false, reason: 'Invalid expiry' };
+
+            // Check fingerprint
+            if (fpPart !== fingerprint.substring(0, 8)) {
+                return { valid: false, reason: 'This license is for a different machine' };
+            }
+
+            // Verify signature
+            const dataToSign = expiryDays + ':' + fingerprint + ':' + LIC.SECRET;
+            const expectedSigHash = await LIC.sha256(dataToSign);
+            const expectedSig = expectedSigHash.substring(0, 4).toUpperCase();
+
+            if (sig !== expectedSig) {
+                return { valid: false, reason: 'Invalid signature (tampered key)' };
+            }
+
+            // Check expiry
+            const expiryMs = expiryDays * 86400000;
+            const now = Date.now();
+
+            if (now > expiryMs) {
+                return { valid: false, reason: 'License expired', expired: true, expiryDate: new Date(expiryMs).toISOString() };
+            }
+
+            const daysLeft = Math.ceil((expiryMs - now) / 86400000);
+            return {
+                valid: true,
+                expiryDate: new Date(expiryMs).toISOString(),
+                expiryMs: expiryMs,
+                daysLeft: daysLeft
+            };
+        } catch (e) {
+            return { valid: false, reason: 'Validation error: ' + e.message };
+        }
+    },
+
+    // ------- LICENSE STORAGE -------
+    getStoredLicense() {
+        try {
+            const raw = localStorage.getItem(LIC.STORAGE_KEY);
+            if (!raw) return null;
+            return JSON.parse(raw);
+        } catch (e) {
+            return null;
+        }
+    },
+
+    storeLicense(key, fingerprint, validation) {
+        const licenseData = {
+            key: key,
+            fingerprint: fingerprint,
+            activatedAt: new Date().toISOString(),
+            expiryDate: validation.expiryDate,
+            expiryMs: validation.expiryMs,
+            tamperHash: '' // Will be set below
+        };
+        // Anti-tamper: store a hash of the entire license data
+        // We compute this synchronously with a simple hash for storage integrity
+        licenseData.tamperHash = LIC.simpleHash(JSON.stringify({
+            key: licenseData.key,
+            fingerprint: licenseData.fingerprint,
+            expiryMs: licenseData.expiryMs
+        }) + LIC.SECRET);
+        localStorage.setItem(LIC.STORAGE_KEY, JSON.stringify(licenseData));
+        return licenseData;
+    },
+
+    // Simple synchronous hash for anti-tamper
+    simpleHash(str) {
+        let h = 0x811c9dc5;
+        for (let i = 0; i < str.length; i++) {
+            h ^= str.charCodeAt(i);
+            h = Math.imul(h, 0x01000193);
+            h = h >>> 0;
+        }
+        return h.toString(16).toUpperCase();
+    },
+
+    // ------- ANTI-TAMPER CHECK -------
+    checkTamper(licenseData) {
+        if (!licenseData) return true;
+        const expected = LIC.simpleHash(JSON.stringify({
+            key: licenseData.key,
+            fingerprint: licenseData.fingerprint,
+            expiryMs: licenseData.expiryMs
+        }) + LIC.SECRET);
+        return licenseData.tamperHash !== expected;
+    },
+
+    // ------- WIPE ALL APPLICATION DATA -------
+    wipeAllData() {
+        // Remove all localStorage keys that belong to this app
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && (k.startsWith(LIC.APP_DATA_PREFIX) || k.startsWith('siit'))) {
+                keysToRemove.push(k);
+            }
+        }
+        keysToRemove.forEach(k => localStorage.removeItem(k));
+        // Also clear sessionStorage
+        sessionStorage.clear();
+    },
+
+    // ------- LOCK / SELF-DESTRUCT -------
+    lockApplication(reason) {
+        console.warn('[LICENSE] LOCKING APPLICATION:', reason);
+
+        // Wipe data
+        LIC.wipeAllData();
+
+        // Set lock flag
+        localStorage.setItem(LIC.STORAGE_KEY + '_locked', 'true');
+        localStorage.setItem(LIC.STORAGE_KEY + '_lockReason', reason);
+
+        // Hide main app, show license screen
+        document.getElementById('mainApp').style.display = 'none';
+        const ls = document.getElementById('licenseScreen');
+        ls.classList.remove('hidden');
+        ls.style.display = 'flex';
+
+        // Show expired view
+        LIC.showExpired();
+
+        // Overwrite any running intervals (the app's timer etc.)
+        // This is done by the periodic checker - it will stop app logic
+
+        toast('License expired. All data has been wiped.', 'error');
+    },
+
+    // ------- UI HELPERS -------
+    showActivate() {
+        document.getElementById('licActivateView').style.display = '';
+        document.getElementById('licExpiredView').style.display = 'none';
+        document.getElementById('licStatus').textContent = '';
+    },
+
+    showExpired() {
+        document.getElementById('licActivateView').style.display = 'none';
+        document.getElementById('licExpiredView').style.display = '';
+    },
+
+    updateStatusBar() {
+        const stored = LIC.getStoredLicense();
+        const bars = ['licStatusBar', 'licBarHeader'];
+
+        if (!stored) return;
+
+        const now = Date.now();
+        const msLeft = stored.expiryMs - now;
+        const daysLeft = Math.ceil(msLeft / 86400000);
+
+        let cls = 'active';
+        let text = `License: ${daysLeft}d left`;
+
+        if (daysLeft <= 3) { cls = 'warning'; text = `License: ${daysLeft}d left ⚠️`; }
+        if (daysLeft <= 0) { cls = 'expired'; text = 'License: EXPIRED'; }
+        if (LIC.DEMO_MODE) { cls = 'warning'; text = 'Demo Mode'; }
+
+        bars.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.innerHTML = `<div class="lic-bar ${cls}" onclick="LIC.showInfo()"><span class="lic-bar-dot"></span>${text}</div>`;
+            }
+        });
+    },
+
+    // ------- LICENSE OPERATIONS (exposed to UI) -------
+    async activate() {
+        const fpEl = document.getElementById('licFingerprint');
+        const keyEl = document.getElementById('licKeyInput');
+        const statusEl = document.getElementById('licStatus');
+
+        const fingerprint = fpEl.value;
+        const key = keyEl.value.trim();
+
+        if (!key) {
+            statusEl.textContent = 'Please enter a license key.';
+            statusEl.className = 'lic-status error';
+            return;
+        }
+
+        statusEl.textContent = 'Validating...';
+        statusEl.className = 'lic-status';
+
+        const result = await LIC.validateKey(key, fingerprint);
+
+        if (result.valid) {
+            LIC.storeLicense(key, fingerprint, result);
+            statusEl.textContent = `License activated! Valid until ${new Date(result.expiryDate).toLocaleDateString()} (${result.daysLeft} days)`;
+            statusEl.className = 'lic-status valid';
+
+            setTimeout(() => {
+                LIC.unlockApp();
+            }, 1000);
+        } else {
+            statusEl.textContent = result.reason;
+            statusEl.className = 'lic-status error';
+        }
+    },
+
+    unlockApp() {
+        document.getElementById('licenseScreen').classList.add('hidden');
+        document.getElementById('licenseScreen').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'flex';
+        LIC.startPeriodicCheck();
+        LIC.updateStatusBar();
+        if (typeof AppInit === 'function') AppInit();
+    },
+
+    async check() {
+        const stored = LIC.getStoredLicense();
+        if (!stored) return false;
+
+        // Anti-tamper
+        if (LIC.checkTamper(stored)) {
+            LIC.lockApplication('License data tampered');
+            return false;
+        }
+
+        const fingerprint = await LIC.getFingerprint();
+        if (stored.fingerprint !== fingerprint) {
+            LIC.lockApplication('Fingerprint mismatch — different machine');
+            return false;
+        }
+
+        const now = Date.now();
+        if (now > stored.expiryMs) {
+            LIC.lockApplication('License expired');
+            return false;
+        }
+
+        return true;
+    },
+
+    periodicTimer: null,
+    startPeriodicCheck() {
+        if (LIC.periodicTimer) clearInterval(LIC.periodicTimer);
+        LIC.periodicTimer = setInterval(async () => {
+            const ok = await LIC.check();
+            if (!ok) {
+                clearInterval(LIC.periodicTimer);
+                // The check() function already calls lockApplication()
+            } else {
+                LIC.updateStatusBar();
+            }
+        }, LIC.CHECK_INTERVAL);
+    },
+
+    showInfo() {
+        const stored = LIC.getStoredLicense();
+        if (!stored) return;
+        const daysLeft = Math.ceil((stored.expiryMs - Date.now()) / 86400000);
+        alert(`License Info\n\nFingerprint: ${stored.fingerprint}\nActivated: ${new Date(stored.activatedAt).toLocaleString()}\nExpires: ${new Date(stored.expiryDate).toLocaleString()}\nDays Remaining: ${daysLeft}`);
+    },
+
+    // ------- LICENSE GENERATOR (Admin) -------
+    async generate() {
+        const fp = document.getElementById('adminFingerprint').value.trim();
+        const days = parseInt(document.getElementById('adminDays').value) || 30;
+        if (!fp || fp.length < 8) {
+            toast('Enter a valid fingerprint.', 'error');
+            return;
+        }
+        const result = await LIC.generateKey(fp, days);
+        const el = document.getElementById('adminGenKey');
+        el.style.display = 'block';
+        el.innerHTML = `<strong>License Key:</strong><br><span style="font-size:1rem;color:#34d399;">${result.key}</span><br><small style="color:#7a8ba5;">Expires: ${new Date(result.expiryDate).toLocaleDateString()} (${days} days)</small><br><br><button class="btn btn-primary btn-xs" onclick="navigator.clipboard.writeText('${result.key}');toast('Copied!','success');">Copy Key</button>`;
+
+        // Save to admin registry
+        let registry = JSON.parse(localStorage.getItem('siit_lic_registry') || '[]');
+        registry.push({ fingerprint: fp, key: result.key, expiryDate: result.expiryDate, createdAt: new Date().toISOString() });
+        localStorage.setItem('siit_lic_registry', JSON.stringify(registry));
+        Admin.render();
+    },
+
+    revoke() {
+        const fp = document.getElementById('adminFingerprint').value.trim();
+        if (!fp) { toast('Enter fingerprint to revoke.', 'error'); return; }
+        let registry = JSON.parse(localStorage.getItem('siit_lic_registry') || '[]');
+        registry = registry.filter(r => r.fingerprint !== fp);
+        localStorage.setItem('siit_lic_registry', JSON.stringify(registry));
+        Admin.render();
+        toast('License revoked (registry updated).', 'info');
+    }
+};
+
+const Admin = {
+    open() {
+        document.getElementById('adminPanel').classList.add('open');
+        Admin.render();
+    },
+    close() {
+        document.getElementById('adminPanel').classList.remove('open');
+    },
+    render() {
+        const tb = document.getElementById('adminLicenses');
+        const registry = JSON.parse(localStorage.getItem('siit_lic_registry') || '[]');
+        if (!registry.length) {
+            tb.innerHTML = '<tr><td colspan="5" style="padding:12px;text-align:center;color:#7a8ba5;">No licenses generated yet.</td></tr>';
+            return;
+        }
+        tb.innerHTML = '';
+        registry.forEach(r => {
+            const msLeft = new Date(r.expiryDate).getTime() - Date.now();
+            const daysLeft = Math.max(0, Math.ceil(msLeft / 86400000));
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td style="font-family:'JetBrains Mono',monospace;font-size:.74rem;">${r.fingerprint.substring(0,16)}...</td><td>${new Date(r.createdAt).toLocaleDateString()}</td><td>${new Date(r.expiryDate).toLocaleDateString()}</td><td style="color:${daysLeft>7?'#34d399':daysLeft>0?'#fbbf24':'#ef4444'};font-weight:600;">${daysLeft}d</td><td><button class="btn btn-danger btn-xs" onclick="LIC.revoke('${r.fingerprint}')">Revoke</button></td>`;
+            tb.appendChild(tr);
+        });
+    }
+};
+
+/* ==========================================================
+   SECTION B: MAIN APPLICATION DATA
+   ========================================================== */
+
+const DEFAULT_MODULES = [
+    {id:1,title:"Module 1: ML Foundations & Python Setup",difficulty:"Beginner",timeLimit:12,prerequisite:null,
+     content:"Machine Learning teaches computers to learn patterns from data. Types: Supervised (labeled), Unsupervised (unlabeled), Reinforcement (reward). Python ecosystem: NumPy, Pandas, Scikit-learn, Matplotlib.",
+     code:"import numpy as np\nimport pandas as pd\nfrom sklearn.datasets import load_iris\n\n# Load classic dataset\niris = load_iris()\nprint('Features:', iris.feature_names)\nprint('Targets:', iris.target_names)\nprint('Shape:', iris.data.shape)\nprint('First 3 samples:\\n', iris.data[:3])",
+     questions:[
+       {q:"Supervised learning uses?",options:["Unlabeled data","Labeled data","No data","Random data"],correct:1,explain:"Supervised learning requires labeled training data."},
+       {q:"Unsupervised learning finds?",options:["Labels","Predictions","Hidden patterns","Equations"],correct:2},
+       {q:"Standard ML library?",options:["NumPy","Pandas","Scikit-learn","Matplotlib"],correct:2},
+       {q:"iris.data.shape gives?",options:["(150,)","(150,4)","(4,150)","(50,3)"],correct:1},
+       {q:"Feature is?",options:["Target variable","Input variable","Output label","Loss value"],correct:1}
+     ]},
+    {id:2,title:"Module 2: Data Preprocessing for ML",difficulty:"Beginner",timeLimit:15,prerequisite:1,
+     content:"Clean data is critical for ML. Handle missing values, encode categories, scale features, and split data into train/test sets.",
+     code:"from sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import StandardScaler, LabelEncoder\nimport numpy as np\n\n# Sample data\nX = np.array([[25,50000],[30,60000],[35,75000],[28,55000],[42,80000]])\ny = np.array([0,0,1,0,1])\n\n# Scale features\nscaler = StandardScaler()\nX_scaled = scaler.fit_transform(X)\nprint('Scaled:\\n', X_scaled.round(2))\n\n# Split data\nX_train, X_test, y_train, y_test = train_test_split(\n    X_scaled, y, test_size=0.3, random_state=42)\nprint(f'Train: {X_train.shape}, Test: {X_test.shape}')",
+     questions:[
+       {q:"StandardScaler does?",options:["MinMax","Zero mean, unit variance","Remove outliers","Add features"],correct:1},
+       {q:"test_size=0.3 means?",options:["30% train","70% test","30% test","30% validation"],correct:2},
+       {q:"fit_transform on train only?",options:["No, always both","Yes to avoid leakage","Only on test","Never use it"],correct:1},
+       {q:"LabelEncoder for?",options:["Numbers","Categories to numbers","Scaling","Missing values"],correct:1},
+       {q:"random_state ensures?",options:["Better accuracy","Reproducibility","Faster training","More data"],correct:1}
+     ]},
+    {id:3,title:"Module 3: Linear Regression",difficulty:"Intermediate",timeLimit:18,prerequisite:2,
+     content:"Linear Regression fits a line y=mx+b to predict continuous values. Evaluate with MSE, RMSE, R2 score. Multiple regression uses multiple features.",
+     code:"from sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_squared_error, r2_score\nimport numpy as np\n\n# House prices: size(sqft) vs price\nX = np.array([[800],[1000],[1200],[1500],[1800],[2000]])\ny = np.array([150,180,210,270,320,360])\n\nmodel = LinearRegression()\nmodel.fit(X, y)\ny_pred = model.predict(X)\n\nprint('Slope:', round(model.coef_[0], 2))\nprint('Intercept:', round(model.intercept_, 2))\nprint('R2:', round(r2_score(y, y_pred), 3))\nprint('Predict 1600sqft:', round(model.predict([[1600]])[0], 0))",
+     questions:[
+       {q:"Linear Regression assumes?",options:["Non-linear","Linear relationship","Random data","Categories"],correct:1},
+       {q:"R2=0.95 means?",options:["95% error","95% variance explained","95% accuracy","95 samples"],correct:1},
+       {q:"MSE formula?",options:["mean(y-yp)","mean((y-yp)^2)","sum(y-yp)","max(y-yp)"],correct:1},
+       {q:"model.coef_ is?",options:["Intercept","Slope/weights","R2 score","Error"],correct:1},
+       {q:"Overfitting sign?",options:["High train R2, low test R2","Low train R2","Equal R2 scores","No R2"],correct:0}
+     ]},
+    {id:4,title:"Module 4: Logistic Regression",difficulty:"Intermediate",timeLimit:18,prerequisite:3,
+     content:"Logistic Regression classifies data into categories using sigmoid function. Outputs probabilities between 0 and 1. Used for binary and multiclass classification.",
+     code:"from sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.metrics import accuracy_score, confusion_matrix\nimport numpy as np\n\n# Pass/Fail: hours studied vs result\nX = np.array([[1],[2],[3],[4],[5],[6],[7],[8],[9],[10]])\ny = np.array([0,0,0,0,1,1,1,1,1,1])\n\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)\nmodel = LogisticRegression()\nmodel.fit(X_train, y_train)\ny_pred = model.predict(X_test)\n\nprint('Accuracy:', accuracy_score(y_test, y_pred))\nprint('Probabilities:', model.predict_proba(X_test).round(2))\nprint('5hrs ->', 'Pass' if model.predict([[5]])[0]==1 else 'Fail')",
+     questions:[
+       {q:"Logistic Regression outputs?",options:["Continuous numbers","Probabilities 0-1","Categories directly","Integers"],correct:1},
+       {q:"Sigmoid function range?",options:["-1 to 1","0 to 1","0 to infinity","-inf to inf"],correct:1},
+       {q:"confusion_matrix shows?",options:["Loss curve","TP,FP,TN,FN","Feature weights","R2 score"],correct:1},
+       {q:"predict_proba gives?",options:["Class labels","Probability per class","Error rate","Confidence interval"],correct:1},
+       {q:"Decision boundary at?",options:["0","0.5","1","Varies"],correct:1}
+     ]},
+    {id:5,title:"Module 5: Classification — KNN, Decision Trees",difficulty:"Intermediate",timeLimit:20,prerequisite:4,
+     content:"KNN classifies by nearest neighbors. Decision Trees split data on features. Both are intuitive and widely used. Evaluate with precision, recall, F1.",
+     code:"from sklearn.neighbors import KNeighborsClassifier\nfrom sklearn.tree import DecisionTreeClassifier\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.metrics import classification_report\nimport numpy as np\n\nnp.random.seed(42)\nX = np.random.rand(100, 2)\ny = ((X[:,0] + X[:,1]) > 1).astype(int)\n\nX_train, X_test, y_train, y_test = train_test_split(X, y)\n\n# KNN\nknn = KNeighborsClassifier(n_neighbors=5)\nknn.fit(X_train, y_train)\nprint('KNN Accuracy:', round(knn.score(X_test, y_test), 3))\n\n# Decision Tree\ndt = DecisionTreeClassifier(max_depth=3)\ndt.fit(X_train, y_train)\nprint('DT Accuracy:', round(dt.score(X_test, y_test), 3))",
+     questions:[
+       {q:"KNN k=5 uses?",options:["5 features","5 nearest points","5 trees","5 epochs"],correct:1},
+       {q:"Decision Tree splits on?",options:["Random","Feature thresholds","Distances","Gradients"],correct:1},
+       {q:"Precision measures?",options:["Of predicted +, how many correct","Of actual +, how many found","Overall accuracy","Error rate"],correct:0},
+       {q:"Recall measures?",options:["Of predicted +, correct","Of actual +, how many found","Specificity","Precision"],correct:1},
+       {q:"max_depth prevents?",options:["Underfitting","Overfitting","Training","Scaling"],correct:1}
+     ]},
+    {id:6,title:"Module 6: Random Forest & Ensemble Methods",difficulty:"Intermediate",timeLimit:20,prerequisite:5,
+     content:"Ensemble methods combine multiple models. Random Forest = many decision trees voting together. Gradient Boosting builds trees sequentially. Usually outperform single models.",
+     code:"from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.datasets import make_classification\nimport numpy as np\n\nX, y = make_classification(n_samples=200, n_features=5, random_state=42)\nX_train, X_test, y_train, y_test = train_test_split(X, y)\n\n# Random Forest\nrf = RandomForestClassifier(n_estimators=100, random_state=42)\nrf.fit(X_train, y_train)\nprint('RF Accuracy:', round(rf.score(X_test, y_test), 3))\n\n# Gradient Boosting\ngb = GradientBoostingClassifier(n_estimators=100, random_state=42)\ngb.fit(X_train, y_train)\nprint('GB Accuracy:', round(gb.score(X_test, y_test), 3))\n\n# Feature importance\nprint('RF Importance:', rf.feature_importances_.round(3))",
+     questions:[
+       {q:"Random Forest is?",options:["Single tree","Ensemble of trees","Neural network","Linear model"],correct:1},
+       {q:"n_estimators means?",options:["Features","Samples","Number of trees","Depth"],correct:2},
+       {q:"feature_importances_ shows?",options:["Coefficients","Which features matter most","Errors","Predictions"],correct:1},
+       {q:"Gradient Boosting builds?",options:["Trees in parallel","Trees sequentially","One tree","Random trees"],correct:1},
+       {q:"Ensemble advantage?",options:["Faster training","Better generalization","Less memory","Simpler code"],correct:1}
+     ]},
+    {id:7,title:"Module 7: Clustering — K-Means & DBSCAN",difficulty:"Advanced",timeLimit:20,prerequisite:5,
+     content:"Unsupervised learning finds hidden groups. K-Means partitions into K clusters. DBSCAN finds density-based clusters. Silhouette score evaluates cluster quality.",
+     code:"from sklearn.cluster import KMeans, DBSCAN\nfrom sklearn.metrics import silhouette_score\nfrom sklearn.datasets import make_blobs\nimport numpy as np\n\nX, y_true = make_blobs(n_samples=150, centers=3, random_state=42)\n\n# K-Means\nkmeans = KMeans(n_clusters=3, random_state=42, n_init=10)\nkmeans.fit(X)\nprint('K-Means labels:', kmeans.labels_[:10])\nprint('Silhouette:', round(silhouette_score(X, kmeans.labels_), 3))\nprint('Inertia:', round(kmeans.inertia_, 1))\n\n# DBSCAN\ndb = DBSCAN(eps=1.0, min_samples=5)\ndb.fit(X)\nprint('DBSCAN clusters:', len(set(db.labels_)) - (1 if -1 in db.labels_ else 0))",
+     questions:[
+       {q:"K-Means minimizes?",options:["Entropy","Distance to centroids","Error rate","Features"],correct:1},
+       {q:"Silhouette score range?",options:["0 to 1","-1 to 1","0 to 100","-inf to inf"],correct:1},
+       {q:"DBSCAN finds?",options:["K clusters","Density-based clusters","Linear groups","Supervised labels"],correct:1},
+       {q:"Elbow method finds?",options:["Best model","Optimal K","Best features","Error rate"],correct:1},
+       {q:"K-Means assumes?",options:["Any shape","Spherical clusters","Linear data","Labeled data"],correct:1}
+     ]},
+    {id:8,title:"Module 8: Model Evaluation & Selection",difficulty:"Advanced",timeLimit:22,prerequisite:6,
+     content:"Proper evaluation prevents overfitting. Cross-validation, ROC-AUC curves, hyperparameter tuning with GridSearchCV. Choose the right metric for your problem.",
+     code:"from sklearn.model_selection import cross_val_score, GridSearchCV\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.datasets import make_classification\nfrom sklearn.metrics import roc_auc_score\nimport numpy as np\n\nX, y = make_classification(n_samples=200, random_state=42)\n\n# Cross-validation\nrf = RandomForestClassifier(n_estimators=50, random_state=42)\nscores = cross_val_score(rf, X, y, cv=5, scoring='accuracy')\nprint('CV Scores:', scores.round(3))\nprint('Mean:', round(scores.mean(), 3), '+/-', round(scores.std(), 3))\n\n# Grid Search\nparams = {'n_estimators': [50,100], 'max_depth': [3,5,None]}\ngs = GridSearchCV(rf, params, cv=3, scoring='accuracy')\ngs.fit(X, y)\nprint('Best params:', gs.best_params_)\nprint('Best score:', round(gs.best_score_, 3))",
+     questions:[
+       {q:"Cross-validation prevents?",options:["Training","Overfitting evaluation","Data cleaning","Feature scaling"],correct:1},
+       {q:"cv=5 means?",options:["5 models","5 folds","5 features","5 epochs"],correct:1},
+       {q:"GridSearchCV finds?",options:["Best data","Best hyperparameters","Best features","Best model type"],correct:1},
+       {q:"ROC-AUC=0.5 means?",options:["Perfect","Random classifier","Worst","Error"],correct:1},
+       {q:"StratifiedKFold keeps?",options:["Same order","Class proportions","Same size","Same features"],correct:1}
+     ]},
+    {id:9,title:"Module 9: Feature Engineering",difficulty:"Advanced",timeLimit:20,prerequisite:8,
+     content:"Good features beat fancy algorithms. Polynomial features, interaction terms, binning, encoding, text features. Domain knowledge + creativity = better models.",
+     code:"from sklearn.preprocessing import PolynomialFeatures\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nimport numpy as np\nimport pandas as pd\n\n# Polynomial features\nX = np.array([[2,3],[4,5],[6,7]])\npoly = PolynomialFeatures(degree=2, include_bias=False)\nX_poly = poly.fit_transform(X)\nprint('Original features:', X.shape[1])\nprint('Poly features:', X_poly.shape[1])\nprint('Names:', poly.get_feature_names_out())\n\n# Text features\ndocs = ['machine learning is great', 'deep learning is powerful']\ntfidf = TfidfVectorizer()\nX_text = tfidf.fit_transform(docs)\nprint('\\nText features:', tfidf.get_feature_names_out())\nprint('TF-IDF shape:', X_text.shape)",
+     questions:[
+       {q:"PolynomialFeatures creates?",options:["New rows","Interaction & power terms","New labels","Clustering"],correct:1},
+       {q:"TF-IDF measures?",options:["Word count","Word importance","Sentence length","Document count"],correct:1},
+       {q:"One-Hot Encoding for?",options:["Numbers","Categories","Text","Images"],correct:1},
+       {q:"Feature scaling importance?",options:["All models","Distance-based models","Tree models","Never"],correct:1},
+       {q:"Domain knowledge helps?",options:["Nothing","Feature creation","Data cleaning","Only coding"],correct:1}
+     ]},
+    {id:10,title:"Module 10: Neural Networks with Scikit-learn",difficulty:"Advanced",timeLimit:22,prerequisite:9,
+     content:"Neural networks learn complex patterns through layers of neurons. MLPClassifier/Regressor in scikit-learn. Activation functions, hidden layers, backpropagation concepts.",
+     code:"from sklearn.neural_network import MLPClassifier\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.datasets import make_classification\nimport numpy as np\n\nX, y = make_classification(n_samples=300, n_features=10, random_state=42)\n\nscaler = StandardScaler()\nX_scaled = scaler.fit_transform(X)\nX_train, X_test, y_train, y_test = train_test_split(X_scaled, y)\n\n# MLP Neural Network\nmlp = MLPClassifier(hidden_layer_sizes=(64,32), max_iter=500, random_state=42)\nmlp.fit(X_train, y_train)\nprint('MLP Accuracy:', round(mlp.score(X_test, y_test), 3))\nprint('Layers:', mlp.n_layers_)\nprint('Iterations:', mlp.n_iter_)\nprint('Loss:', round(mlp.loss_, 4))",
+     questions:[
+       {q:"MLP stands for?",options:["Multi-Layer Perceptron","Machine Learning Process","Max Loss Parameter","Model Layer Pattern"],correct:0},
+       {q:"hidden_layer_sizes=(64,32) means?",options:["64 inputs","2 hidden layers: 64 & 32 neurons","32 outputs","64 features"],correct:1},
+       {q:"Activation function purpose?",options:["Scaling","Introduce non-linearity","Feature selection","Data cleaning"],correct:1},
+       {q:"Backpropagation adjusts?",options:["Data","Weights via gradients","Features","Labels"],correct:1},
+       {q:"max_iter controls?",options:["Layers","Training epochs","Neurons","Features"],correct:1}
+     ]},
+    {id:11,title:"Module 11: Introduction to Deep Learning",difficulty:"Advanced",timeLimit:25,prerequisite:10,
+     content:"Deep Learning uses deep neural networks for complex tasks. TensorFlow/Keras framework. CNNs for images, RNNs for sequences. GPU acceleration for large models.",
+     code:"import numpy as np\n\n# Simulate a simple neural network forward pass\nnp.random.seed(42)\n\n# Input: 3 features, 4 samples\nX = np.random.randn(4, 3)\n\n# Layer 1: 3 -> 5 neurons\nW1 = np.random.randn(3, 5) * 0.5\nb1 = np.zeros(5)\nh1 = np.maximum(0, X @ W1 + b1)  # ReLU\n\n# Layer 2: 5 -> 1 output\nW2 = np.random.randn(5, 1) * 0.5\nb2 = np.zeros(1)\noutput = 1 / (1 + np.exp(-(h1 @ W2 + b2)))  # Sigmoid\n\nprint('Input shape:', X.shape)\nprint('Hidden layer shape:', h1.shape)\nprint('Output:', output.flatten().round(3))\nprint('Deep learning = many such layers stacked!')",
+     questions:[
+       {q:"Deep Learning uses?",options:["Shallow models","Many layers of neurons","Decision trees","Linear regression"],correct:1},
+       {q:"CNN is best for?",options:["Text","Images","Tabular data","Audio only"],correct:1},
+       {q:"ReLU activation?",options:["max(0,x)","1/(1+e^-x)","tanh(x)","x^2"],correct:0},
+       {q:"Keras is?",options:["A database","A DL framework","A compiler","An OS"],correct:1},
+       {q:"GPU helps because?",options:["More storage","Parallel matrix operations","Better accuracy","Simpler code"],correct:1}
+     ]},
+    {id:12,title:"Module 12: End-to-End ML Project",difficulty:"Advanced",timeLimit:30,prerequisite:11,
+     content:"Apply everything: define problem, collect data, EDA, preprocess, feature engineer, train multiple models, evaluate, tune, deploy. Complete ML pipeline.",
+     code:"from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import cross_val_score\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.datasets import make_classification\nimport numpy as np\n\nX, y = make_classification(n_samples=500, n_features=10, random_state=42)\n\n# Compare models with pipeline\nmodels = {\n    'LogReg': Pipeline([('scaler', StandardScaler()), ('clf', LogisticRegression())]),\n    'RF': Pipeline([('scaler', StandardScaler()), ('clf', RandomForestClassifier(100))]),\n    'GB': Pipeline([('scaler', StandardScaler()), ('clf', GradientBoostingClassifier(100))])\n}\n\nprint('=== MODEL COMPARISON ===')\nfor name, pipe in models.items():\n    scores = cross_val_score(pipe, X, y, cv=5)\n    print(f'{name}: {scores.mean():.3f} +/- {scores.std():.3f}')",
+     questions:[
+       {q:"ML Pipeline combines?",options:["Only models","Preprocessing + Model","Only data","Only features"],correct:1},
+       {q:"First step in ML project?",options:["Build model","Define the problem","Clean data","Plot charts"],correct:1},
+       {q:"Cross-val comparison shows?",options:["Only accuracy","Robust performance estimate","Training speed","Data size"],correct:1},
+       {q:"Pipeline advantage?",options:["Faster","Prevents data leakage","More features","Bigger models"],correct:1},
+       {q:"Production ML needs?",options:["Only model","Monitoring + retraining","Only data","Nothing extra"],correct:1}
+     ]}
+];
+
+const BADGES = [
+    {id:'firstLogin',name:'First Steps',icon:'🎯',desc:'Log in',check:s=>s.isLoggedIn},
+    {id:'quizPass',name:'Quiz Ace',icon:'✅',desc:'Pass any quiz',check:s=>Object.values(s.progress).some(p=>p.score==='Passed')},
+    {id:'halfWay',name:'Halfway',icon:'⛰️',desc:'50% modules',check:s=>Object.values(s.progress).filter(p=>p.completed).length>=6},
+    {id:'allDone',name:'Graduate',icon:'🎓',desc:'All modules',check:s=>Object.values(s.progress).every(p=>p.completed)},
+    {id:'streak3',name:'3 Streak',icon:'🔥',desc:'3 day streak',check:s=>s.streak>=3},
+    {id:'fileCreator',name:'Explorer',icon:'📁',desc:'5+ files',check:s=>s.workspaceFiles.length>=5},
+    {id:'nightOwl',name:'Night Owl',icon:'🦉',desc:'Study past 10PM',check:s=>s.studiedLate},
+    {id:'speedRun',name:'Speed Run',icon:'⚡',desc:'Quiz < 2 min',check:s=>s.speedRun},
+];
+
+/* ==========================================================
+   SECTION C: STATE
+   ========================================================== */
+let DB, S;
+
+function loadDB() { try { return JSON.parse(localStorage.getItem('siitDB')) || { modules: DEFAULT_MODULES, students: {}, announcements: [] }; } catch (e) { return { modules: DEFAULT_MODULES, students: {}, announcements: [] }; } }
+function loadS() { try { return JSON.parse(localStorage.getItem('siitSess')) || defS(); } catch (e) { return defS(); } }
+function defS() { return { isLoggedIn: false, studentId: null, studentName: null, secondsActive: 0, theme: 'dark', isInstructor: false, workspaceFiles: [{ name: 'main.py', content: DEFAULT_MODULES[0].code }, { name: 'operators.py', content: DEFAULT_MODULES[1].code }], progress: {}, bookmarks: {}, notes: {}, streak: 0, lastLogin: null, achievements: [], studiedLate: false, speedRun: false, wroteNote: false }; }
+
+function save() {
+    if (S.isLoggedIn && S.studentId) { DB.students[S.studentId] = { name: S.studentName, secondsActive: S.secondsActive, workspaceFiles: S.workspaceFiles, progress: S.progress, bookmarks: S.bookmarks, notes: S.notes, streak: S.streak, lastLogin: S.lastLogin, achievements: S.achievements, studiedLate: S.studiedLate, speedRun: S.speedRun, wroteNote: S.wroteNote }; }
+    localStorage.setItem('siitDB', JSON.stringify(DB));
+    localStorage.setItem('siitSess', JSON.stringify(S));
+    updateUI();
+    showSaveInd();
+}
+function showSaveInd() { const e = document.getElementById('saveIndicator'); if (!e) return; e.innerHTML = '<span class="save-dot saving"></span> Saving...'; setTimeout(() => { e.innerHTML = '<span class="save-dot"></span> Saved'; }, 600); }
+
+/* ==========================================================
+   SECTION D: TOAST / MODAL / THEME
+   ========================================================== */
+function toast(m, t = 'info') { const w = document.getElementById('toastWrap'); const d = document.createElement('div'); d.className = 'toast ' + t; d.textContent = m; w.appendChild(d); requestAnimationFrame(() => d.classList.add('show')); setTimeout(() => { d.classList.remove('show'); setTimeout(() => d.remove(), 300); }, 2500); }
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function toggleTheme() { S.theme = S.theme === 'light' ? 'dark' : 'light'; document.documentElement.setAttribute('data-theme', S.theme); save(); }
+
+/* ==========================================================
+   SECTION E: NAVIGATION
+   ========================================================== */
+const viewTitles = { dashboard: 'Dashboard', ide: 'IDE & Terminal', courses: 'Curriculum', reports: 'Analytics', achievements: 'Achievements', instructor: 'Instructor' };
+function switchView(vid, el) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-links li').forEach(l => l.classList.remove('active'));
+    document.getElementById('view-' + vid).classList.add('active');
+    if (el) el.classList.add('active');
+    document.getElementById('pageTitle').textContent = viewTitles[vid] || vid;
+    if (vid === 'ide') { IDE.renderFiles(); IDE.switchFile(IDE.activeIdx); }
+    if (vid === 'courses') Courses.renderList();
+    if (vid === 'reports') Reports.render();
+    if (vid === 'achievements') Achiev.render();
+    if (vid === 'instructor') Instr.render();
+}
+
+/* ==========================================================
+   SECTION F: UI UPDATE
+   ========================================================== */
+function updateUI() {
+    document.getElementById('dispName').textContent = S.isLoggedIn ? S.studentName : 'Guest';
+    const rb = document.getElementById('roleBadge');
+    const nb = document.getElementById('navInstructor');
+    const ab = document.getElementById('authBtn');
+    if (S.isInstructor) { rb.innerHTML = '<span class="role-badge" style="background:var(--warning);color:#000">Instructor</span>'; nb.style.display = ''; ab.textContent = '👤 Student'; }
+    else if (S.isLoggedIn) { rb.innerHTML = '<span class="role-badge" style="background:var(--success)">Active</span>'; nb.style.display = 'none'; ab.textContent = '🚪 Logout'; }
+    else { rb.innerHTML = '<span class="role-badge" style="background:var(--danger)">Logged Out</span>'; nb.style.display = 'none'; ab.textContent = '🔐 Login'; }
+
+    let done = 0, passed = 0, ev = 0;
+    Object.values(S.progress).forEach(p => { if (p.completed) done++; if (p.score === 'Passed') passed++; if (p.score !== 'Pending') ev++; });
+    document.getElementById('sCompleted').textContent = done + '/' + DB.modules.length;
+    document.getElementById('sScore').textContent = ev ? Math.round(passed / ev * 100) + '%' : '0%';
+    document.getElementById('sTime').textContent = Math.floor(S.secondsActive / 60) + 'm';
+    document.getElementById('sFiles').textContent = S.workspaceFiles.length;
+    document.getElementById('sStreak').textContent = S.streak;
+    document.getElementById('welcomeBanner').textContent = S.isLoggedIn ? 'Welcome back, ' + S.studentName + '!' : 'Welcome to SIIT ML Platform';
+    document.getElementById('authPrompt').innerHTML = S.isLoggedIn ? '<button class="btn btn-danger" onclick="Auth.logout()">🚪 Logout</button>' : '<button class="btn btn-success" onclick="openModal(\'authModal\')">Log In</button>';
+
+    if (S.isLoggedIn) { BADGES.forEach(b => { if (!S.achievements.includes(b.id) && b.check(S)) { S.achievements.push(b.id); toast('🏆 ' + b.name, 'success'); } }); }
+    const db = document.getElementById('dashBadges'); db.innerHTML = '';
+    BADGES.forEach(b => { const u = S.achievements.includes(b.id); db.innerHTML += '<div class="badge-card ' + (u ? 'unlocked' : 'locked') + '"><span class="badge-icon">' + b.icon + '</span><div class="badge-name">' + b.name + '</div></div>'; });
+
+    const aa = document.getElementById('announcementArea'); aa.innerHTML = '';
+    (DB.announcements || []).slice(-3).reverse().forEach(a => { aa.innerHTML += '<div class="announcement-bar"><span>📢 ' + a.title + '</span><span style="opacity:.7;font-size:.75rem;">' + new Date(a.ts).toLocaleDateString() + '</span></div>'; });
+}
+
+/* ==========================================================
+   SECTION G: AUTH
+   ========================================================== */
+const Auth = {
+    login() {
+        const name = document.getElementById('authName').value.trim();
+        const id = document.getElementById('authId').value.trim();
+        if (!name || !id) { toast('Enter name and ID.', 'error'); return; }
+        if (DB.students[id]) {
+            const r = DB.students[id];
+            Object.assign(S, { isLoggedIn: true, studentId: id, studentName: r.name, secondsActive: r.secondsActive || 0, workspaceFiles: r.workspaceFiles || S.workspaceFiles, progress: r.progress || {}, bookmarks: r.bookmarks || {}, notes: r.notes || {}, streak: r.streak || 0, lastLogin: r.lastLogin || null, achievements: r.achievements || [], studiedLate: r.studiedLate || false, speedRun: r.speedRun || false, wroteNote: r.wroteNote || false });
+            DB.modules.forEach(m => { if (!S.progress[m.id]) S.progress[m.id] = { completed: false, score: 'Pending' }; });
+            toast('Welcome back!', 'success');
+        } else {
+            Object.assign(S, { isLoggedIn: true, studentId: id, studentName: name, secondsActive: 0, progress: {}, bookmarks: {}, notes: {}, streak: 0, lastLogin: null, achievements: [], studiedLate: false, speedRun: false, wroteNote: false });
+            DB.modules.forEach(m => { S.progress[m.id] = { completed: false, score: 'Pending' }; });
+            toast('Account created!', 'success');
+        }
+        const today = new Date().toDateString();
+        if (S.lastLogin) { const d = Math.floor((new Date(today) - new Date(S.lastLogin)) / 864e5); S.streak = d === 1 ? S.streak + 1 : d > 1 ? 1 : S.streak; } else S.streak = 1;
+        S.lastLogin = today;
+        if (new Date().getHours() >= 22) S.studiedLate = true;
+        S.isInstructor = false; save(); closeModal('authModal'); switchView('dashboard', document.querySelector('.nav-links li'));
+    },
+    logout() { if (!confirm('Log out?')) return; save(); Object.assign(S, { isLoggedIn: false, studentId: null, studentName: null, isInstructor: false }); save(); switchView('dashboard', document.querySelector('.nav-links li')); toast('Logged out.', 'info'); },
+    instructor() { if (document.getElementById('instrPin').value === '8700189551') { S.isInstructor = true; save(); closeModal('instrModal'); switchView('instructor', document.getElementById('navInstructor')); toast('Instructor mode.', 'success'); } else toast('Wrong PIN.', 'error'); }
+};
+document.getElementById('authBtn').onclick = () => { S.isLoggedIn ? Auth.logout() : openModal('authModal'); };
+document.getElementById('instrBtn').onclick = () => { S.isInstructor ? (S.isInstructor = false, save(), switchView('dashboard', document.querySelector('.nav-links li'))) : openModal('instrModal'); };
+
+/* ==========================================================
+   SECTION H: IDE (CodeMirror)
+   ========================================================== */
+let cm = null;
+const IDE = {
+    activeIdx: 0,
+    init() {
+        cm = CodeMirror(document.getElementById('editorContainer'), { mode: 'python', theme: 'monokai', lineNumbers: true, matchBrackets: true, autoCloseBrackets: true, styleActiveLine: true, indentUnit: 4, tabSize: 4, indentWithTabs: false, extraKeys: { 'Ctrl-S': () => save(), 'Ctrl-Enter': () => IDE.run(), 'Ctrl-/': () => cm.execCommand('toggleComment') } });
+        cm.on('change', () => { if (S.workspaceFiles[IDE.activeIdx]) { S.workspaceFiles[IDE.activeIdx].content = cm.getValue(); save(); } });
+    },
+    renderFiles() { const u = document.getElementById('fileList'); u.innerHTML = ''; S.workspaceFiles.forEach((f, i) => { const l = document.createElement('li'); l.className = 'file-item' + (i === IDE.activeIdx ? ' active' : ''); l.textContent = '📄 ' + f.name; l.onclick = () => IDE.switchFile(i); u.appendChild(l); }); },
+    switchFile(i) { if (i < 0 || i >= S.workspaceFiles.length) return; IDE.activeIdx = i; if (cm) { cm.setValue(S.workspaceFiles[i].content || ''); cm.clearHistory(); } document.getElementById('activeFileName').textContent = S.workspaceFiles[i].name; IDE.renderFiles(); },
+    newFile() { let n = prompt('Filename:'); if (!n) return; if (!n.endsWith('.py')) n += '.py'; if (S.workspaceFiles.some(f => f.name === n)) { toast('Exists.', 'error'); return; } S.workspaceFiles.push({ name: n, content: "# New\nprint('Hello!')" }); IDE.activeIdx = S.workspaceFiles.length - 1; save(); IDE.renderFiles(); IDE.switchFile(IDE.activeIdx); },
+    rename() { const f = S.workspaceFiles[IDE.activeIdx]; if (!f) return; let n = prompt('New name:', f.name); if (!n) return; if (!n.endsWith('.py')) n += '.py'; f.name = n; save(); IDE.renderFiles(); document.getElementById('activeFileName').textContent = n; },
+    del() { if (S.workspaceFiles.length <= 1) { toast('Need at least 1 file.', 'error'); return; } if (!confirm('Delete?')) return; S.workspaceFiles.splice(IDE.activeIdx, 1); if (IDE.activeIdx >= S.workspaceFiles.length) IDE.activeIdx = S.workspaceFiles.length - 1; save(); IDE.renderFiles(); IDE.switchFile(IDE.activeIdx); },
+    download() { const f = S.workspaceFiles[IDE.activeIdx]; if (!f) return; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([f.content], { type: 'text/plain' })); a.download = f.name; a.click(); },
+    copy() { navigator.clipboard.writeText(S.workspaceFiles[IDE.activeIdx].content).then(() => toast('Copied!', 'success')); },
+    run() { const f = S.workspaceFiles[IDE.activeIdx]; if (!f) return; TERM.out('\nsiit:~$ python ' + f.name + '\n'); PY.run(f.content); }
+};
+
+/* ==========================================================
+   SECTION I: TERMINAL & PYTHON SIMULATION
+   ========================================================== */
+const TERM = {
+    out(t) { const o = document.getElementById('termOut'); o.textContent += t; o.scrollTop = o.scrollHeight; },
+    clear() { document.getElementById('termOut').textContent = ''; },
+    key(e) { if (e.key !== 'Enter') return; const inp = document.getElementById('termIn'); const c = inp.value.trim(); inp.value = ''; if (!c) return; TERM.out('siit:~$ ' + c + '\n'); if (c === 'clear') TERM.clear(); else if (c === 'ls') S.workspaceFiles.forEach(f => TERM.out(f.name + '\n')); else if (c.startsWith('python ')) { const f = S.workspaceFiles.find(x => x.name === c.split(' ')[1]); f ? PY.run(f.content) : TERM.out("No such file\n"); } else TERM.out("Try: python file.py | ls | clear\n"); }
+};
+const PY = {
+    run(code) {
+        try {
+            let out = ''; const vars = {};
+            for (let line of code.split('\n')) {
+                line = line.trim(); if (!line || line.startsWith('#')) continue;
+                if (line.startsWith('print(') && line.endsWith(')')) {
+                    let c = line.slice(6, -1).trim();
+                    if (c.startsWith("f'") || c.startsWith('f"')) { out += c.slice(2, -1).replace(/\{([^}]+)\}/g, (m, e) => { try { return eval(e); } catch (x) { return m; } }) + '\n'; }
+                    else if ((c.startsWith("'") && c.endsWith("'")) || (c.startsWith('"') && c.endsWith('"'))) out += c.slice(1, -1) + '\n';
+                    else { try { const r = eval(c); out += (r !== undefined ? r : '') + '\n'; } catch (x) { out += c + '\n'; } }
+                } else if (/^[a-zA-Z_]\w*\s*=/.test(line) && !line.startsWith('if') && !line.startsWith('for')) { try { const m = line.match(/^(\w+)\s*=\s*(.+)$/); if (m) vars[m[1]] = eval(m[2]); } catch (x) { } }
+                else if (line.startsWith('import ') || line.startsWith('from ')) out += '[' + line + ']\n';
+            }
+            TERM.out(out || 'Process finished (exit 0)\n');
+        } catch (err) { TERM.out('Error: ' + err.message + '\n'); }
+    }
+};
+
+/* ==========================================================
+   SECTION J: CURRICULUM & QUIZ
+   ========================================================== */
+let activeMod = null, quizTimer = null, quizStartTime = 0;
+const Courses = {
+    renderList() {
+        const w = document.getElementById('moduleListWrap'); w.innerHTML = '';
+        document.getElementById('courseListView').style.display = ''; document.getElementById('lessonView').style.display = 'none';
+        DB.modules.forEach((m, idx) => {
+            const p = S.progress[m.id] || { completed: false, score: 'Pending' };
+            const ok = !m.prerequisite || (S.progress[m.prerequisite] && S.progress[m.prerequisite].completed);
+            const bm = S.bookmarks[m.id];
+            const dc = m.difficulty === 'Beginner' ? 'tag-beginner' : m.difficulty === 'Intermediate' ? 'tag-intermediate' : 'tag-advanced';
+            const sc = p.completed ? (p.score === 'Passed' ? 'var(--success)' : 'var(--danger)') : 'var(--text-muted)';
+            const card = document.createElement('div'); card.className = 'module-card' + (ok ? '' : ' locked');
+            card.innerHTML = '<div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;"><span class="module-num' + (ok ? '' : ' locked-icon') + '">' + (ok ? idx + 1 : '🔒') + '</span><div style="min-width:0;"><div style="display:flex;gap:6px;flex-wrap:wrap;"><h4 style="font-size:.92rem;">' + m.title + '</h4><span class="tag ' + dc + '">' + m.difficulty + '</span><span class="tag tag-time">⏱' + m.timeLimit + 'm</span></div><div style="font-size:.72rem;font-weight:700;color:' + sc + ';margin-top:3px;">' + (p.completed ? p.score : 'Incomplete') + '</div></div></div><div style="display:flex;gap:6px;flex-shrink:0;"><button class="bookmark-btn" onclick="event.stopPropagation();Courses.toggleBM(' + m.id + ')">' + (bm ? '🔖' : '🏷️') + '</button>' + (ok ? '<button class="btn btn-primary btn-sm" onclick="Courses.open(' + m.id + ')">Start →</button>' : '') + '</div>';
+            w.appendChild(card);
+        });
+    },
+    toggleBM(id) { S.bookmarks[id] ? delete S.bookmarks[id] : S.bookmarks[id] = true; save(); Courses.renderList(); },
+    toggleBookmark() { if (!activeMod) return; Courses.toggleBM(activeMod.id); document.getElementById('bookmarkLessonBtn').textContent = S.bookmarks[activeMod.id] ? '🔖' : '🏷️'; },
+    open(id) { if (!S.isLoggedIn) { toast('Log in first.', 'error'); openModal('authModal'); return; } activeMod = DB.modules.find(m => m.id === id); if (!activeMod) return; document.getElementById('courseListView').style.display = 'none'; document.getElementById('lessonView').style.display = ''; document.getElementById('lessonTitle').textContent = activeMod.title; document.getElementById('lessonBody').innerHTML = '<p style="margin-bottom:12px;">' + activeMod.content + '</p><pre style="background:var(--code-bg);padding:14px;border-radius:8px;color:#e2e8f0;font-family:JetBrains Mono,monospace;font-size:.84rem;overflow-x:auto;border:1px solid var(--border);"><code>' + activeMod.code.replace(/</g, '&lt;') + '</code></pre>'; document.getElementById('bookmarkLessonBtn').textContent = S.bookmarks[activeMod.id] ? '🔖' : '🏷️'; document.getElementById('moduleNote').value = S.notes[activeMod.id] || ''; Quiz.start(); },
+    back() { document.getElementById('courseListView').style.display = ''; document.getElementById('lessonView').style.display = 'none'; Courses.renderList(); },
+    openInIDE() { if (!activeMod) return; const fn = 'module_' + activeMod.id + '.py'; const ei = S.workspaceFiles.findIndex(f => f.name === fn); if (ei === -1) { S.workspaceFiles.push({ name: fn, content: activeMod.code }); IDE.activeIdx = S.workspaceFiles.length - 1; } else IDE.activeIdx = ei; save(); switchView('ide', document.querySelectorAll('.nav-links li')[1]); },
+    saveNote() { if (!activeMod) return; S.notes[activeMod.id] = document.getElementById('moduleNote').value; S.wroteNote = true; save(); }
+};
+
+const Quiz = {
+    qs: [], qi: 0, score: 0, answers: [],
+    start() {
+        if (!activeMod) return;
+        Quiz.qs = activeMod.questions.map(q => { const o = [...q.options]; const c = o[q.correct]; for (let i = o.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [o[i], o[j]] = [o[j], o[i]]; } return { ...q, options: o, correct: o.indexOf(c) }; });
+        Quiz.qi = 0; Quiz.score = 0; Quiz.answers = [];
+        quizStartTime = Date.now();
+        if (quizTimer) clearInterval(quizTimer);
+        const tLim = (activeMod.timeLimit || 10) * 60;
+        const te = document.getElementById('quizTimer'); te.style.display = '';
+        quizTimer = setInterval(() => { const el = Math.floor((Date.now() - quizStartTime) / 1000); const l = tLim - el; if (l <= 0) { clearInterval(quizTimer); Quiz.finish(); return; } const m = Math.floor(l / 60); const s = l % 60; te.textContent = m + ':' + String(s).padStart(2, '0'); te.className = 'quiz-timer ' + (l > 120 ? 'ok' : l > 30 ? 'warn' : 'danger'); }, 1000);
+        Quiz.renderQ();
+    },
+    renderQ() {
+        if (Quiz.qi >= Quiz.qs.length) { Quiz.finish(); return; }
+        const q = Quiz.qs[Quiz.qi];
+        document.getElementById('quizProgress').textContent = 'Q' + (Quiz.qi + 1) + '/' + Quiz.qs.length;
+        document.getElementById('quizQ').textContent = q.q;
+        const oc = document.getElementById('quizOpts'); oc.innerHTML = '';
+        const L = ['A', 'B', 'C', 'D'];
+        q.options.forEach((o, i) => { oc.innerHTML += '<label class="quiz-option"><input type="radio" name="qopt" value="' + i + '"> <strong>' + L[i] + '.</strong> ' + o + '</label>'; });
+        document.getElementById('quizNextBtn').textContent = Quiz.qi === Quiz.qs.length - 1 ? 'Submit' : 'Next';
+    },
+    next() {
+        const s = document.querySelector('input[name="qopt"]:checked');
+        if (!s) { toast('Select an answer.', 'error'); return; }
+        const ch = parseInt(s.value); const q = Quiz.qs[Quiz.qi];
+        Quiz.answers.push({ chosen: ch, correct: q.correct, ok: ch === q.correct, q: q.q, opts: q.options, exp: q.explain });
+        if (ch === q.correct) Quiz.score++;
+        Quiz.qi++; Quiz.renderQ();
+    },
+    finish() {
+        if (quizTimer) clearInterval(quizTimer);
+        document.getElementById('quizTimer').style.display = 'none';
+        const tot = Quiz.qs.length; const pct = Math.round(Quiz.score / tot * 100); const passed = pct >= 60; const tTaken = Math.floor((Date.now() - quizStartTime) / 1000);
+        S.progress[activeMod.id] = { completed: true, score: passed ? 'Passed' : 'Failed', pct, timeTaken: tTaken };
+        if (tTaken < 120 && passed) S.speedRun = true;
+        save();
+        const L = ['A', 'B', 'C', 'D'];
+        let h = '<div style="text-align:center;margin-bottom:16px;"><h3 style="color:' + (passed ? 'var(--success)' : 'var(--danger)') + '">' + (passed ? 'Passed!' : 'Failed') + '</h3><p style="font-size:1.1rem;font-weight:700;">' + Quiz.score + '/' + tot + ' (' + pct + '%)</p><p style="color:var(--text-muted);font-size:.84rem;">Time: ' + Math.floor(tTaken / 60) + 'm' + tTaken % 60 + 's</p></div><div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">';
+        Quiz.answers.forEach((a, i) => { h += '<div style="padding:10px;border-radius:8px;border:1px solid ' + (a.ok ? 'var(--success)' : 'var(--danger)') + ';background:' + (a.ok ? 'rgba(52,211,153,.06)' : 'rgba(239,68,68,.06)') + ';"><div style="font-weight:600;font-size:.86rem;">' + (i + 1) + '. ' + a.q + '</div><div style="font-size:.82rem;">You: ' + L[a.chosen] + '. ' + a.opts[a.chosen] + ' ' + (a.ok ? '✅' : '❌') + '</div>' + (!a.ok ? '<div style="font-size:.82rem;color:var(--text-muted);">Answer: ' + L[a.correct] + '. ' + a.opts[a.correct] + '</div>' : '') + (a.exp ? '<div style="font-size:.78rem;color:var(--text-muted);">💡 ' + a.exp + '</div>' : '') + '</div>'; });
+        h += '</div><div style="text-align:center;"><button class="btn btn-primary" onclick="Courses.back()">← Modules</button></div>';
+        document.getElementById('quizBox').innerHTML = h;
+    }
+};
+
+/* ==========================================================
+   SECTION K: REPORTS & CHARTS
+   ========================================================== */
+let cScores = null, cComp = null;
+const Reports = {
+    render() {
+        const sub = document.getElementById('reportSub'); const tb = document.getElementById('reportBody'); tb.innerHTML = '';
+        if (!S.isLoggedIn) { sub.textContent = 'Log in to view.'; return; }
+        sub.textContent = S.studentName + ' (' + S.studentId + ')';
+        DB.modules.forEach(m => {
+            const p = S.progress[m.id] || { completed: false, score: 'Pending' };
+            const c = p.completed ? (p.score === 'Passed' ? 'var(--success)' : 'var(--danger)') : 'var(--text-muted)';
+            const t = p.timeTaken ? Math.floor(p.timeTaken / 60) + 'm' + p.timeTaken % 60 + 's' : '-';
+            const tr = document.createElement('tr'); tr.style.borderBottom = '1px solid var(--border)';
+            tr.innerHTML = '<td style="padding:10px 14px;font-weight:500;">' + m.title + '</td><td style="padding:10px 14px;color:' + c + '">' + (p.completed ? 'Done' : '-') + '</td><td style="padding:10px 14px;font-weight:700;color:' + c + '">' + p.score + (p.pct != null ? ' (' + p.pct + '%)' : '') + '</td><td style="padding:10px 14px;">' + t + '</td>';
+            tb.appendChild(tr);
+        });
+        if (cScores) cScores.destroy(); if (cComp) cComp.destroy();
+        const labels = DB.modules.map((_, i) => 'M' + (i + 1));
+        const scores = DB.modules.map(m => { const p = S.progress[m.id]; return p && p.pct != null ? p.pct : 0; });
+        const colors = DB.modules.map(m => { const p = S.progress[m.id]; if (!p || !p.completed) return '#334155'; return p.score === 'Passed' ? '#34d399' : '#ef4444'; });
+        cScores = new Chart(document.getElementById('chartScores'), { type: 'bar', data: { labels, datasets: [{ label: 'Score', data: scores, backgroundColor: colors, borderRadius: 6 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,.05)' } }, x: { grid: { display: false } } } } });
+        let d = 0, f = 0, p2 = 0;
+        DB.modules.forEach(m => { const p = S.progress[m.id]; if (p && p.completed) { p.score === 'Passed' ? d++ : f++; } else p2++; });
+        cComp = new Chart(document.getElementById('chartCompletion'), { type: 'doughnut', data: { labels: ['Passed', 'Failed', 'Pending'], datasets: [{ data: [d, f, p2], backgroundColor: ['#34d399', '#ef4444', '#334155'], borderWidth: 0 }] }, options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { padding: 16, color: '#94a3b8' } } } } });
+    }
+};
+
+/* ==========================================================
+   SECTION L: ACHIEVEMENTS / INSTRUCTOR
+   ========================================================== */
+const Achiev = { render() { const g = document.getElementById('achievementsGrid'); g.innerHTML = ''; BADGES.forEach(b => { const u = S.achievements.includes(b.id); g.innerHTML += '<div class="badge-card ' + (u ? 'unlocked' : 'locked') + '"><span class="badge-icon">' + b.icon + '</span><div class="badge-name">' + b.name + '</div><div class="badge-desc">' + b.desc + '</div></div>'; }); } };
+
+const Instr = {
+    render() {
+        const tb = document.getElementById('rosterBody'); tb.innerHTML = '';
+        const ids = Object.keys(DB.students);
+        if (!ids.length) { tb.innerHTML = '<tr><td colspan="4" style="padding:14px;text-align:center;color:var(--text-muted)">No students.</td></tr>'; }
+        else ids.forEach(id => { const s = DB.students[id]; let d = 0; if (s.progress) Object.values(s.progress).forEach(p => { if (p.completed) d++; }); const tr = document.createElement('tr'); tr.style.borderBottom = '1px solid var(--border)'; tr.innerHTML = '<td style="padding:10px 14px;font-weight:600">' + s.name + '</td><td style="padding:10px 14px;color:var(--text-muted)">' + id + '</td><td style="padding:10px 14px;color:var(--success)">' + d + '/' + DB.modules.length + '</td><td style="padding:10px 14px">' + Math.floor((s.secondsActive || 0) / 60) + 'm</td>'; tb.appendChild(tr); });
+        const sel = document.getElementById('instrModSelect'); sel.innerHTML = '<option value="new">+ Create New</option>';
+        DB.modules.forEach(m => { const o = document.createElement('option'); o.value = m.id; o.textContent = m.title; sel.appendChild(o); });
+    },
+    postAnn() { const t = document.getElementById('annTitle').value.trim(); const b = document.getElementById('annBody').value.trim(); if (!t || !b) { toast('Fill all fields.', 'error'); return; } if (!DB.announcements) DB.announcements = []; DB.announcements.push({ title: t, body: b, priority: document.getElementById('annPriority').value, ts: Date.now() }); save(); document.getElementById('annTitle').value = ''; document.getElementById('annBody').value = ''; toast('Posted!', 'success'); },
+    modeChange() { const v = document.getElementById('instrModSelect').value; const db2 = document.getElementById('instrDelBtn'); if (v === 'new') { ['editModId', 'editModTitle', 'editModContent', 'editModCode'].forEach(id => document.getElementById(id).value = ''); document.getElementById('editModDiff').value = 'Beginner'; document.getElementById('editModTime').value = 10; document.getElementById('editModPrereq').value = ''; document.getElementById('qBuilder').innerHTML = ''; for (let i = 0; i < 5; i++) Instr.addQ(); db2.style.display = 'none'; } else { const m = DB.modules.find(x => x.id == v); if (!m) return; document.getElementById('editModId').value = m.id; document.getElementById('editModTitle').value = m.title; document.getElementById('editModContent').value = m.content; document.getElementById('editModCode').value = m.code; document.getElementById('editModDiff').value = m.difficulty || 'Beginner'; document.getElementById('editModTime').value = m.timeLimit || 10; document.getElementById('editModPrereq').value = m.prerequisite || ''; const qc = document.getElementById('qBuilder'); qc.innerHTML = ''; m.questions.forEach(q => Instr.addQ(q)); db2.style.display = ''; } },
+    addQ(qd) { const c = document.getElementById('qBuilder'); const i = c.children.length + 1; const d = document.createElement('div'); d.style.cssText = 'padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);'; d.innerHTML = '<div style="font-size:.78rem;font-weight:700;color:var(--primary);margin-bottom:6px;">Q' + i + '</div><input type="text" class="qt" placeholder="Question" value="' + (qd ? qd.q.replace(/"/g, '&quot;') : '') + '"><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;"><input class="qo0" placeholder="A" value="' + (qd ? qd.options[0].replace(/"/g, '&quot;') : '') + '"><input class="qo1" placeholder="B" value="' + (qd ? qd.options[1].replace(/"/g, '&quot;') : '') + '"><input class="qo2" placeholder="C" value="' + (qd ? qd.options[2].replace(/"/g, '&quot;') : '') + '"><input class="qo3" placeholder="D" value="' + (qd ? qd.options[3].replace(/"/g, '&quot;') : '') + '"></div><div style="margin-top:6px;display:flex;gap:8px;align-items:center;"><label style="font-size:.78rem;">Correct(0-3):</label><input type="number" class="qc" min="0" max="3" value="' + (qd ? qd.correct : 0) + '" style="width:50px;margin-bottom:0;"><input type="text" class="qe" placeholder="Explanation" value="' + (qd && qd.explain ? qd.explain.replace(/"/g, '&quot;') : '') + '" style="flex:1;margin-bottom:0;"></div>'; c.appendChild(d); },
+    save() { const eid = document.getElementById('editModId').value; const title = document.getElementById('editModTitle').value.trim(); const content = document.getElementById('editModContent').value.trim(); const code = document.getElementById('editModCode').value.trim(); const diff = document.getElementById('editModDiff').value; const time = parseInt(document.getElementById('editModTime').value) || 10; const prereq = document.getElementById('editModPrereq').value ? parseInt(document.getElementById('editModPrereq').value) : null; if (!title || !content) { toast('Title & content required.', 'error'); return; } const cards = document.querySelectorAll('#qBuilder > div'); if (cards.length < 5) { toast('Min 5 questions.', 'error'); return; } let questions = []; for (const card of cards) { const q = card.querySelector('.qt').value.trim(); const opts = [card.querySelector('.qo0').value.trim(), card.querySelector('.qo1').value.trim(), card.querySelector('.qo2').value.trim(), card.querySelector('.qo3').value.trim()]; const correct = parseInt(card.querySelector('.qc').value); const explain = card.querySelector('.qe').value.trim(); if (!q || opts.some(o => !o)) { toast('Complete all fields.', 'error'); return; } questions.push({ q, options: opts, correct: isNaN(correct) ? 0 : Math.min(3, Math.max(0, correct)), explain: explain || undefined }); } if (eid) { const m = DB.modules.find(x => x.id == eid); if (m) { m.title = title; m.content = content; m.code = code; m.difficulty = diff; m.timeLimit = time; m.prerequisite = prereq; m.questions = questions; } } else { const nid = Date.now(); DB.modules.push({ id: nid, title, content, code, difficulty: diff, timeLimit: time, prerequisite: prereq, questions }); Object.keys(DB.students).forEach(sid => { if (DB.students[sid].progress) DB.students[sid].progress[nid] = { completed: false, score: 'Pending' }; }); if (S.isLoggedIn) S.progress[nid] = { completed: false, score: 'Pending' }; } save(); toast('Saved!', 'success'); Instr.modeChange(); },
+    del() { const eid = document.getElementById('editModId').value; if (!eid || !confirm('Delete?')) return; DB.modules = DB.modules.filter(m => m.id != eid); save(); Instr.modeChange(); toast('Deleted.', 'info'); }
+};
+
+/* ==========================================================
+   SECTION M: COMMAND PALETTE
+   ========================================================== */
+const commands = [
+    { name: 'Dashboard', action: () => switchView('dashboard', document.querySelectorAll('.nav-links li')[0]) },
+    { name: 'IDE & Terminal', action: () => switchView('ide', document.querySelectorAll('.nav-links li')[1]) },
+    { name: 'Curriculum', action: () => switchView('courses', document.querySelectorAll('.nav-links li')[2]) },
+    { name: 'Analytics', action: () => switchView('reports', document.querySelectorAll('.nav-links li')[3]) },
+    { name: 'Achievements', action: () => switchView('achievements', document.querySelectorAll('.nav-links li')[4]) },
+    { name: 'Toggle Theme', action: toggleTheme },
+    { name: 'Run Code', action: () => IDE.run() },
+    { name: 'New File', action: () => IDE.newFile() },
+    { name: 'License Info', action: () => LIC.showInfo() },
+    { name: 'Login / Logout', action: () => { S.isLoggedIn ? Auth.logout() : openModal('authModal'); } },
+];
+const CMD = {
+    si: 0,
+    open() { document.getElementById('cmdPalette').classList.add('open'); const inp = document.getElementById('cmdInput'); inp.value = ''; inp.focus(); CMD.si = 0; CMD.filter(); },
+    close() { document.getElementById('cmdPalette').classList.remove('open'); },
+    filter() { CMD.si = 0; CMD.render(document.getElementById('cmdInput').value.toLowerCase()); },
+    render(q) { const c = document.getElementById('cmdResults'); c.innerHTML = ''; const f = commands.filter(cmd => cmd.name.toLowerCase().includes(q)); f.forEach((cmd, i) => { const d = document.createElement('div'); d.className = 'cmd-item' + (i === CMD.si ? ' selected' : ''); d.innerHTML = '<span>' + cmd.name + '</span>'; d.onclick = () => { CMD.close(); cmd.action(); }; c.appendChild(d); }); },
+    key(e) { const items = document.querySelectorAll('.cmd-item'); if (e.key === 'Escape') CMD.close(); else if (e.key === 'ArrowDown') { e.preventDefault(); CMD.si = Math.min(CMD.si + 1, items.length - 1); items.forEach((it, i) => it.classList.toggle('selected', i === CMD.si)); } else if (e.key === 'ArrowUp') { e.preventDefault(); CMD.si = Math.max(CMD.si - 1, 0); items.forEach((it, i) => it.classList.toggle('selected', i === CMD.si)); } else if (e.key === 'Enter' && items.length) { CMD.close(); items[CMD.si]?.click(); } }
+};
+
+/* ==========================================================
+   SECTION N: GLOBAL SHORTCUTS
+   ========================================================== */
+document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); CMD.open(); }
+    if (e.key === 'Escape') { document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open')); CMD.close(); Admin.close(); }
+    // SECRET: Ctrl+Shift+L opens admin license generator
+    if (e.ctrlKey && e.shiftKey && e.key === 'L') { e.preventDefault(); Admin.open(); }
+});
+
+document.getElementById('cmdPalette').addEventListener('click', e => { if (e.target.id === 'cmdPalette') CMD.close(); });
+
+/* ==========================================================
+   SECTION O: MAIN INITIALIZATION
+   ========================================================== */
+
+// The License.check() runs FIRST. Only if valid, the app renders.
+async function AppInit() {
+    // Only runs if license is valid
+    DB = loadDB();
+    S = loadS();
+    DB.modules.forEach(m => { if (!S.progress[m.id]) S.progress[m.id] = { completed: false, score: 'Pending' }; });
+    // Migration
+    if (DB.modules.length < 12) { const ids = new Set(DB.modules.map(m => m.id)); DEFAULT_MODULES.forEach(d => { if (!ids.has(d.id)) DB.modules.push(d); }); }
+    document.documentElement.setAttribute('data-theme', S.theme);
+    IDE.init();
+    IDE.renderFiles();
+    if (S.workspaceFiles[0]) IDE.switchFile(0);
+    updateUI();
+    document.querySelectorAll('.nav-links li').forEach(li => { li.addEventListener('click', () => switchView(li.dataset.view, li)); });
+    // Timer
+    setInterval(() => { if (S.isLoggedIn) { S.secondsActive++; if (S.secondsActive % 15 === 0) save(); } const te = document.getElementById('sTime'); if (te) te.textContent = Math.floor(S.secondsActive / 60) + 'm'; }, 1000);
+    save();
+    LIC.updateStatusBar();
+}
+
+// ======= BOOTSTRAP: LICENSE CHECK =======
+(async function bootstrap() {
+    // Show fingerprint on license screen
+    const fp = await LIC.getFingerprint();
+    document.getElementById('licFingerprint').value = fp;
+
+    // Check if locked (previously expired)
+    const isLocked = localStorage.getItem(LIC.STORAGE_KEY + '_locked');
+    if (isLocked === 'true') {
+        LIC.showExpired();
+        return; // Don't proceed
+    }
+
+    // Check existing license
+    const valid = await LIC.check();
+    if (valid) {
+        LIC.unlockApp();
+    } else {
+        // No valid license — show activation screen
+        document.getElementById('licenseScreen').style.display = 'flex';
+    }
+})();
+</script>
+</body>
+</html>
