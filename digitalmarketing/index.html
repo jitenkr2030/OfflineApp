@@ -424,15 +424,14 @@ document.querySelectorAll('.nav li').forEach(li=>{li.addEventListener('click',()
 
 function updateUI(){
     const nb = document.getElementById('navInstructor');
-
 document.getElementById('dispName').textContent=S.isLoggedIn?S.studentName:'Guest';
 const rb=document.getElementById('roleBadge'),ab=document.getElementById('authBtn');
-if(S.isLoggedIn){rb.innerHTML='<span class="badge" style="background:var(--ok)">Active</span>';ab.textContent='🚪 Logout'}else{if(S.isInstructor){nb.style.display="";rb.innerHTML='<span class="badge" style="background:var(--wr);color:#000">Instructor</span>'}else rb.innerHTML='<span class="badge" style="background:var(--dn)">Logged Out</span>';ab.textContent='🔐 Login'}
+if(S.isInstructor){nb.style.display="";rb.innerHTML='<span class="badge" style="background:var(--wr);color:#000">Instructor</span>';ab.textContent='\u{1F464} Student'}else if(S.isLoggedIn){rb.innerHTML='<span class="badge" style="background:var(--ok)">Active</span>';ab.textContent='\u{1F6AA} Logout'}else{rb.innerHTML='<span class="badge" style="background:var(--dn)">Logged Out</span>';ab.textContent='\u{1F510} Login'}
 let done=0,passed=0,ev=0;Object.values(S.progress).forEach(p=>{if(p.completed)done++;if(p.score==='Passed')passed++;if(p.score!=='Pending')ev++});
 document.getElementById('sDone').textContent=done+'/'+MODS.length;document.getElementById('sScore').textContent=ev?Math.round(passed/ev*100)+'%':'0%';document.getElementById('sTime').textContent=Math.floor(S.secondsActive/60)+'m';document.getElementById('sCampaigns').textContent=Object.values(S.progress).filter(p=>p.completed&&p.score==='Passed').length;document.getElementById('sStreak').textContent=S.streak;
 document.getElementById('welcomeB').textContent=S.isLoggedIn?'Welcome back, '+S.studentName+'!':'Welcome to DigiMktg Academy';
 document.getElementById('authPr').innerHTML=S.isLoggedIn?'<button class="btn btn-dn" onclick="Auth.logout()">🚪 Logout</button>':'<button class="btn btn-ok" onclick="UI.openMdl(\'authModal\')">Log In</button>';
-if(S.isLoggedIn){BADGES.forEach(b=>{if(!S.achievements.includes(b.id)&&b.check(S)){S.achievements.push(b.id);T('🏆 '+b.name,'ok')}})}
+if(S.isLoggedIn){BADGES.forEach(b=>{if(!S.achievements.includes(b.id)&&b.check(S)){S.achievements.push(b.id);T('\u{1F3C6} '+b.name,'ok')}})}
 const db=document.getElementById('dashBadges');db.innerHTML='';BADGES.slice(0,8).forEach(b=>{db.innerHTML+='<div class="badge-card '+(S.achievements.includes(b.id)?'unlocked':'locked')+'"><span class="badge-icon">'+b.icon+'</span><div class="badge-name">'+b.name+'</div></div>'})}
 
 document.getElementById('authBtn').onclick=()=>{S.isLoggedIn?Auth.logout():UI.openMdl('authModal')};
