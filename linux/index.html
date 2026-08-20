@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinuxAdmin Pro | Complete Course & Practice Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0f19;
+            --card: #1e293b;
+            --border: #334155;
+            --primary: #38bdf8;
+            --primary-hover: #0ea5e9;
+            --success: #4ade80;
+            --warning: #f59e0b;
+            --danger: #f87171;
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --terminal-bg: #030712;
+            --terminal-text: #4ade80;
+            --surface: #151d2e;
+        }
+
+        [data-theme="light"] {
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --success: #16a34a;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --text: #0f172a;
+            --muted: #64748b;
+            --terminal-bg: #1e293b;
+            --terminal-text: #4ade80;
+            --surface: #f8fafc;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Space Grotesk', 'Segoe UI', sans-serif; }
+        body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Auth Overlay */
+        #auth-overlay { position: fixed; inset: 0; background: rgba(11,15,25,0.95); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .auth-card { background: var(--card); border: 1px solid var(--border); padding: 32px; border-radius: 12px; width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .auth-card h2 { color: var(--primary); margin-bottom: 8px; text-align: center; }
+        .auth-card p { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; text-align: center; }
+
+        /* Sidebar */
+        aside { width: 260px; background: var(--card); border-right: 1px solid var(--border); display: flex; flex-direction: column; justify-content: space-between; flex-shrink: 0; }
+        .brand { padding: 20px; font-size: 1.1rem; font-weight: 700; color: var(--primary); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+        .nav-links { list-style: none; padding: 12px; flex-grow: 1; }
+        .nav-links li { padding: 10px 14px; margin-bottom: 4px; border-radius: 6px; cursor: pointer; color: var(--muted); font-size: 0.9rem; transition: all 0.2s; }
+        .nav-links li:hover, .nav-links li.active { background: rgba(56,189,248,0.1); color: var(--primary); }
+        .sidebar-footer { padding: 12px; border-top: 1px solid var(--border); }
+
+        /* Main */
+        main { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        header { padding: 14px 28px; background: var(--card); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .content-area { padding: 28px; flex-grow: 1; overflow-y: auto; }
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+
+        /* Cards & Grid */
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 8px; }
+        .card h3 { margin-bottom: 8px; color: var(--primary); font-size: 1rem; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; background: var(--card); border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+        th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        th { background: rgba(0,0,0,0.3); color: var(--primary); }
+
+        /* Forms */
+        label { display: block; font-size: 0.82rem; color: var(--muted); margin-bottom: 4px; }
+        input, select, textarea { width: 100%; padding: 9px 11px; margin-bottom: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 0.9rem; font-family: inherit; }
+        textarea { resize: vertical; }
+        button { background: var(--primary); color: #0b0f19; border: none; padding: 9px 16px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: background 0.2s; font-size: 0.9rem; }
+        button:hover { background: var(--primary-hover); }
+        button.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+        button.secondary:hover { background: rgba(255,255,255,0.05); }
+        button.danger { background: var(--danger); }
+        button.warning { background: var(--warning); color: #000; }
+        button.success { background: var(--success); color: #000; }
+        .btn-sm { padding: 4px 10px; font-size: 0.78rem; }
+        .btn-xs { padding: 2px 8px; font-size: 0.72rem; }
+
+        /* Badges */
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; }
+        .badge.completed { background: rgba(74,222,128,0.15); color: var(--success); }
+        .badge.in-progress { background: rgba(56,189,248,0.15); color: var(--primary); }
+        .badge.not-started { background: rgba(148,163,184,0.15); color: var(--muted); }
+        .badge.passed { background: rgba(74,222,128,0.15); color: var(--success); }
+        .badge.failed { background: rgba(248,113,113,0.15); color: var(--danger); }
+
+        /* Terminal */
+        .terminal-container { background: var(--terminal-bg); border: 1px solid var(--border); border-radius: 8px; height: 450px; display: flex; flex-direction: column; overflow: hidden; margin-top: 12px; font-family: 'DM Mono', 'Courier New', monospace; }
+        .terminal-header { background: #111827; padding: 8px 14px; font-size: 0.8rem; color: var(--muted); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+        .terminal-body { padding: 14px; flex-grow: 1; overflow-y: auto; color: var(--terminal-text); font-size: 0.85rem; line-height: 1.5; }
+        .terminal-input-line { display: flex; align-items: center; background: #030712; padding: 0 14px 12px 14px; }
+        .prompt-symbol { color: var(--primary); margin-right: 8px; font-weight: bold; font-size: 0.85rem; }
+        .terminal-input-line input { background: transparent; border: none; outline: none; color: var(--terminal-text); font-family: 'DM Mono', monospace; font-size: 0.85rem; margin: 0; padding: 0; flex: 1; }
+
+        /* Quiz */
+        .quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+        .quiz-card h4 { color: var(--primary); margin-bottom: 12px; }
+        .quiz-option { display: block; padding: 10px 14px; margin-bottom: 6px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 0.88rem; }
+        .quiz-option:hover { border-color: var(--primary); background: rgba(56,189,248,0.05); }
+        .quiz-option.selected { border-color: var(--primary); background: rgba(56,189,248,0.1); }
+        .quiz-option.correct { border-color: var(--success); background: rgba(74,222,128,0.1); }
+        .quiz-option.wrong { border-color: var(--danger); background: rgba(248,113,113,0.1); }
+
+        /* Certificate */
+        .cert-container { background: linear-gradient(135deg, #0c1220, #1a2744); border: 2px solid var(--primary); border-radius: 12px; padding: 40px; text-align: center; max-width: 600px; margin: 20px auto; }
+        .cert-container h2 { color: var(--primary); font-size: 1.6rem; margin-bottom: 8px; }
+        .cert-container .cert-name { font-size: 2rem; font-weight: 700; color: var(--text); margin: 16px 0; border-bottom: 2px solid var(--primary); display: inline-block; padding-bottom: 4px; }
+
+        /* Badges Grid */
+        .badges-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+        .badge-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px; text-align: center; transition: all 0.2s; }
+        .badge-card.unlocked { border-color: var(--primary); }
+        .badge-card.locked { opacity: 0.4; }
+        .badge-icon { font-size: 1.8rem; display: block; margin-bottom: 6px; }
+        .badge-name { font-size: 0.75rem; font-weight: 600; color: var(--muted); }
+
+        /* Notes */
+        .notes-area { width: 100%; min-height: 200px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.88rem; resize: vertical; }
+
+        /* Command Palette */
+        .cmd-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: none; justify-content: center; padding-top: 15vh; }
+        .cmd-overlay.active { display: flex; }
+        .cmd-box { background: var(--card); border: 1px solid var(--border); border-radius: 10px; width: 480px; max-height: 350px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .cmd-box input { width: 100%; padding: 14px 18px; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--text); font-size: 1rem; outline: none; }
+        .cmd-results { max-height: 280px; overflow-y: auto; }
+        .cmd-item { padding: 10px 18px; cursor: pointer; font-size: 0.88rem; color: var(--muted); transition: all 0.15s; }
+        .cmd-item:hover, .cmd-item.active { background: rgba(56,189,248,0.1); color: var(--text); }
+
+        /* Announcement */
+        .announcement-bar { background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.2); border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
+
+        /* Toast */
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 3000; display: flex; flex-direction: column; gap: 8px; }
+        .toast { padding: 12px 20px; border-radius: 8px; font-size: 0.85rem; font-weight: 500; animation: slideIn 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .toast.success { background: var(--success); color: #000; }
+        .toast.error { background: var(--danger); color: #fff; }
+        .toast.info { background: var(--primary); color: #000; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* License Screen */
+        #lic-screen { position: fixed; inset: 0; background: var(--bg); z-index: 900; display: none; justify-content: center; align-items: center; }
+        #lic-screen.active { display: flex; }
+        .lic-card { background: var(--card); border: 1px solid var(--border); padding: 32px; border-radius: 12px; width: 420px; }
+        .lic-card h2 { color: var(--primary); margin-bottom: 16px; text-align: center; }
+        .lic-field { margin-bottom: 14px; }
+        .lic-field label { font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+        .lic-field input { background: var(--bg); border: 1px solid var(--border); padding: 8px 10px; border-radius: 6px; color: var(--text); width: 100%; font-family: 'DM Mono', monospace; font-size: 0.82rem; }
+        .lic-status { text-align: center; margin-top: 12px; font-size: 0.85rem; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Command Palette -->
+    <div class="cmd-overlay" id="cmdPalette">
+        <div class="cmd-box">
+            <input type="text" id="cmdInput" placeholder="Type a command..." oninput="CMD.filter()" onkeydown="CMD.key(event)">
+            <div class="cmd-results" id="cmdResults"></div>
+        </div>
+    </div>
+
+    <!-- License Screen -->
+    <div id="lic-screen">
+        <div class="lic-card">
+            <h2>LinuxAdmin Pro</h2>
+            <p style="color:var(--muted);text-align:center;margin-bottom:20px;font-size:0.85rem;">Enter your license key to activate</p>
+            <div class="lic-field">
+                <label>Machine Fingerprint</label>
+                <input type="text" id="licFP" readonly>
+            </div>
+            <div class="lic-field">
+                <label>License Key</label>
+                <input type="text" id="licKey" placeholder="LNXA-XXXX-XXXX-XXXX-XXXX">
+            </div>
+            <button onclick="LIC.activate()" style="width:100%;margin-top:4px;">Activate License</button>
+            <div class="lic-status" id="licStatus"></div>
+        </div>
+    </div>
+
+    <!-- Auth Overlay -->
+    <div id="auth-overlay">
+        <div class="auth-card">
+            <h2>LinuxAdmin Pro</h2>
+            <p>Select your role to access the platform</p>
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <label>Select User Role:</label>
+                <select id="login-role">
+                    <option value="student">Student Portal</option>
+                    <option value="instructor">Instructor Management Portal</option>
+                </select>
+                <label>Your Name:</label>
+                <input type="text" id="login-name" placeholder="e.g., Alex Mercer" required>
+                <label>Student ID:</label>
+                <input type="text" id="login-id" placeholder="e.g., STU-2025-001" required>
+                <button type="submit" style="width:100%;margin-top:8px;">Enter Platform</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside>
+        <div>
+            <div class="brand">🐧 LinuxAdmin Pro</div>
+            <ul class="nav-links" id="navigation-list"></ul>
+        </div>
+        <div class="sidebar-footer">
+            <div style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;">
+                <span id="roleBadge"></span>
+                <strong id="user-display-name" style="color:var(--text);">User</strong>
+            </div>
+            <div style="display:flex;gap:6px;margin-bottom:8px;">
+                <button class="secondary btn-sm" onclick="toggleTheme()" style="flex:1;">Theme</button>
+                <button class="secondary btn-sm" onclick="openCmd()" style="flex:1;">Ctrl+K</button>
+            </div>
+            <button class="secondary" onclick="logout()" style="width:100%;font-size:0.8rem;padding:6px;">Logout</button>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main>
+        <header>
+            <h2 id="view-title" style="font-size:1.1rem;">Dashboard</h2>
+            <div style="display:flex;gap:12px;align-items:center;">
+                <span id="header-status" style="font-size:0.82rem;color:var(--muted);">Active Lab Environment</span>
+                <span id="sTime" style="font-size:0.78rem;color:var(--muted);font-family:'DM Mono',monospace;">0m</span>
+            </div>
+        </header>
+
+        <div class="content-area">
+
+            <!-- 1. Student Dashboard -->
+            <div id="view-student-dash" class="view-section">
+                <div id="announcementArea"></div>
+                <div id="welcomeBanner" style="font-size:1.2rem;font-weight:600;margin-bottom:20px;"></div>
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>Overall Progress</h3>
+                        <p id="sProgress" style="font-size:2rem;font-weight:bold;color:var(--primary);margin:8px 0;">0%</p>
+                        <p style="color:var(--muted);font-size:0.82rem;">Modules completed</p>
+                    </div>
+                    <div class="card">
+                        <h3>Quiz Score</h3>
+                        <p id="sScore" style="font-size:2rem;font-weight:bold;color:var(--success);margin:8px 0;">0%</p>
+                        <p style="color:var(--muted);font-size:0.82rem;">Average quiz performance</p>
+                    </div>
+                    <div class="card">
+                        <h3>Study Time</h3>
+                        <p id="sTimeCard" style="font-size:2rem;font-weight:bold;color:var(--warning);margin:8px 0;">0m</p>
+                        <p style="color:var(--muted);font-size:0.82rem;">Total time on platform</p>
+                    </div>
+                    <div class="card">
+                        <h3>Streak</h3>
+                        <p id="sStreak" style="font-size:2rem;font-weight:bold;color:var(--danger);margin:8px 0;">0</p>
+                        <p style="color:var(--muted);font-size:0.82rem;">Consecutive days</p>
+                    </div>
+                </div>
+                <h3 style="margin-bottom:12px;">Enrolled Curriculum</h3>
+                <table>
+                    <thead><tr><th>Module</th><th>Title</th><th>Status</th><th>Score</th><th>Action</th></tr></thead>
+                    <tbody id="student-modules-table"></tbody>
+                </table>
+                <div id="authPrompt" style="margin-top:20px;"></div>
+            </div>
+
+            <!-- 2. Course Curriculum -->
+            <div id="view-curriculum" class="view-section">
+                <h3 style="margin-bottom:6px;">Course Catalog</h3>
+                <p style="color:var(--muted);margin-bottom:16px;font-size:0.88rem;">Complete Linux Administration training program.</p>
+                <div id="curriculum-cards-container"></div>
+            </div>
+
+            <!-- 3. Module Detail / Quiz -->
+            <div id="view-module" class="view-section">
+                <button class="secondary btn-sm" onclick="switchView('view-curriculum','Course Catalog')" style="margin-bottom:16px;">← Back to Catalog</button>
+                <div id="module-content-area"></div>
+            </div>
+
+            <!-- 4. Practice Terminal -->
+            <div id="view-terminal" class="view-section">
+                <h3>Interactive Sandbox Terminal</h3>
+                <p style="color:var(--muted);font-size:0.85rem;margin-bottom:8px;">Practice commands: <code>pwd</code> <code>ls</code> <code>cd</code> <code>mkdir</code> <code>touch</code> <code>cat</code> <code>whoami</code> <code>chmod</code> <code>ps</code> <code>grep</code> <code>find</code> <code>df</code> <code>top</code></p>
+                <div class="terminal-container">
+                    <div class="terminal-header">
+                        <span>bash - root@linux-node01:~</span>
+                        <span>Interactive Container Sandbox</span>
+                    </div>
+                    <div class="terminal-body" id="terminal-output">
+                        Welcome to LinuxAdmin Pro Virtual Shell v3.0.<br>
+                        Type <span style="color:var(--primary);">help</span> to list available commands.<br><br>
+                    </div>
+                    <div class="terminal-input-line">
+                        <span class="prompt-symbol" id="terminal-prompt-label">root@linux-node01:~#</span>
+                        <input type="text" id="terminal-command-input" autofocus autocomplete="off" placeholder="Type command here...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Achievements -->
+            <div id="view-achievements" class="view-section">
+                <h3 style="margin-bottom:6px;">Achievements & Badges</h3>
+                <p style="color:var(--muted);margin-bottom:16px;font-size:0.85rem;">Earn badges by completing modules and quizzes.</p>
+                <div class="badges-grid" id="badges-container"></div>
+            </div>
+
+            <!-- 6. Notes & Bookmarks -->
+            <div id="view-notes" class="view-section">
+                <h3 style="margin-bottom:6px;">My Notes</h3>
+                <p style="color:var(--muted);margin-bottom:12px;font-size:0.85rem;">Your personal study notes are saved locally.</p>
+                <textarea class="notes-area" id="notesArea" placeholder="Type your notes here..." oninput="saveNotes()"></textarea>
+                <h3 style="margin:20px 0 12px;">Bookmarked Modules</h3>
+                <div id="bookmarks-container"></div>
+            </div>
+
+            <!-- 7. Certificate -->
+            <div id="view-certificate" class="view-section">
+                <h3 style="margin-bottom:16px;">Certificate of Completion</h3>
+                <div id="cert-container"></div>
+            </div>
+
+            <!-- 8. Instructor Course Manager -->
+            <div id="view-instructor-courses" class="view-section">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <div><h3>Course & Curriculum Management</h3><p style="color:var(--muted);font-size:0.85rem;">Add or modify course modules.</p></div>
+                </div>
+                <div class="card" style="margin-bottom:20px;">
+                    <h3 style="margin-bottom:12px;">Publish New Training Module</h3>
+                    <form id="add-module-form" onsubmit="handleAddNewModule(event)">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                            <div><label>Module Title:</label><input type="text" id="new-mod-title" placeholder="e.g., Module 6: Docker Containers" required></div>
+                            <div><label>Duration:</label><input type="text" id="new-mod-scope" placeholder="e.g., 3 Hours / 4 Labs" required></div>
+                        </div>
+                        <label>Description:</label>
+                        <textarea id="new-mod-desc" rows="2" placeholder="Learning objectives..." required></textarea>
+                        <label>Lesson Content:</label>
+                        <textarea id="new-mod-content" rows="3" placeholder="Detailed lesson text..."></textarea>
+                        <label>Practice Code / Commands:</label>
+                        <textarea id="new-mod-code" rows="3" placeholder="Example commands..." style="font-family:'DM Mono',monospace;"></textarea>
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+                            <div><label>Difficulty</label><select id="new-mod-diff"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></div>
+                            <div><label>Time (min)</label><input type="number" id="new-mod-time" value="60"></div>
+                            <div><label>Prereq (Module #)</label><input type="number" id="new-mod-prereq" placeholder="0"></div>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin:12px 0 8px;">
+                            <label style="font-weight:600;color:var(--primary);">Quiz Questions (min 5)</label>
+                            <button type="button" class="btn-sm" onclick="addQuizQuestion()">+ Add Question</button>
+                        </div>
+                        <div id="quiz-builder" style="margin-bottom:12px;"></div>
+                        <button type="submit">Publish Module</button>
+                    </form>
+                </div>
+                <h3>Published Modules</h3>
+                <table>
+                    <thead><tr><th>ID</th><th>Title</th><th>Difficulty</th><th>Action</th></tr></thead>
+                    <tbody id="instructor-modules-table"></tbody>
+                </table>
+            </div>
+
+            <!-- 9. Instructor Student Manager -->
+            <div id="view-instructor-students" class="view-section">
+                <h3 style="margin-bottom:6px;">Student Roster</h3>
+                <p style="color:var(--muted);margin-bottom:16px;font-size:0.85rem;">Monitor student engagement and progress.</p>
+                <table>
+                    <thead><tr><th>Student</th><th>ID</th><th>Progress</th><th>Time</th><th>Streak</th></tr></thead>
+                    <tbody id="instructor-students-table"></tbody>
+                </table>
+            </div>
+
+            <!-- 10. Instructor Announcements -->
+            <div id="view-instructor-announce" class="view-section">
+                <h3 style="margin-bottom:16px;">Post Announcement</h3>
+                <div class="card">
+                    <label>Title:</label>
+                    <input type="text" id="annTitle" placeholder="Announcement title">
+                    <label>Message:</label>
+                    <textarea id="annBody" rows="3" placeholder="Message content..."></textarea>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <select id="annPriority" style="width:auto;margin-bottom:0;"><option value="info">Info</option><option value="warning">Warning</option><option value="urgent">Urgent</option></select>
+                        <button onclick="postAnnouncement()">Post Announcement</button>
+                    </div>
+                </div>
+                <h3 style="margin:20px 0 12px;">Previous Announcements</h3>
+                <div id="announcements-list"></div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+    // ============================================================
+    // SECTION A: LICENSE SYSTEM
+    // ============================================================
+    const LIC = {
+        SECRET: 'LNXA_LMS_SECRET_KEY_xK9$mP2v@qR7nZ4w',
+        STORAGE_KEY: 'linuxadmin_license_v1',
+        APP_PREFIX: 'lnxa',
+        INTERVAL: 30000,
+
+        async sha256(msg) {
+            try {
+                const b = new TextEncoder().encode(msg);
+                const h = await crypto.subtle.digest('SHA-256', b);
+                return Array.from(new Uint8Array(h)).map(x => x.toString(16).padStart(2, '0')).join('');
+            } catch (e) { return LIC.simpleHash(msg); }
+        },
+
+        simpleHash(s) {
+            let h = 0x811c9dc5;
+            for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); h = h >>> 0; }
+            return h.toString(16).toUpperCase();
+        },
+
+        async getFingerprint() {
+            const c = [];
+            c.push(navigator.userAgent || '');
+            c.push(navigator.language || '');
+            c.push(navigator.platform || '');
+            c.push(String(navigator.hardwareConcurrency || 0));
+            c.push(String(navigator.maxTouchPoints || 0));
+            c.push(String(screen.width));
+            c.push(String(screen.height));
+            c.push(String(screen.colorDepth));
+            c.push(Intl.DateTimeFormat().resolvedOptions().timeZone || '');
+            try {
+                const cv = document.createElement('canvas');
+                cv.width = 200; cv.height = 50;
+                const x = cv.getContext('2d');
+                x.textBaseline = 'top'; x.font = '14px Arial';
+                x.fillStyle = '#f60'; x.fillRect(125, 1, 62, 20);
+                x.fillStyle = '#069'; x.fillText('LinuxAdmin-LMS-Fingerprint', 2, 15);
+                x.fillStyle = 'rgba(102,204,0,0.7)'; x.fillText('Machine-ID', 4, 35);
+                c.push(cv.toDataURL());
+            } catch (e) { c.push('canvas-error'); }
+            try {
+                const gl = document.createElement('canvas').getContext('webgl');
+                const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+                if (dbg) { c.push(gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) || ''); c.push(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || ''); }
+            } catch (e) { c.push('webgl-error'); }
+            try {
+                const actx = new (window.AudioContext || window.webkitAudioContext)();
+                c.push(String(actx.sampleRate));
+                actx.close();
+            } catch (e) { c.push('audio-error'); }
+            const hash = await LIC.sha256(c.join('|||'));
+            return hash.substring(0, 32).toUpperCase();
+        },
+
+        async generateKey(fp, days) {
+            const exp = new Date();
+            exp.setDate(exp.getDate() + days);
+            const expDays = Math.floor(exp.getTime() / 86400000);
+            const expHex = expDays.toString(16).toUpperCase().padStart(5, '0');
+            const payload = 'LNXA-' + fp.substring(0, 4) + '-' + expHex.substring(0, 4) + '-' + fp.substring(4, 8);
+            const sig = (await LIC.sha256(payload + LIC.SECRET)).substring(0, 8).toUpperCase();
+            const key = 'LNXA-' + fp.substring(0, 4) + '-' + expHex.substring(0, 4) + '-' + fp.substring(4, 8) + '-' + sig;
+            return { key, expMs: exp.getTime(), exp: exp.toISOString() };
+        },
+
+        async validateKey(key, fp) {
+            try {
+                key = key.trim().toUpperCase();
+                if (!key.startsWith('LNXA-')) return { valid: false, reason: 'Invalid prefix' };
+                const parts = key.split('-');
+                if (parts.length !== 5) return { valid: false, reason: 'Invalid format' };
+                const fpPart = parts[1] + parts[3];
+                if (!fp.startsWith(fpPart)) return { valid: false, reason: 'Fingerprint mismatch' };
+                const payload = parts.slice(0, 4).join('-');
+                const expectedSig = (await LIC.sha256(payload + LIC.SECRET)).substring(0, 8).toUpperCase();
+                if (parts[4] !== expectedSig) return { valid: false, reason: 'Invalid signature' };
+                const expDays = parseInt(parts[2], 16);
+                const expMs = expDays * 86400000;
+                if (Date.now() > expMs) return { valid: false, reason: 'License expired' };
+                return { valid: true, expMs, exp: new Date(expMs).toISOString() };
+            } catch (e) { return { valid: false, reason: 'Validation error' }; }
+        },
+
+        store(key, fp, val) {
+            const data = { key, fp, expMs: val.expMs, exp: val.exp, ts: new Date().toISOString(), tamperHash: LIC.simpleHash(JSON.stringify({ key, fp, expMs: val.expMs })) };
+            localStorage.setItem(LIC.STORAGE_KEY, JSON.stringify(data));
+        },
+
+        getStored() {
+            try { return JSON.parse(localStorage.getItem(LIC.STORAGE_KEY)); } catch (e) { return null; }
+        },
+
+        checkTamper(d) {
+            if (!d) return true;
+            return d.tamperHash !== LIC.simpleHash(JSON.stringify({ key: d.key, fp: d.fp, expMs: d.expMs }));
+        },
+
+        async activate() {
+            const fp = document.getElementById('licFP').value;
+            const key = document.getElementById('licKey').value.trim();
+            if (!key) { toast('Enter license key', 'error'); return; }
+            const val = await LIC.validateKey(key, fp);
+            if (!val.valid) { document.getElementById('licStatus').innerHTML = '<span style="color:var(--danger);">' + val.reason + '</span>'; return; }
+            LIC.store(key, fp, val);
+            toast('License activated!', 'success');
+            LIC.unlock();
+        },
+
+        unlock() {
+            document.getElementById('lic-screen').classList.remove('active');
+            document.getElementById('auth-overlay').style.display = 'flex';
+        },
+
+        lock(reason) {
+            document.getElementById('lic-screen').classList.add('active');
+            document.getElementById('licStatus').innerHTML = '<span style="color:var(--danger);">Locked: ' + reason + '</span>';
+        },
+
+        async check() {
+            const s = LIC.getStored();
+            if (!s) return false;
+            if (LIC.checkTamper(s)) { LIC.lock('Tampered'); return false; }
+            const fp = await LIC.getFingerprint();
+            if (s.fp !== fp) { LIC.lock('Different machine'); return false; }
+            if (Date.now() > s.expMs) { LIC.lock('Expired'); return false; }
+            return true;
+        },
+
+        timer: null,
+        startCheck() {
+            if (LIC.timer) clearInterval(LIC.timer);
+            LIC.timer = setInterval(async () => {
+                if (!(await LIC.check())) clearInterval(LIC.timer);
+            }, LIC.INTERVAL);
+        }
+    };
+
+    // ============================================================
+    // SECTION B: COURSE DATA (12 modules with quizzes)
+    // ============================================================
+    const DEFAULT_MODULES = [
+        { id: 1, title: "Module 1: Linux Architecture & Shell Basics", scope: "2 Hours", difficulty: "Beginner", timeLimit: 60, prerequisite: null,
+          desc: "Understand kernel vs shell, file hierarchy standard (FHS), and navigation commands.",
+          content: "Linux is an open-source OS built around the kernel. The shell is the command interpreter. The Filesystem Hierarchy Standard (FHS) defines directory structure: /root, /home, /etc, /var, /tmp, /usr, /bin, /sbin. Core navigation: pwd (print working directory), ls (list files), cd (change directory).",
+          code: "pwd\nls -la\ncd /etc\nls\ncd ~\npwd",
+          status: "Not Started",
+          questions: [
+            { q: "What is the Linux kernel?", options: ["A text editor", "The core of the OS", "A file manager", "A shell command"], correct: 1, explain: "The kernel is the core component that manages hardware and system resources." },
+            { q: "Which command shows current directory?", options: ["ls", "cd", "pwd", "whoami"], correct: 2 },
+            { q: "FHS stands for?", options: ["File Handle System", "File Hierarchy Standard", "Fast Hardware Setup", "File Host Service"], correct: 1 },
+            { q: "/etc directory contains?", options: ["User files", "Configuration files", "Temporary files", "Boot files"], correct: 1 },
+            { q: "cd ~ navigates to?", options: ["Root directory", "Home directory", "Previous directory", "System directory"], correct: 1 }
+          ]
+        },
+        { id: 2, title: "Module 2: File Permissions & User Management", scope: "3 Hours", difficulty: "Beginner", timeLimit: 90, prerequisite: 1,
+          desc: "Master user administration, groups, and chmod/chown permission paradigms.",
+          content: "Linux uses a permission model: Owner (u), Group (g), Others (o). Each has Read (r=4), Write (w=2), Execute (x=1). chmod changes permissions, chown changes ownership. User management: useradd, usermod, passwd, groupadd.",
+          code: "chmod 755 script.sh\nchmod u+x backup.sh\nls -la\ngroupadd developers\nuseradd -m -G developers john\npasswd john",
+          status: "Not Started",
+          questions: [
+            { q: "chmod 755 means?", options: ["rwxr-xr-x", "rw-r--r--", "rwx------", "rw-rw-rw-"], correct: 0, explain: "7=rwx(owner), 5=r-x(group), 5=r-x(others)" },
+            { q: "chown changes?", options: ["Permissions", "File content", "File ownership", "File name"], correct: 2 },
+            { q: "What does 'w' permission allow?", options: ["Execute file", "Read file", "Modify file", "Delete file"], correct: 2 },
+            { q: "useradd -m flag does?", options: ["Set password", "Create home directory", "Add to group", "Set shell"], correct: 1 },
+            { q: "Numeric value for r-x?", options: ["6", "5", "7", "3"], correct: 1 }
+          ]
+        },
+        { id: 3, title: "Module 3: Process Monitoring & System Services", scope: "3 Hours", difficulty: "Intermediate", timeLimit: 90, prerequisite: 2,
+          desc: "Control system services with systemctl, examine resource utilization using top, ps, and kill.",
+          content: "Every running program is a process. ps shows processes, top monitors in real-time, kill sends signals. systemctl manages services (start, stop, enable, disable, status). Process states: Running, Sleeping, Stopped, Zombie.",
+          code: "ps aux\ntop -n 1\nsystemctl status sshd\nsystemctl start nginx\nkill -9 1234\njobs\nbg\nfg",
+          status: "Not Started",
+          questions: [
+            { q: "systemctl is used for?", options: ["File management", "Service management", "User management", "Network config"], correct: 1 },
+            { q: "kill -9 sends?", options: ["SIGTERM", "SIGKILL", "SIGHUP", "SIGINT"], correct: 1 },
+            { q: "ps aux shows?", options: ["All processes", "Current user processes", "Background processes", "System services"], correct: 0 },
+            { q: "Zombie process means?", options: ["Using too much memory", "Terminated but not reaped", "Running in background", "Waiting for I/O"], correct: 1 },
+            { q: "systemctl enable does?", options: ["Start service now", "Stop service", "Auto-start at boot", "Restart service"], correct: 2 }
+          ]
+        },
+        { id: 4, title: "Module 4: Storage & Filesystem Management", scope: "4 Hours", difficulty: "Intermediate", timeLimit: 120, prerequisite: 3,
+          desc: "Work with disk partitioning, mount points, LVM, and disk usage analysis.",
+          content: "Storage management involves partitioning (fdisk, parted), creating filesystems (mkfs), mounting (mount/umount), and Logical Volume Management (LVM). Tools: df (disk free), du (disk usage), lsblk (list block devices).",
+          code: "lsblk\ndf -h\ndu -sh /home\nmount /dev/sdb1 /mnt\ncat /etc/fstab\npvcreate /dev/sdb1\nvgcreate myvg /dev/sdb1\nlvcreate -L 10G -n mylv myvg",
+          status: "Not Started",
+          questions: [
+            { q: "df -h shows?", options: ["File details", "Disk free space", "Directory size", "File permissions"], correct: 1 },
+            { q: "LVM stands for?", options: ["Linux Volume Manager", "Logical Volume Management", "Large Virtual Memory", "Local Volume Mount"], correct: 1 },
+            { q: "mount command does?", options: ["Format disk", "Attach filesystem to directory", "Create partition", "Delete filesystem"], correct: 1 },
+            { q: "/etc/fstab defines?", options: ["User accounts", "Static filesystem mount info", "Network config", "Service list"], correct: 1 },
+            { q: "du -sh shows?", options: ["Disk free", "Directory size summary", "Partition table", "File count"], correct: 1 }
+          ]
+        },
+        { id: 5, title: "Module 5: Networking & Secure Shell (SSH)", scope: "3 Hours", difficulty: "Intermediate", timeLimit: 90, prerequisite: 4,
+          desc: "Configure IP routing, test connectivity with ip/netstat, and secure remote server access.",
+          content: "Linux networking: ip addr (show addresses), ip route (routing table), ss/netstat (socket statistics), ping (test connectivity), ssh (secure shell), scp (secure copy). Firewall: iptables/nftables/ufw.",
+          code: "ip addr show\nip route\nss -tulnp\nping -c 4 8.8.8.8\nssh user@192.168.1.10\nscp file.txt user@host:/path/\nufw status\nufw allow 22/tcp",
+          status: "Not Started",
+          questions: [
+            { q: "SSH default port?", options: ["21", "22", "80", "443"], correct: 1 },
+            { q: "ip addr shows?", options: ["Routing table", "Network interfaces & IPs", "DNS config", "Firewall rules"], correct: 1 },
+            { q: "scp is used for?", options: ["Process monitoring", "Secure file copy", "Service management", "Disk partitioning"], correct: 1 },
+            { q: "ufw stands for?", options: ["Universal File Writer", "Uncomplicated Firewall", "User File Watcher", "Unified Framework"], correct: 1 },
+            { q: "ping tests?", options: ["Disk speed", "Network connectivity", "CPU usage", "Memory usage"], correct: 1 }
+          ]
+        },
+        { id: 6, title: "Module 6: Shell Scripting Fundamentals", scope: "4 Hours", difficulty: "Intermediate", timeLimit: 120, prerequisite: 5,
+          desc: "Write bash scripts with variables, conditionals, loops, and functions for automation.",
+          content: "Shell scripting automates tasks. Variables: VAR=value (no spaces). Conditionals: if/elif/else/fi. Loops: for/do/done, while/do/done. Functions: name() { commands }. Special variables: $1, $@, $?, $#.",
+          code: '#!/bin/bash\nNAME="Admin"\necho "Hello, $NAME"\n\nif [ -f /etc/passwd ]; then\n  echo "passwd exists"\nfi\n\nfor f in /var/log/*.log; do\n  echo "Log: $f"\ndone\n\nbackup() {\n  tar -czf backup.tar.gz "$1"\n  return $?\n}\nbackup /etc',
+          status: "Not Started",
+          questions: [
+            { q: "Shebang line is?", options: ["#!/bin/bash", "#comment", "//bash", "#!bash"], correct: 0 },
+            { q: "$? contains?", options: ["Script name", "Last command exit status", "Number of args", "All args"], correct: 1 },
+            { q: "Bash variable assignment?", options: ["VAR = value", "VAR=value", "let VAR=value", "set VAR=value"], correct: 1 },
+            { q: "for loop syntax?", options: ["for (i in list)", "for i in list; do ...; done", "foreach i list", "loop i in list"], correct: 1 },
+            { q: "Test if file exists?", options: ["if [ -d file ]", "if [ -f file ]", "if [ -e dir ]", "if [ -x file ]"], correct: 1 }
+          ]
+        },
+        { id: 7, title: "Module 7: Package Management & Repositories", scope: "2 Hours", difficulty: "Intermediate", timeLimit: 60, prerequisite: 6,
+          desc: "Install, update, and remove software using apt, yum, and dnf package managers.",
+          content: "Package managers handle software installation. Debian/Ubuntu: apt (apt install, apt remove, apt update, apt upgrade). RHEL/CentOS: yum/dnf. Repository management: /etc/apt/sources.list. Snap and Flatpak for universal packages.",
+          code: "apt update\napt upgrade -y\napt install nginx\napt remove nginx\napt search python\ndpkg -l | grep nginx\nsnap install code --classic",
+          status: "Not Started",
+          questions: [
+            { q: "apt update does?", options: ["Upgrade packages", "Refresh package index", "Install packages", "Remove packages"], correct: 1 },
+            { q: "RHEL uses which manager?", options: ["apt", "pacman", "yum/dnf", "snap"], correct: 2 },
+            { q: "apt remove does?", options: ["Remove package", "Remove repository", "Remove user", "Remove config only"], correct: 0 },
+            { q: "sources.list contains?", options: ["User passwords", "Repository URLs", "Service configs", "Network settings"], correct: 1 },
+            { q: "snap packages are?", options: ["Distribution-specific", "Universal/cross-distro", "Source-only", "Kernel modules"], correct: 1 }
+          ]
+        },
+        { id: 8, title: "Module 8: Log Management & Monitoring", scope: "3 Hours", difficulty: "Advanced", timeLimit: 90, prerequisite: 7,
+          desc: "Analyze system logs with journalctl, syslog, and monitoring tools like htop and vmstat.",
+          content: "Logs are critical for troubleshooting. journalctl queries systemd logs. /var/log/ contains log files (syslog, auth.log, kern.log). Tools: htop (interactive process viewer), vmstat (virtual memory stats), iostat (I/O stats), sar (system activity reporter).",
+          code: "journalctl -u sshd --since today\ntail -f /var/log/syslog\ngrep 'error' /var/log/syslog\nhtop\nvmstat 1 5\niostat\ndmesg | tail",
+          status: "Not Started",
+          questions: [
+            { q: "journalctl queries?", options: ["File system", "Systemd logs", "Network logs", "User logs"], correct: 1 },
+            { q: "tail -f does?", options: ["Show first lines", "Follow file in real-time", "Delete last lines", "Count lines"], correct: 1 },
+            { q: "/var/log/auth.log contains?", options: ["System boot logs", "Authentication logs", "Network logs", "Application logs"], correct: 1 },
+            { q: "vmstat monitors?", options: ["Network", "Virtual memory", "Disk space", "Users"], correct: 1 },
+            { q: "dmesg shows?", options: ["User activity", "Kernel messages", "DNS queries", "Firewall rules"], correct: 1 }
+          ]
+        },
+        { id: 9, title: "Module 9: Cron Jobs & Task Automation", scope: "2 Hours", difficulty: "Advanced", timeLimit: 60, prerequisite: 8,
+          desc: "Schedule recurring tasks with cron, at, and systemd timers.",
+          content: "Cron schedules recurring tasks. Format: minute hour day month weekday command. crontab -e edits, crontab -l lists. System cron: /etc/crontab. at schedules one-time tasks. systemd timers are modern alternatives.",
+          code: "crontab -l\n# Edit crontab:\n# 0 2 * * * /scripts/backup.sh\n# */5 * * * * /scripts/monitor.sh\nat now + 1 hour\nsystemctl list-timers",
+          status: "Not Started",
+          questions: [
+            { q: "Cron field order?", options: ["hour min day month weekday", "min hour day month weekday", "day hour min month weekday", "weekday month day hour min"], correct: 1 },
+            { q: "crontab -e does?", options: ["List jobs", "Edit cron jobs", "Delete jobs", "Run jobs"], correct: 1 },
+            { q: "* * * * * means?", options: ["Once a day", "Every minute", "Once a week", "Once an hour"], correct: 1 },
+            { q: "at command schedules?", options: ["Recurring tasks", "One-time tasks", "System services", "User accounts"], correct: 1 },
+            { q: "System cron file?", options: ["/etc/crontab", "/var/crontab", "/usr/crontab", "/home/crontab"], correct: 0 }
+          ]
+        },
+        { id: 10, title: "Module 10: Security Hardening & Firewall", scope: "4 Hours", difficulty: "Advanced", timeLimit: 120, prerequisite: 9,
+          desc: "Harden Linux systems with SELinux/AppArmor, firewall rules, SSH security, and fail2ban.",
+          content: "Security layers: SELinux/AppArmor (mandatory access control), iptables/nftables (packet filtering), fail2ban (brute-force protection), SSH hardening (key auth, disable root login). Principle of least privilege.",
+          code: "ufw enable\nufw allow 22/tcp\nufw deny from 192.168.1.100\nfail2ban-client status\nssh-keygen -t ed25519\nssh-copy-id user@host\ngetenforce\nsetenforce 1",
+          status: "Not Started",
+          questions: [
+            { q: "fail2ban protects against?", options: ["Viruses", "Brute-force attacks", "File corruption", "Power failures"], correct: 1 },
+            { q: "SELinux provides?", options: ["File encryption", "Mandatory access control", "Network routing", "User authentication"], correct: 1 },
+            { q: "SSH key auth is more secure than?", options: ["Certificate auth", "Password auth", "Token auth", "Biometric auth"], correct: 1 },
+            { q: "ufw deny blocks?", options: ["Outgoing traffic", "Incoming traffic from specified source", "All traffic", "Local traffic"], correct: 1 },
+            { q: "Principle of least privilege means?", options: ["Give all access", "Give minimum required access", "No access", "Admin access only"], correct: 1 }
+          ]
+        },
+        { id: 11, title: "Module 11: Docker & Containerization", scope: "4 Hours", difficulty: "Advanced", timeLimit: 120, prerequisite: 10,
+          desc: "Build, run, and manage containers with Docker. Create Dockerfiles and compose multi-container apps.",
+          content: "Containers package applications with dependencies. Docker: docker run, docker build, docker-compose. Dockerfile: FROM, RUN, COPY, CMD, EXPOSE. Volumes for persistent data. Networks for container communication.",
+          code: "docker run -d -p 80:80 nginx\ndocker ps\ndocker stop <id>\ndocker build -t myapp .\ndocker-compose up -d\ndocker volume create mydata\ndocker network ls",
+          status: "Not Started",
+          questions: [
+            { q: "Dockerfile FROM specifies?", options: ["Port", "Base image", "Command", "Volume"], correct: 1 },
+            { q: "docker run -d means?", options: ["Debug mode", "Detached mode", "Delete mode", "Default mode"], correct: 1 },
+            { q: "Volumes provide?", options: ["Networking", "Persistent storage", "CPU limits", "Memory limits"], correct: 1 },
+            { q: "docker-compose manages?", options: ["Single containers", "Multi-container apps", "Images only", "Networks only"], correct: 1 },
+            { q: "EXPOSE in Dockerfile?", options: ["Opens port", "Documents port", "Blocks port", "Forwards port"], correct: 1 }
+          ]
+        },
+        { id: 12, title: "Module 12: System Administration Capstone", scope: "5 Hours", difficulty: "Advanced", timeLimit: 150, prerequisite: 11,
+          desc: "Apply all skills: set up a complete Linux server with web server, database, firewall, monitoring, and automated backups.",
+          content: "Capstone project: Deploy a production-ready Linux server. Install and configure Nginx, MySQL, PHP. Set up UFW firewall, fail2ban, SSL certificates. Create automated backup scripts with cron. Monitor with journalctl and custom dashboards.",
+          code: "# Install LAMP stack\napt install nginx mysql-server php-fpm\n\n# Configure firewall\nufw allow 'Nginx Full'\nufw allow 22\nufw enable\n\n# Setup backup cron\n# 0 2 * * * /scripts/full-backup.sh\n\n# Monitor\nsystemctl status nginx mysql\njournalctl -u nginx --since today",
+          status: "Not Started",
+          questions: [
+            { q: "Nginx is a?", options: ["Database", "Web server", "Firewall", "Package manager"], correct: 1 },
+            { q: "SSL certificates provide?", options: ["Faster loading", "Encrypted connections", "More storage", "Better SEO"], correct: 1 },
+            { q: "LAMP stack includes?", options: ["Linux, Apache, MySQL, PHP", "Linux, Nginx, MongoDB, Python", "Linux, Apache, MongoDB, Perl", "Linux, Apache, MySQL, Python"], correct: 0 },
+            { q: "Automated backups should be?", options: ["Manual only", "Scheduled with cron", "Once a year", "Never automated"], correct: 1 },
+            { q: "Production server needs?", options: ["No monitoring", "Comprehensive monitoring", "Only CPU monitoring", "Only disk monitoring"], correct: 1 }
+          ]
+        }
+    ];
+
+    // ============================================================
+    // SECTION C: APPLICATION STATE
+    // ============================================================
+    let S = {
+        isLoggedIn: false, isInstructor: false, studentId: null, studentName: null,
+        secondsActive: 0, theme: 'dark', progress: {}, bookmarks: {}, notes: '',
+        streak: 0, lastLogin: null, achievements: []
+    };
+
+    let DB = { modules: JSON.parse(JSON.stringify(DEFAULT_MODULES)), students: {}, announcements: [] };
+
+    function save() {
+        localStorage.setItem('lnxa_session', JSON.stringify(S));
+        localStorage.setItem('lnxa_db', JSON.stringify(DB));
+    }
+
+    function loadSession() {
+        try { const s = JSON.parse(localStorage.getItem('lnxa_session')); if (s) S = { ...S, ...s }; } catch (e) {}
+        try { const d = JSON.parse(localStorage.getItem('lnxa_db')); if (d) DB = { ...DB, ...d }; } catch (e) {}
+        DB.modules.forEach(m => { if (!S.progress[m.id]) S.progress[m.id] = { completed: false, score: 'Pending', pct: null }; });
+    }
+
+    // ============================================================
+    // SECTION D: BADGES
+    // ============================================================
+    const BADGES = [
+        { id: 'first_login', name: 'First Login', icon: '🔐', check: () => true },
+        { id: 'module_1', name: 'Shell Basics', icon: '🐚', check: () => S.progress[1]?.completed },
+        { id: 'module_3', name: 'Process Master', icon: '⚙️', check: () => S.progress[3]?.completed },
+        { id: 'module_5', name: 'Network Pro', icon: '🌐', check: () => S.progress[5]?.completed },
+        { id: 'module_6', name: 'Script Writer', icon: '📜', check: () => S.progress[6]?.completed },
+        { id: 'module_10', name: 'Security Expert', icon: '🛡️', check: () => S.progress[10]?.completed },
+        { id: 'module_11', name: 'Docker Captain', icon: '🐳', check: () => S.progress[11]?.completed },
+        { id: 'all_complete', name: 'Linux Master', icon: '🐧', check: () => DB.modules.every(m => S.progress[m.id]?.completed) },
+        { id: 'quiz_ace', name: 'Quiz Ace', icon: '🏆', check: () => Object.values(S.progress).filter(p => p.score === 'Passed').length >= 6 },
+        { id: 'streak_3', name: '3-Day Streak', icon: '🔥', check: () => S.streak >= 3 },
+        { id: 'note_taker', name: 'Note Taker', icon: '📝', check: () => S.notes && S.notes.length > 50 },
+        { id: 'speed_run', name: 'Speed Runner', icon: '⚡', check: () => Object.values(S.progress).filter(p => p.completed).length >= 3 }
+    ];
+
+    // ============================================================
+    // SECTION E: TOAST & THEME
+    // ============================================================
+    function toast(msg, type = 'info') {
+        const t = document.createElement('div');
+        t.className = 'toast ' + type;
+        t.textContent = msg;
+        document.getElementById('toastContainer').appendChild(t);
+        setTimeout(() => t.remove(), 3000);
+    }
+
+    function toggleTheme() {
+        S.theme = S.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', S.theme);
+        save();
+    }
+
+    // ============================================================
+    // SECTION F: AUTHENTICATION
+    // ============================================================
+    function handleLogin(event) {
+        event.preventDefault();
+        const role = document.getElementById('login-role').value;
+        const name = document.getElementById('login-name').value.trim();
+        const id = document.getElementById('login-id').value.trim();
+
+        S.isLoggedIn = true;
+        S.isInstructor = (role === 'instructor');
+        S.studentName = name || (role === 'instructor' ? 'Lead Instructor' : 'Student');
+        S.studentId = id || 'STU-000';
+
+        if (!DB.students[S.studentId]) {
+            DB.students[S.studentId] = { name: S.studentName, progress: {}, secondsActive: 0 };
+        }
+        DB.modules.forEach(m => { if (!S.progress[m.id]) S.progress[m.id] = { completed: false, score: 'Pending', pct: null }; });
+
+        const today = new Date().toDateString();
+        if (S.lastLogin) {
+            const diff = Math.floor((new Date(today) - new Date(S.lastLogin)) / 86400000);
+            S.streak = diff === 1 ? S.streak + 1 : diff > 1 ? 1 : S.streak;
+        } else S.streak = 1;
+        S.lastLogin = today;
+
+        document.getElementById('auth-overlay').style.display = 'none';
+        document.getElementById('user-display-name').textContent = S.studentName;
+
+        setupNavigation();
+        renderAllViews();
+        save();
+
+        if (S.isInstructor) switchView('view-instructor-courses', 'Course Management');
+        else switchView('view-student-dash', 'Student Dashboard');
+
+        toast('Welcome, ' + S.studentName + '!', 'success');
+    }
+
+    function logout() {
+        S.isLoggedIn = false; S.isInstructor = false;
+        save();
+        document.getElementById('auth-overlay').style.display = 'flex';
+    }
+
+    // ============================================================
+    // SECTION G: NAVIGATION
+    // ============================================================
+    function setupNavigation() {
+        const nav = document.getElementById('navigation-list');
+        nav.innerHTML = '';
+
+        if (S.isInstructor) {
+            nav.innerHTML = `
+                <li class="active" onclick="switchView('view-instructor-courses','Course Management')">📚 Manage Courses</li>
+                <li onclick="switchView('view-instructor-students','Student Roster')">👥 Student Roster</li>
+                <li onclick="switchView('view-instructor-announce','Announcements')">📢 Announcements</li>
+                <li onclick="switchView('view-terminal','Practice Terminal')">💻 Sandbox Terminal</li>
+            `;
+        } else {
+            nav.innerHTML = `
+                <li class="active" onclick="switchView('view-student-dash','Student Dashboard')">📊 My Dashboard</li>
+                <li onclick="switchView('view-curriculum','Course Catalog')">📚 Course Catalog</li>
+                <li onclick="switchView('view-terminal','Practice Terminal')">💻 Practice Terminal</li>
+                <li onclick="switchView('view-achievements','Achievements')">🏆 Achievements</li>
+                <li onclick="switchView('view-notes','Notes & Bookmarks')">📝 Notes</li>
+                <li onclick="switchView('view-certificate','Certificate')">🎓 Certificate</li>
+            `;
+        }
+
+        // Role badge
+        const rb = document.getElementById('roleBadge');
+        if (S.isInstructor) rb.innerHTML = '<span class="badge" style="background:rgba(245,158,11,0.15);color:var(--warning);">Instructor</span> ';
+        else rb.innerHTML = '<span class="badge completed">Student</span> ';
+    }
+
+    function switchView(viewId, titleText) {
+        document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-links li').forEach(l => l.classList.remove('active'));
+        document.getElementById(viewId).classList.add('active');
+        document.getElementById('view-title').textContent = titleText;
+        if (event && event.target && event.target.tagName === 'LI') event.target.classList.add('active');
+    }
+
+    // ============================================================
+    // SECTION H: RENDER VIEWS
+    // ============================================================
+    function renderAllViews() {
+        renderStudentDashboard();
+        renderCurriculumCatalog();
+        renderInstructorCourses();
+        renderInstructorStudents();
+        renderAnnouncements();
+        renderAchievements();
+        renderNotes();
+        renderCertificate();
+    }
+
+    function renderStudentDashboard() {
+        const table = document.getElementById('student-modules-table');
+        table.innerHTML = '';
+        let done = 0, passed = 0, ev = 0;
+
+        DB.modules.forEach(mod => {
+            const p = S.progress[mod.id] || { completed: false, score: 'Pending' };
+            if (p.completed) done++;
+            if (p.score === 'Passed') passed++;
+            if (p.score !== 'Pending') ev++;
+
+            const badgeClass = p.completed ? 'completed' : (p.score === 'In Progress' ? 'in-progress' : 'not-started');
+            table.innerHTML += `<tr>
+                <td><strong>Mod ${mod.id}</strong></td>
+                <td>${mod.title}</td>
+                <td><span class="badge ${badgeClass}">${p.completed ? 'Completed' : p.score === 'Pending' ? 'Not Started' : p.score}</span></td>
+                <td>${p.pct !== null ? p.pct + '%' : '-'}</td>
+                <td><button class="secondary btn-sm" onclick="openModule(${mod.id})">Open</button></td>
+            </tr>`;
+        });
+
+        const pct = Math.round((done / DB.modules.length) * 100);
+        document.getElementById('sProgress').textContent = pct + '%';
+        document.getElementById('sScore').textContent = ev ? Math.round(passed / ev * 100) + '%' : '0%';
+        document.getElementById('sTimeCard').textContent = Math.floor(S.secondsActive / 60) + 'm';
+        document.getElementById('sStreak').textContent = S.streak;
+        document.getElementById('welcomeBanner').textContent = S.isLoggedIn ? 'Welcome back, ' + S.studentName + '!' : 'Welcome to LinuxAdmin Pro';
+
+        // Announcements
+        const aa = document.getElementById('announcementArea');
+        aa.innerHTML = '';
+        (DB.announcements || []).slice(-3).reverse().forEach(a => {
+            aa.innerHTML += `<div class="announcement-bar"><span>📢 ${a.title}</span><span style="opacity:.7;font-size:.75rem;">${new Date(a.ts).toLocaleDateString()}</span></div>`;
+        });
+
+        // Auth prompt
+        document.getElementById('authPrompt').innerHTML = S.isLoggedIn ?
+            '<button class="danger btn-sm" onclick="logout()">🚪 Logout</button>' :
+            '<button class="success" onclick="document.getElementById(\'auth-overlay\').style.display=\'flex\'">Log In</button>';
+
+        // Check badges
+        if (S.isLoggedIn) {
+            BADGES.forEach(b => {
+                if (!S.achievements.includes(b.id) && b.check()) {
+                    S.achievements.push(b.id);
+                    toast('🏆 Badge: ' + b.name, 'success');
+                    save();
+                }
+            });
+        }
+    }
+
+    function renderCurriculumCatalog() {
+        const container = document.getElementById('curriculum-cards-container');
+        container.innerHTML = '';
+        DB.modules.forEach(mod => {
+            const p = S.progress[mod.id] || {};
+            const bookmarked = S.bookmarks[mod.id];
+            container.innerHTML += `<div class="card" style="margin-bottom:12px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <h3>${mod.title}</h3>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <span style="font-size:0.78rem;color:var(--muted);">${mod.difficulty || 'Beginner'} · ${mod.scope}</span>
+                        <span style="cursor:pointer;font-size:1.1rem;" onclick="toggleBookmark(${mod.id})">${bookmarked ? '⭐' : '☆'}</span>
+                    </div>
+                </div>
+                <p style="color:var(--muted);margin:6px 0 12px;font-size:0.88rem;">${mod.desc}</p>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn-sm" onclick="openModule(${mod.id})">Open Module</button>
+                    <button class="secondary btn-sm" onclick="switchView('view-terminal','Practice Terminal')">Launch Lab</button>
+                </div>
+            </div>`;
+        });
+    }
+
+    // ============================================================
+    // SECTION I: MODULE DETAIL & QUIZ
+    // ============================================================
+    let currentQuiz = { moduleId: null, answers: [], submitted: false };
+
+    function openModule(id) {
+        const mod = DB.modules.find(m => m.id === id);
+        if (!mod) return;
+
+        currentQuiz = { moduleId: id, answers: [], submitted: false };
+        const area = document.getElementById('module-content-area');
+
+        let html = `<h2 style="color:var(--primary);margin-bottom:4px;">${mod.title}</h2>
+            <p style="color:var(--muted);margin-bottom:16px;font-size:0.85rem;">${mod.difficulty || 'Beginner'} · ${mod.scope} · Prerequisite: ${mod.prerequisite ? 'Module ' + mod.prerequisite : 'None'}</p>
+            <div class="card" style="margin-bottom:16px;">
+                <h3 style="margin-bottom:8px;">Lesson Content</h3>
+                <p style="color:var(--muted);font-size:0.9rem;line-height:1.6;">${mod.content}</p>
+            </div>`;
+
+        if (mod.code) {
+            html += `<div class="card" style="margin-bottom:16px;">
+                <h3 style="margin-bottom:8px;">Practice Commands</h3>
+                <div style="background:var(--terminal-bg);border:1px solid var(--border);border-radius:6px;padding:14px;font-family:'DM Mono',monospace;font-size:0.85rem;color:var(--terminal-text);white-space:pre-wrap;">${mod.code}</div>
+                <button class="btn-sm" style="margin-top:8px;" onclick="switchView('view-terminal','Practice Terminal')">Open in Terminal</button>
+            </div>`;
+        }
+
+        html += `<h3 style="margin:20px 0 12px;">Quiz (${mod.questions.length} questions)</h3>`;
+        mod.questions.forEach((q, qi) => {
+            html += `<div class="quiz-card" id="quiz-q-${qi}">
+                <h4>Q${qi + 1}: ${q.q}</h4>`;
+            q.options.forEach((opt, oi) => {
+                html += `<div class="quiz-option" id="quiz-opt-${qi}-${oi}" onclick="selectQuizAnswer(${qi},${oi})">${opt}</div>`;
+            });
+            html += `<div id="quiz-explain-${qi}" style="display:none;margin-top:8px;font-size:0.82rem;color:var(--muted);"></div></div>`;
+        });
+        html += `<button id="quiz-submit-btn" onclick="submitQuiz()" style="margin-top:8px;">Submit Quiz</button>
+            <div id="quiz-result" style="margin-top:16px;"></div>`;
+
+        area.innerHTML = html;
+        switchView('view-module', mod.title);
+    }
+
+    function selectQuizAnswer(qi, oi) {
+        if (currentQuiz.submitted) return;
+        currentQuiz.answers[qi] = oi;
+        const mod = DB.modules.find(m => m.id === currentQuiz.moduleId);
+        mod.questions[qi].options.forEach((_, i) => {
+            document.getElementById('quiz-opt-' + qi + '-' + i).classList.remove('selected');
+        });
+        document.getElementById('quiz-opt-' + qi + '-' + oi).classList.add('selected');
+    }
+
+    function submitQuiz() {
+        const mod = DB.modules.find(m => m.id === currentQuiz.moduleId);
+        if (!mod) return;
+        if (currentQuiz.answers.length < mod.questions.length) { toast('Answer all questions', 'error'); return; }
+
+        currentQuiz.submitted = true;
+        let correct = 0;
+
+        mod.questions.forEach((q, qi) => {
+            const sel = currentQuiz.answers[qi];
+            const isCorrect = sel === q.correct;
+            if (isCorrect) correct++;
+
+            document.getElementById('quiz-opt-' + qi + '-' + sel).classList.add(isCorrect ? 'correct' : 'wrong');
+            if (!isCorrect) document.getElementById('quiz-opt-' + qi + '-' + q.correct).classList.add('correct');
+
+            const expl = document.getElementById('quiz-explain-' + qi);
+            expl.style.display = 'block';
+            expl.innerHTML = (isCorrect ? '✅ Correct!' : '❌ Wrong.') + (q.explain ? ' ' + q.explain : '');
+        });
+
+        const pct = Math.round((correct / mod.questions.length) * 100);
+        const passed = pct >= 60;
+
+        S.progress[mod.id] = { completed: passed, score: passed ? 'Passed' : 'Failed', pct };
+        if (DB.students[S.studentId]) DB.students[S.studentId].progress[mod.id] = S.progress[mod.id];
+        save();
+
+        document.getElementById('quiz-result').innerHTML = `<div class="card" style="border-color:${passed ? 'var(--success)' : 'var(--danger)'};">
+            <h3 style="color:${passed ? 'var(--success)' : 'var(--danger)'};">${passed ? '🎉 Passed!' : '❌ Not Passed'}</h3>
+            <p style="font-size:1.4rem;font-weight:bold;margin:8px 0;">${correct}/${mod.questions.length} correct (${pct}%)</p>
+            <p style="color:var(--muted);font-size:0.85rem;">${passed ? 'Module marked as completed!' : 'Score 60% or higher to pass. Try again!'}</p>
+            ${!passed ? '<button class="btn-sm" style="margin-top:8px;" onclick="openModule(' + mod.id + ')">Retry Quiz</button>' : ''}
+        </div>`;
+
+        document.getElementById('quiz-submit-btn').style.display = 'none';
+        renderAllViews();
+    }
+
+    // ============================================================
+    // SECTION J: INSTRUCTOR FEATURES
+    // ============================================================
+    function handleAddNewModule(event) {
+        event.preventDefault();
+        const title = document.getElementById('new-mod-title').value.trim();
+        const scope = document.getElementById('new-mod-scope').value.trim();
+        const desc = document.getElementById('new-mod-desc').value.trim();
+        const content = document.getElementById('new-mod-content').value.trim();
+        const code = document.getElementById('new-mod-code').value.trim();
+        const diff = document.getElementById('new-mod-diff').value;
+        const time = parseInt(document.getElementById('new-mod-time').value) || 60;
+        const prereq = document.getElementById('new-mod-prereq').value ? parseInt(document.getElementById('new-mod-prereq').value) : null;
+
+        // Collect quiz questions
+        const cards = document.querySelectorAll('#quiz-builder > div');
+        if (cards.length < 5) { toast('Minimum 5 quiz questions required', 'error'); return; }
+        let questions = [];
+        for (const card of cards) {
+            const q = card.querySelector('.qt').value.trim();
+            const opts = [card.querySelector('.qo0').value.trim(), card.querySelector('.qo1').value.trim(), card.querySelector('.qo2').value.trim(), card.querySelector('.qo3').value.trim()];
+            const correct = parseInt(card.querySelector('.qc').value);
+            if (!q || opts.some(o => !o)) { toast('Complete all quiz fields', 'error'); return; }
+            questions.push({ q, options: opts, correct: isNaN(correct) ? 0 : Math.min(3, Math.max(0, correct)) });
+        }
+
+        const newMod = { id: Date.now(), title, scope, difficulty: diff, timeLimit: time, prerequisite: prereq, desc, content, code, status: 'Not Started', questions };
+        DB.modules.push(newMod);
+
+        Object.keys(DB.students).forEach(sid => {
+            if (DB.students[sid].progress) DB.students[sid].progress[newMod.id] = { completed: false, score: 'Pending', pct: null };
+        });
+        S.progress[newMod.id] = { completed: false, score: 'Pending', pct: null };
+
+        save();
+        renderAllViews();
+        document.getElementById('add-module-form').reset();
+        document.getElementById('quiz-builder').innerHTML = '';
+        for (let i = 0; i < 5; i++) addQuizQuestion();
+        toast('Module published!', 'success');
+    }
+
+    function addQuizQuestion() {
+        const c = document.getElementById('quiz-builder');
+        const i = c.children.length + 1;
+        const d = document.createElement('div');
+        d.style.cssText = 'padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);margin-bottom:8px;';
+        d.innerHTML = `<div style="font-size:.75rem;font-weight:700;color:var(--primary);margin-bottom:6px;">Q${i}</div>
+            <input type="text" class="qt" placeholder="Question" style="margin-bottom:8px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                <input class="qo0" placeholder="Option A"><input class="qo1" placeholder="Option B">
+                <input class="qo2" placeholder="Option C"><input class="qo3" placeholder="Option D">
+            </div>
+            <div style="margin-top:6px;display:flex;gap:8px;align-items:center;">
+                <label style="font-size:.75rem;">Correct (0-3):</label>
+                <input type="number" class="qc" min="0" max="3" value="0" style="width:50px;margin-bottom:0;">
+            </div>`;
+        c.appendChild(d);
+    }
+
+    function deleteModule(id) {
+        if (!confirm('Delete this module?')) return;
+        DB.modules = DB.modules.filter(m => m.id !== id);
+        save();
+        renderAllViews();
+        toast('Module deleted', 'info');
+    }
+
+    function renderInstructorCourses() {
+        const table = document.getElementById('instructor-modules-table');
+        table.innerHTML = '';
+        DB.modules.forEach(mod => {
+            table.innerHTML += `<tr>
+                <td>#${mod.id}</td>
+                <td><strong>${mod.title}</strong></td>
+                <td>${mod.difficulty || 'Beginner'}</td>
+                <td><button class="secondary btn-sm danger" onclick="deleteModule(${mod.id})">Remove</button></td>
+            </tr>`;
+        });
+    }
+
+    function renderInstructorStudents() {
+        const table = document.getElementById('instructor-students-table');
+        table.innerHTML = '';
+        Object.entries(DB.students).forEach(([id, stu]) => {
+            let done = 0;
+            if (stu.progress) Object.values(stu.progress).forEach(p => { if (p.completed) done++; });
+            const pct = Math.round((done / DB.modules.length) * 100);
+            table.innerHTML += `<tr>
+                <td><strong>${stu.name}</strong></td>
+                <td style="color:var(--muted);">${id}</td>
+                <td>${done} / ${DB.modules.length}</td>
+                <td><span style="color:var(--primary);font-weight:bold;">${pct}%</span></td>
+                <td>${Math.floor((stu.secondsActive || 0) / 60)}m</td>
+            </tr>`;
+        });
+        if (!Object.keys(DB.students).length) {
+            table.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);">No students registered yet.</td></tr>';
+        }
+    }
+
+    function postAnnouncement() {
+        const t = document.getElementById('annTitle').value.trim();
+        const b = document.getElementById('annBody').value.trim();
+        if (!t || !b) { toast('Fill all fields', 'error'); return; }
+        if (!DB.announcements) DB.announcements = [];
+        DB.announcements.push({ title: t, body: b, priority: document.getElementById('annPriority').value, ts: Date.now() });
+        save();
+        document.getElementById('annTitle').value = '';
+        document.getElementById('annBody').value = '';
+        renderAnnouncements();
+        toast('Announcement posted!', 'success');
+    }
+
+    function renderAnnouncements() {
+        const list = document.getElementById('announcements-list');
+        if (!list) return;
+        list.innerHTML = '';
+        (DB.announcements || []).slice().reverse().forEach(a => {
+            list.innerHTML += `<div class="announcement-bar"><div><strong>${a.title}</strong><br><span style="font-size:0.82rem;color:var(--muted);">${a.body}</span></div><span style="font-size:0.75rem;color:var(--muted);">${new Date(a.ts).toLocaleDateString()}</span></div>`;
+        });
+    }
+
+    // ============================================================
+    // SECTION K: ACHIEVEMENTS
+    // ============================================================
+    function renderAchievements() {
+        const container = document.getElementById('badges-container');
+        container.innerHTML = '';
+        BADGES.forEach(b => {
+            const unlocked = S.achievements.includes(b.id);
+            container.innerHTML += `<div class="badge-card ${unlocked ? 'unlocked' : 'locked'}">
+                <span class="badge-icon">${b.icon}</span>
+                <div class="badge-name">${b.name}</div>
+            </div>`;
+        });
+    }
+
+    // ============================================================
+    // SECTION L: NOTES & BOOKMARKS
+    // ============================================================
+    function saveNotes() {
+        S.notes = document.getElementById('notesArea').value;
+        save();
+    }
+
+    function toggleBookmark(id) {
+        S.bookmarks[id] = !S.bookmarks[id];
+        if (!S.bookmarks[id]) delete S.bookmarks[id];
+        save();
+        renderCurriculumCatalog();
+        renderNotes();
+    }
+
+    function renderNotes() {
+        document.getElementById('notesArea').value = S.notes || '';
+        const bc = document.getElementById('bookmarks-container');
+        bc.innerHTML = '';
+        const bookmarked = Object.keys(S.bookmarks).filter(k => S.bookmarks[k]);
+        if (!bookmarked.length) { bc.innerHTML = '<p style="color:var(--muted);font-size:0.85rem;">No bookmarks yet. Star modules in the catalog.</p>'; return; }
+        bookmarked.forEach(id => {
+            const mod = DB.modules.find(m => m.id == id);
+            if (mod) bc.innerHTML += `<div class="card" style="margin-bottom:8px;padding:12px;cursor:pointer;" onclick="openModule(${mod.id})"><strong>⭐ ${mod.title}</strong><span style="color:var(--muted);font-size:0.82rem;margin-left:8px;">${mod.scope}</span></div>`;
+        });
+    }
+
+    // ============================================================
+    // SECTION M: CERTIFICATE
+    // ============================================================
+    function renderCertificate() {
+        const container = document.getElementById('cert-container');
+        const done = DB.modules.filter(m => S.progress[m.id]?.completed).length;
+        const total = DB.modules.length;
+        const pct = Math.round((done / total) * 100);
+
+        if (pct < 100) {
+            container.innerHTML = `<div class="card" style="text-align:center;padding:40px;">
+                <h3 style="color:var(--warning);margin-bottom:8px;">Certificate Not Yet Earned</h3>
+                <p style="color:var(--muted);">Complete all ${total} modules to earn your certificate.</p>
+                <p style="font-size:2rem;font-weight:bold;color:var(--primary);margin:16px 0;">${pct}% Complete</p>
+                <p style="color:var(--muted);font-size:0.85rem;">${done}/${total} modules passed</p>
+            </div>`;
+        } else {
+            container.innerHTML = `<div class="cert-container">
+                <p style="color:var(--muted);font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;">Certificate of Completion</p>
+                <h2>LinuxAdmin Pro</h2>
+                <p style="color:var(--muted);margin:8px 0;">This certifies that</p>
+                <div class="cert-name">${S.studentName}</div>
+                <p style="color:var(--muted);margin:12px 0;">has successfully completed all ${total} modules of the<br><strong style="color:var(--text);">Linux Administration Mastery Program</strong></p>
+                <p style="color:var(--muted);font-size:0.8rem;margin-top:16px;">Date: ${new Date().toLocaleDateString()} · ID: ${S.studentId}</p>
+                <button style="margin-top:16px;" onclick="window.print()">Print Certificate</button>
+            </div>`;
+        }
+    }
+
+    // ============================================================
+    // SECTION N: COMMAND PALETTE
+    // ============================================================
+    const CMD = {
+        cmds: [
+            { name: 'Student Dashboard', action: () => switchView('view-student-dash', 'Student Dashboard') },
+            { name: 'Course Catalog', action: () => switchView('view-curriculum', 'Course Catalog') },
+            { name: 'Practice Terminal', action: () => switchView('view-terminal', 'Practice Terminal') },
+            { name: 'Achievements', action: () => switchView('view-achievements', 'Achievements') },
+            { name: 'Notes & Bookmarks', action: () => switchView('view-notes', 'Notes & Bookmarks') },
+            { name: 'Certificate', action: () => switchView('view-certificate', 'Certificate') },
+            { name: 'Toggle Theme', action: () => toggleTheme() },
+            { name: 'Logout', action: () => logout() }
+        ],
+        idx: 0,
+        open() {
+            document.getElementById('cmdPalette').classList.add('active');
+            document.getElementById('cmdInput').value = '';
+            document.getElementById('cmdInput').focus();
+            CMD.idx = 0;
+            CMD.filter();
+        },
+        close() { document.getElementById('cmdPalette').classList.remove('active'); },
+        filter() {
+            const q = document.getElementById('cmdInput').value.toLowerCase();
+            const results = document.getElementById('cmdResults');
+            results.innerHTML = '';
+            const cmds = S.isInstructor ? [...CMD.cmds,
+                { name: 'Manage Courses', action: () => switchView('view-instructor-courses', 'Course Management') },
+                { name: 'Student Roster', action: () => switchView('view-instructor-students', 'Student Roster') },
+                { name: 'Post Announcement', action: () => switchView('view-instructor-announce', 'Announcements') }
+            ] : CMD.cmds;
+            const filtered = cmds.filter(c => c.name.toLowerCase().includes(q));
+            filtered.forEach((c, i) => {
+                const div = document.createElement('div');
+                div.className = 'cmd-item' + (i === CMD.idx ? ' active' : '');
+                div.textContent = c.name;
+                div.onclick = () => { CMD.close(); c.action(); };
+                results.appendChild(div);
+            });
+        },
+        key(e) {
+            if (e.key === 'Escape') CMD.close();
+            if (e.key === 'Enter') {
+                const items = document.querySelectorAll('.cmd-item');
+                if (items[CMD.idx]) items[CMD.idx].click();
+            }
+            if (e.key === 'ArrowDown') { CMD.idx = Math.min(CMD.idx + 1, document.querySelectorAll('.cmd-item').length - 1); CMD.filter(); }
+            if (e.key === 'ArrowUp') { CMD.idx = Math.max(CMD.idx - 1, 0); CMD.filter(); }
+        }
+    };
+
+    function openCmd() { CMD.open(); }
+
+    // ============================================================
+    // SECTION O: ENHANCED TERMINAL
+    // ============================================================
+    let currentDirectory = "/root";
+    let virtualFileSystem = {
+        "/root": { type: "dir", items: ["documents", "scripts", "welcome.txt", "logs"] },
+        "/root/documents": { type: "dir", items: ["notes.cfg", "report.txt"] },
+        "/root/scripts": { type: "dir", items: ["backup.sh", "monitor.sh"] },
+        "/root/logs": { type: "dir", items: ["syslog", "auth.log"] },
+        "/root/welcome.txt": { type: "file", content: "Welcome to LinuxAdmin Pro! System operating normally." },
+        "/root/documents/notes.cfg": { type: "file", content: "Config parameter: SECURE_AUTH=true\nMAX_CONNECTIONS=100\nLOG_LEVEL=INFO" },
+        "/root/documents/report.txt": { type: "file", content: "System Report - Generated by LinuxAdmin Pro\nUptime: 45 days\nCPU Usage: 23%\nMemory: 4.2GB/8GB" },
+        "/root/scripts/backup.sh": { type: "file", content: "#!/bin/bash\ntar -czf backup.tar.gz /root/documents\necho 'Backup complete'" },
+        "/root/scripts/monitor.sh": { type: "file", content: "#!/bin/bash\nwhile true; do\n  echo \"$(date): CPU=$(top -bn1 | grep 'Cpu' | awk '{print $2}')\"\n  sleep 5\ndone" },
+        "/root/logs/syslog": { type: "file", content: "Aug 20 10:00:01 linux-node01 systemd[1]: Started Daily apt activities.\nAug 20 10:05:22 linux-node01 sshd[1234]: Accepted publickey for root" },
+        "/root/logs/auth.log": { type: "file", content: "Aug 20 09:55:00 linux-node01 sshd[1200]: Failed password for admin from 192.168.1.50\nAug 20 10:05:22 linux-node01 sshd[1234]: Accepted publickey for root" }
+    };
+
+    const terminalOutput = document.getElementById('terminal-output');
+    const commandInput = document.getElementById('terminal-command-input');
+    const promptLabel = document.getElementById('terminal-prompt-label');
+
+    commandInput.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            const fullCmd = commandInput.value.trim();
+            if (!fullCmd) return;
+            terminalOutput.innerHTML += `<div><span style="color:var(--primary);">root@linux-node01:${currentDirectory}#</span> ${fullCmd}</div>`;
+            processTerminalCommand(fullCmd);
+            commandInput.value = '';
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+    });
+
+    function processTerminalCommand(cmdString) {
+        const tokens = cmdString.split(/\s+/);
+        const cmd = tokens[0];
+        const arg = tokens[1];
+        const arg2 = tokens[2];
+
+        switch (cmd) {
+            case 'help':
+                terminalOutput.innerHTML += `<div>Available commands:
+  pwd, ls, cd [dir], mkdir [dir], touch [file], cat [file]
+  whoami, uname, date, clear, echo [text]
+  chmod [mode] [file], grep [pattern] [file]
+  find [dir] -name [pattern], df, du [dir]
+  ps, top, head [file], tail [file], wc [file]
+  history, hostname, uptime, id, free</div>`;
+                break;
+            case 'clear': terminalOutput.innerHTML = ''; break;
+            case 'pwd': terminalOutput.innerHTML += `<div>${currentDirectory}</div>`; break;
+            case 'whoami': terminalOutput.innerHTML += `<div>root</div>`; break;
+            case 'hostname': terminalOutput.innerHTML += `<div>linux-node01</div>`; break;
+            case 'id': terminalOutput.innerHTML += `<div>uid=0(root) gid=0(root) groups=0(root)</div>`; break;
+            case 'uptime': terminalOutput.innerHTML += `<div> ${new Date().toUTCString()} up 45 days, 3:22, 1 user, load average: 0.15, 0.10, 0.05</div>`; break;
+            case 'free':
+                terminalOutput.innerHTML += `<div>              total        used        free      shared  buff/cache   available
+Mem:        8192000     4200000     2100000      256000     1892000     3736000
+Swap:       2097152           0     2097152</div>`;
+                break;
+            case 'uname':
+                if (arg === '-a') terminalOutput.innerHTML += `<div>Linux linux-node01 5.15.0-91-generic #101-Ubuntu SMP x86_64 GNU/Linux</div>`;
+                else terminalOutput.innerHTML += `<div>Linux</div>`;
+                break;
+            case 'date': terminalOutput.innerHTML += `<div>${new Date().toUTCString()}</div>`; break;
+            case 'echo': terminalOutput.innerHTML += `<div>${tokens.slice(1).join(' ')}</div>`; break;
+            case 'ls':
+                const dirNode = virtualFileSystem[currentDirectory];
+                if (dirNode && dirNode.items) {
+                    if (arg === '-la' || arg === '-l') {
+                        terminalOutput.innerHTML += `<div>total 0</div>`;
+                        dirNode.items.forEach(item => {
+                            const p = currentDirectory === '/' ? '/' + item : currentDirectory + '/' + item;
+                            const node = virtualFileSystem[p];
+                            const isDir = node && node.type === 'dir';
+                            terminalOutput.innerHTML += `<div>${isDir ? 'drwxr-xr-x' : '-rw-r--r--'} 1 root root ${node ? (node.content || '').length : 0} Aug 20 10:00 ${item}${isDir ? '/' : ''}</div>`;
+                        });
+                    } else {
+                        terminalOutput.innerHTML += `<div>${dirNode.items.join('  ')}</div>`;
+                    }
+                }
+                break;
+            case 'cd':
+                if (!arg || arg === '~' || arg === '/root') { currentDirectory = '/root'; }
+                else if (arg === '..') {
+                    const parts = currentDirectory.split('/');
+                    parts.pop();
+                    currentDirectory = parts.join('/') || '/';
+                } else if (arg === '/') { currentDirectory = '/'; }
+                else {
+                    let targetPath = currentDirectory === '/' ? '/' + arg : currentDirectory + '/' + arg;
+                    if (virtualFileSystem[targetPath] && virtualFileSystem[targetPath].type === 'dir') {
+                        currentDirectory = targetPath;
+                    } else {
+                        terminalOutput.innerHTML += `<div>cd: ${arg}: No such directory</div>`;
+                    }
+                }
+                promptLabel.textContent = `root@linux-node01:${currentDirectory}#`;
+                break;
+            case 'mkdir':
+                if (!arg) { terminalOutput.innerHTML += `<div>mkdir: missing operand</div>`; break; }
+                let newDirPath = currentDirectory === '/' ? '/' + arg : currentDirectory + '/' + arg;
+                virtualFileSystem[newDirPath] = { type: 'dir', items: [] };
+                virtualFileSystem[currentDirectory].items.push(arg);
+                terminalOutput.innerHTML += `<div>Directory '${arg}' created.</div>`;
+                break;
+            case 'touch':
+                if (!arg) { terminalOutput.innerHTML += `<div>touch: missing file operand</div>`; break; }
+                let newFilePath = currentDirectory === '/' ? '/' + arg : currentDirectory + '/' + arg;
+                virtualFileSystem[newFilePath] = { type: 'file', content: '' };
+                virtualFileSystem[currentDirectory].items.push(arg);
+                break;
+            case 'cat':
+                if (!arg) { terminalOutput.innerHTML += `<div>cat: missing file argument</div>`; break; }
+                let targetFilePath = currentDirectory === '/' ? '/' + arg : currentDirectory + '/' + arg;
+                if (virtualFileSystem[targetFilePath] && virtualFileSystem[targetFilePath].type === 'file') {
+                    terminalOutput.innerHTML += `<div>${virtualFileSystem[targetFilePath].content}</div>`;
+                } else {
+                    terminalOutput.innerHTML += `<div>cat: ${arg}: No such file or directory</div>`;
+                }
+                break;
+            case 'head':
+                if (!arg) { terminalOutput.innerHTML += `<div>head: missing file argument</div>`; break; }
+                let headPath = currentDirectory === '/' ? '/' + arg : currentDirectory + '/' + arg;
+                if (virtualFileSystem[headPath] && virtualFileSystem[headPath].type === 'file') {
+                    const lines = virtualFileSystem[headPath].content.split('\n').slice(0, 5).join('\n');
+                    terminalOutput.innerHTML += `<div style="white-space:pre;">${lines}</div>`;
+                } else { terminalOutput.innerHTML += `<div>head: ${arg}: No such file</div>`; }
+                break;
+            case 'tail':
+                if (!arg) { terminalOutput.innerHTML += `<div>tail: missing file argument</div>`; break; }
+                let tailPath = currentDirectory === '/' ? '/' + arg : currentDirectory + '/' + arg;
+                if (virtualFileSystem[tailPath] && virtualFileSystem[tailPath].type === 'file') {
+                    const lines = virtualFileSystem[tailPath].content.split('\n').slice(-5).join('\n');
+                    terminalOutput.innerHTML += `<div style="white-space:pre;">${lines}</div>`;
+                } else { terminalOutput.innerHTML += `<div>tail: ${arg}: No such file</div>`; }
+                break;
+            case 'wc':
+                if (!arg) { terminalOutput.innerHTML += `<div>wc: missing file argument</div>`; break; }
+                let wcPath = currentDirectory === '/' ? '/' + arg : currentDirectory + '/' + arg;
+                if (virtualFileSystem[wcPath] && virtualFileSystem[wcPath].type === 'file') {
+                    const content = virtualFileSystem[wcPath].content;
+                    const lines = content.split('\n').length;
+                    const words = content.split(/\s+/).filter(w => w).length;
+                    const chars = content.length;
+                    terminalOutput.innerHTML += `<div>  ${lines}  ${words}  ${chars} ${arg}</div>`;
+                } else { terminalOutput.innerHTML += `<div>wc: ${arg}: No such file</div>`; }
+                break;
+            case 'grep':
+                if (!arg || !arg2) { terminalOutput.innerHTML += `<div>Usage: grep [pattern] [file]</div>`; break; }
+                let grepPath = currentDirectory === '/' ? '/' + arg2 : currentDirectory + '/' + arg2;
+                if (virtualFileSystem[grepPath] && virtualFileSystem[grepPath].type === 'file') {
+                    const matches = virtualFileSystem[grepPath].content.split('\n').filter(l => l.includes(arg));
+                    if (matches.length) matches.forEach(m => terminalOutput.innerHTML += `<div style="color:var(--warning);">${m}</div>`);
+                    else terminalOutput.innerHTML += `<div>No matches found.</div>`;
+                } else { terminalOutput.innerHTML += `<div>grep: ${arg2}: No such file</div>`; }
+                break;
+            case 'find':
+                if (!arg) { terminalOutput.innerHTML += `<div>Usage: find [dir] -name [pattern]</div>`; break; }
+                const searchDir = arg === '.' ? currentDirectory : arg;
+                const pattern = arg2 === '-name' ? tokens[3] : '*';
+                Object.keys(virtualFileSystem).forEach(p => {
+                    if (p.startsWith(searchDir)) {
+                        const name = p.split('/').pop();
+                        if (!pattern || pattern === '*' || name.includes(pattern.replace('*', ''))) {
+                            terminalOutput.innerHTML += `<div>${p}</div>`;
+                        }
+                    }
+                });
+                break;
+            case 'chmod':
+                if (!arg || !arg2) { terminalOutput.innerHTML += `<div>Usage: chmod [mode] [file]</div>`; break; }
+                terminalOutput.innerHTML += `<div>Permissions of '${arg2}' changed to ${arg}</div>`;
+                break;
+            case 'ps':
+                terminalOutput.innerHTML += `<div>  PID TTY          TIME CMD
+    1 pts/0    00:00:02 systemd
+  127 pts/0    00:00:00 bash
+  234 pts/0    00:00:00 sshd
+  567 pts/0    00:00:01 nginx
+  890 pts/0    00:00:00 ps</div>`;
+                break;
+            case 'top':
+                terminalOutput.innerHTML += `<div>top - ${new Date().toUTCString()} up 45 days
+Tasks:  3 total,  1 running,  2 sleeping
+%Cpu(s):  5.2 us,  2.1 sy, 92.7 id
+MiB Mem:  8000.0 total,  2100.0 free,  4200.0 used
+MiB Swap: 2048.0 total, 2048.0 free
+
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+  567 root      20   0   125000  12000   8000 S   0.3   0.1   0:01.20 nginx
+  234 root      20   0    10200   3400   2800 S   0.0   0.0   0:00.45 sshd
+    1 root      20   0   168000  12800   8400 S   0.0   0.2   0:02.10 systemd</div>`;
+                break;
+            case 'df':
+                terminalOutput.innerHTML += `<div>Filesystem     1K-blocks    Used Available Use% Mounted on
+/dev/sda1       51200000 12800000  38400000  25% /
+tmpfs            4096000        0   4096000   0% /dev/shm
+/dev/sdb1       10240000  2048000   8192000  20% /data</div>`;
+                break;
+            case 'du':
+                const duPath = arg || currentDirectory;
+                terminalOutput.innerHTML += `<div>4.0K\t${duPath}/documents
+2.0K\t${duPath}/scripts
+4.0K\t${duPath}/logs
+12K\t${duPath}</div>`;
+                break;
+            case 'history':
+                terminalOutput.innerHTML += `<div>  1  pwd\n  2  ls -la\n  3  cd /etc\n  4  cat /etc/passwd\n  5  systemctl status sshd</div>`;
+                break;
+            default:
+                terminalOutput.innerHTML += `<div>bash: ${cmd}: command not found. Type 'help' for assistance.</div>`;
+        }
+    }
+
+    // ============================================================
+    // SECTION P: TIMER & BOOTSTRAP
+    // ============================================================
+    // Timer
+    setInterval(() => {
+        if (S.isLoggedIn) {
+            S.secondsActive++;
+            if (S.secondsActive % 15 === 0) {
+                if (DB.students[S.studentId]) DB.students[S.studentId].secondsActive = S.secondsActive;
+                save();
+            }
+        }
+        const te = document.getElementById('sTime');
+        if (te) te.textContent = Math.floor(S.secondsActive / 60) + 'm';
+    }, 1000);
+
+    // Initialize quiz builder with 5 questions
+    for (let i = 0; i < 5; i++) addQuizQuestion();
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); CMD.open(); }
+        if (e.key === 'Escape') CMD.close();
+    });
+
+    // Bootstrap
+    (async function boot() {
+        try {
+            const fp = await LIC.getFingerprint();
+            document.getElementById('licFP').value = fp;
+
+            if (localStorage.getItem(LIC.STORAGE_KEY + '_lk') === '1') {
+                document.getElementById('lic-screen').classList.remove('active');
+                loadSession();
+                return;
+            }
+
+            if (await LIC.check()) {
+                document.getElementById('lic-screen').classList.remove('active');
+                loadSession();
+            } else {
+                document.getElementById('lic-screen').classList.add('active');
+            }
+        } catch (e) {
+            console.error('License check failed:', e);
+            document.getElementById('lic-screen').classList.add('active');
+        }
+    })();
+
+    // Command palette click outside
+    document.getElementById('cmdPalette').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('cmdPalette')) CMD.close();
+    });
+    </script>
+</body>
+</html>
