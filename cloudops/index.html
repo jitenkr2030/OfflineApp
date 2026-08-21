@@ -150,7 +150,7 @@
             <h2>CloudOps Pro</h2>
             <p style="color:var(--muted);text-align:center;margin-bottom:20px;font-size:0.85rem;">Enter your license key to activate</p>
             <div class="lic-field"><label>Machine Fingerprint</label><input type="text" id="licFP" readonly></div>
-            <div class="lic-field"><label>License Key</label><input type="text" id="licKey" placeholder="CLOP-XXXX-XXXX-XXXX-XXXX"></div>
+            <div class="lic-field"><label>License Key</label><input type="text" id="licKey" placeholder="CLDO-XXXX-XXXX-XXXX-XXXX"></div>
             <button onclick="LIC.activate()" style="width:100%;margin-top:4px;">Activate License</button>
             <div class="lic-status" id="licStatus"></div>
         </div>
@@ -332,7 +332,7 @@
     // SECTION A: LICENSE SYSTEM
     // ============================================================
     const LIC = {
-        SECRET: 'CLOP_LMS_SECRET_KEY_xK9$mP2v@qR7nZ4w',
+        SECRET: 'CLOUDOPS_SECRET_xK9$mP2v@qR7nZ4w',
         STORAGE_KEY: 'cloudops_license_v1',
         INTERVAL: 30000,
 
@@ -353,9 +353,39 @@
             try { const a = new (window.AudioContext || window.webkitAudioContext)(); c.push(String(a.sampleRate)); a.close(); } catch (e) { c.push('a'); }
             return (await LIC.sha256(c.join('|||'))).substring(0, 32).toUpperCase();
         },
-        async generateKey(fp, days) { const ex = new Date(); ex.setDate(ex.getDate() + days); const ed = Math.floor(ex.getTime() / 86400000); const es = ed.toString(16).toUpperCase().padStart(5, '0'); const payload = 'CLOP-' + fp.substring(0, 4) + '-' + es.substring(0, 4) + '-' + fp.substring(4, 8); const sig = (await LIC.sha256(payload + LIC.SECRET)).substring(0, 8).toUpperCase(); return { key: 'CLOP-' + fp.substring(0, 4) + '-' + es.substring(0, 4) + '-' + fp.substring(4, 8) + '-' + sig, expMs: ex.getTime(), exp: ex.toISOString() }; },
+        async generateKey(fp, days) {
+            const expDate = new Date(Date.now() + days * 86400000);
+            const expDay = Math.floor(expDate.getTime() / 86400000);
+            const edStr = expDay.toString(16).toUpperCase().padStart(4, '0').substring(0, 4);
+            const fp8 = fp.substring(0, 8).toUpperCase();
+            const sigInput = expDay + ':' + fp + ':' + LIC.SECRET;
+            const sig = (await LIC.sha256(sigInput)).substring(0, 4).toUpperCase();
+            const key = 'CLDO-' + edStr + '-' + fp8.substring(0, 4) + '-' + fp8.substring(4, 8) + '-' + sig;
+            return { key, expMs: expDate.getTime(), exp: expDate.toISOString() };
+        },
         async validateKey(key, fp) {
-            try { key = key.trim().toUpperCase(); if (!key.startsWith('CLOP-')) return { valid: false, reason: 'Invalid prefix' }; const p = key.split('-'); if (p.length !== 5) return { valid: false, reason: 'Invalid format' }; if (!fp.startsWith(p[1] + p[3])) return { valid: false, reason: 'Fingerprint mismatch' }; const exp = (await LIC.sha256(p.slice(0, 4).join('-') + LIC.SECRET)).substring(0, 8).toUpperCase(); if (p[4] !== exp) return { valid: false, reason: 'Invalid signature' }; if (Date.now() > parseInt(p[2], 16) * 86400000) return { valid: false, reason: 'Expired' }; return { valid: true, expMs: parseInt(p[2], 16) * 86400000 }; } catch (e) { return { valid: false, reason: 'Error' }; }
+            try {
+                key = key.trim().toUpperCase();
+                if (!key.startsWith('CLDO-')) return { valid: false, reason: 'Invalid prefix' };
+                const parts = key.split('-');
+                if (parts.length !== 5) return { valid: false, reason: 'Invalid format' };
+                const payload = parts.slice(1).join('');
+                if (payload.length !== 16) return { valid: false, reason: 'Invalid payload' };
+                const edStr = payload.substring(0, 4);
+                const fp8 = payload.substring(4, 12);
+                const sig = payload.substring(12, 16);
+                const expDay = parseInt(edStr, 16);
+                if (isNaN(expDay)) return { valid: false, reason: 'Invalid expiration' };
+                if (fp8 !== fp.substring(0, 8).toUpperCase()) return { valid: false, reason: 'Fingerprint mismatch' };
+                const sigInput = expDay + ':' + fp + ':' + LIC.SECRET;
+                const expectedSig = (await LIC.sha256(sigInput)).substring(0, 4).toUpperCase();
+                if (sig !== expectedSig) return { valid: false, reason: 'Invalid signature' };
+                const expMs = expDay * 86400 * 1000;
+                if (Date.now() > expMs) return { valid: false, reason: 'Expired' };
+                return { valid: true, expMs, exp: new Date(expMs).toISOString() };
+            } catch (e) { return { valid: false, reason: 'Error' }; }
+        },
+            try { key = key.trim().toUpperCase(); if (!key.startsWith('CLDO-')) return { valid: false, reason: 'Invalid prefix' }; const p = key.split('-'); if (p.length !== 5) return { valid: false, reason: 'Invalid format' }; if (!fp.startsWith(p[1] + p[3])) return { valid: false, reason: 'Fingerprint mismatch' }; const exp = (await LIC.sha256(p.slice(0, 4).join('-') + LIC.SECRET)).substring(0, 8).toUpperCase(); if (p[4] !== exp) return { valid: false, reason: 'Invalid signature' }; if (Date.now() > parseInt(p[2], 16) * 86400000) return { valid: false, reason: 'Expired' }; return { valid: true, expMs: parseInt(p[2], 16) * 86400000 }; } catch (e) { return { valid: false, reason: 'Error' }; }
         },
         store(k, fp, v) { localStorage.setItem(LIC.STORAGE_KEY, JSON.stringify({ key: k, fp, expMs: v.expMs, exp: v.exp, ts: new Date().toISOString(), th: LIC.simpleHash(JSON.stringify({ key: k, fp, expMs: v.expMs })) })); },
         getStored() { try { return JSON.parse(localStorage.getItem(LIC.STORAGE_KEY)); } catch (e) { return null; } },

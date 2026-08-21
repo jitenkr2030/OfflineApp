@@ -408,7 +408,7 @@
     // SECTION A: LICENSE SYSTEM
     // ============================================================
     const LIC = {
-        SECRET: 'LNXA_LMS_SECRET_KEY_xK9$mP2v@qR7nZ4w',
+        SECRET: 'LINUXADMIN_SECRET_xK9$mP2v@qR7nZ4w',
         STORAGE_KEY: 'linuxadmin_license_v1',
         APP_PREFIX: 'lnxa',
         INTERVAL: 30000,
@@ -463,14 +463,14 @@
         },
 
         async generateKey(fp, days) {
-            const exp = new Date();
-            exp.setDate(exp.getDate() + days);
-            const expDays = Math.floor(exp.getTime() / 86400000);
-            const expHex = expDays.toString(16).toUpperCase().padStart(5, '0');
-            const payload = 'LNXA-' + fp.substring(0, 4) + '-' + expHex.substring(0, 4) + '-' + fp.substring(4, 8);
-            const sig = (await LIC.sha256(payload + LIC.SECRET)).substring(0, 8).toUpperCase();
-            const key = 'LNXA-' + fp.substring(0, 4) + '-' + expHex.substring(0, 4) + '-' + fp.substring(4, 8) + '-' + sig;
-            return { key, expMs: exp.getTime(), exp: exp.toISOString() };
+            const expDate = new Date(Date.now() + days * 86400000);
+            const expDay = Math.floor(expDate.getTime() / 86400000);
+            const edStr = expDay.toString(16).toUpperCase().padStart(4, '0').substring(0, 4);
+            const fp8 = fp.substring(0, 8).toUpperCase();
+            const sigInput = expDay + ':' + fp + ':' + LIC.SECRET;
+            const sig = (await LIC.sha256(sigInput)).substring(0, 4).toUpperCase();
+            const key = 'LNXA-' + edStr + '-' + fp8.substring(0, 4) + '-' + fp8.substring(4, 8) + '-' + sig;
+            return { key, expMs: expDate.getTime(), exp: expDate.toISOString() };
         },
 
         async validateKey(key, fp) {
@@ -479,14 +479,19 @@
                 if (!key.startsWith('LNXA-')) return { valid: false, reason: 'Invalid prefix' };
                 const parts = key.split('-');
                 if (parts.length !== 5) return { valid: false, reason: 'Invalid format' };
-                const fpPart = parts[1] + parts[3];
-                if (!fp.startsWith(fpPart)) return { valid: false, reason: 'Fingerprint mismatch' };
-                const payload = parts.slice(0, 4).join('-');
-                const expectedSig = (await LIC.sha256(payload + LIC.SECRET)).substring(0, 8).toUpperCase();
-                if (parts[4] !== expectedSig) return { valid: false, reason: 'Invalid signature' };
-                const expDays = parseInt(parts[2], 16);
-                const expMs = expDays * 86400000;
-                if (Date.now() > expMs) return { valid: false, reason: 'License expired' };
+                const payload = parts.slice(1).join('');
+                if (payload.length !== 16) return { valid: false, reason: 'Invalid payload' };
+                const edStr = payload.substring(0, 4);
+                const fp8 = payload.substring(4, 12);
+                const sig = payload.substring(12, 16);
+                const expDay = parseInt(edStr, 16);
+                if (isNaN(expDay)) return { valid: false, reason: 'Invalid expiration' };
+                if (fp8 !== fp.substring(0, 8).toUpperCase()) return { valid: false, reason: 'Fingerprint mismatch' };
+                const sigInput = expDay + ':' + fp + ':' + LIC.SECRET;
+                const expectedSig = (await LIC.sha256(sigInput)).substring(0, 4).toUpperCase();
+                if (sig !== expectedSig) return { valid: false, reason: 'Invalid signature' };
+                const expMs = expDay * 86400 * 1000;
+                if (Date.now() > expMs) return { valid: false, reason: 'Expired' };
                 return { valid: true, expMs, exp: new Date(expMs).toISOString() };
             } catch (e) { return { valid: false, reason: 'Validation error' }; }
         },
