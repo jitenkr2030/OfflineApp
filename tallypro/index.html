@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Tally Prime Enterprise - E-Accounting Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+:root{
+ --bg:#eef3e9;--panel:#fff;--soft:#f5f8f2;--dark:#203b2e;--head:#315844;
+ --accent:#5d866d;--border:#c8d3c1;--text:#1f2937;--muted:#64706a;
+ --danger:#b42318;--success:#16803c;--warning:#9a6700;--shadow:0 8px 24px rgba(31,55,43,.10)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.mono{font-family:'DM Mono',monospace}
+
+/* ═══ LICENSE SCREEN ═══ */
+#licenseScreen{position:fixed;inset:0;background:linear-gradient(135deg,#173326,#426b55);display:flex;align-items:center;justify-content:center;z-index:200}
+.lic-card{width:min(460px,92vw);background:#fff;border-radius:16px;padding:36px;box-shadow:0 25px 60px rgba(0,0,0,.3);border-top:6px solid #86a98f}
+.lic-card .lbadge{display:inline-block;background:linear-gradient(135deg,#315844,#5d866d);color:#fff;padding:6px 18px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px}
+.lic-card h1{font-size:22px;color:var(--dark);margin-bottom:6px}
+.lic-card .sub{color:var(--muted);font-size:13px;margin-bottom:24px}
+.lic-card .fp-box{background:#f2f6ef;border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:18px}
+.lic-card .fp-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-weight:700}
+.lic-card .fp-val{font-family:'DM Mono',monospace;font-size:14px;color:var(--dark);letter-spacing:1px;word-break:break-all}
+.lic-card input{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:7px;background:#fff;color:var(--text);font-size:14px;font-family:'DM Mono',monospace;letter-spacing:1.5px;text-align:center;outline:none}
+.lic-card input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(93,134,109,.15)}
+.lic-card input::placeholder{color:#9ca3af;letter-spacing:.5px}
+.lic-status{margin-top:10px;font-size:12px;font-weight:600;min-height:18px}
+.lic-status.error{color:var(--danger)}.lic-status.valid{color:var(--success)}
+.lic-info{margin-top:18px;font-size:11px;color:var(--muted);line-height:1.6;text-align:left;background:#f2f6ef;border-radius:8px;padding:12px}
+.lic-info code{color:var(--dark);background:#e5ece1;padding:2px 6px;border-radius:4px;font-size:11px;font-family:'DM Mono',monospace}
+.lic-btn{width:100%;margin-top:18px;padding:12px;background:var(--dark);color:#fff;border:none;border-radius:7px;font-size:14px;font-weight:700;cursor:pointer;transition:filter .15s}
+.lic-btn:hover{filter:brightness(.92)}
+.lic-bar{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer}
+.lic-bar.active{background:#def5e5;color:#146c32}.lic-bar.warning{background:#fff0c8;color:#7a5500}.lic-bar.expired{background:#fde4e2;color:#9f241c}
+.lic-bar-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+
+/* ═══ EXISTING STYLES (preserved exactly) ═══ */
+#authScreen{position:fixed;inset:0;background:linear-gradient(135deg,#173326,#426b55);display:grid;place-items:center;z-index:99}
+.auth-card{width:min(430px,92vw);background:#fff;border-radius:16px;padding:32px;box-shadow:0 25px 60px #0005;border-top:6px solid #86a98f}
+.auth-card h1{font-size:22px;color:var(--dark);margin-bottom:7px}.auth-card p{color:var(--muted);font-size:13px;margin-bottom:20px}
+.demo{background:#f2f6ef;border:1px dashed var(--border);padding:12px;border-radius:9px;font-size:12px;line-height:1.7;margin-bottom:18px}
+.field{margin-bottom:13px}.field label{display:block;font-weight:700;font-size:12px;margin-bottom:5px}
+input,select,textarea{width:100%;border:1px solid var(--border);background:#fff;border-radius:7px;padding:9px 10px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px #5d866d20}
+.btn{border:0;border-radius:7px;padding:9px 14px;background:var(--dark);color:#fff;font-weight:700}
+.btn:hover{filter:brightness(.92)}.btn.secondary{background:#e5ece1;color:var(--dark)}
+.btn.danger{background:#b42318}.btn.success{background:#16803c}.btn.small{padding:6px 9px;font-size:12px}
+#app{height:100vh;display:flex;flex-direction:column}
+.topbar{height:50px;background:var(--dark);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 15px;font-size:13px}
+.company{font-weight:800;background:#406c55;padding:7px 10px;border-radius:7px}.top-actions{display:flex;gap:8px;align-items:center}
+.top-actions button{background:transparent;border:1px solid #ffffff33;color:#fff;padding:6px 9px;border-radius:6px}
+.layout{display:flex;flex:1;min-height:0}
+.sidebar{width:245px;background:#f4f7f1;border-right:1px solid var(--border);display:flex;flex-direction:column;padding:12px;gap:10px}
+.sidebar-title{font-weight:900;color:var(--dark);font-size:13px;text-transform:uppercase;border-bottom:2px solid var(--border);padding:6px 3px}
+.menu{overflow:auto;display:flex;flex-direction:column;gap:5px}
+.menu button{border:1px solid var(--border);background:#fff;padding:9px 10px;text-align:left;border-radius:7px;color:#26332c;font-weight:600;font-size:12px}
+.menu button:hover,.menu button.active{background:var(--head);color:#fff}
+.main{flex:1;min-width:0;overflow:hidden;background:#fff;display:flex;flex-direction:column}
+.header{height:54px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:#fafcf9}
+.header h2{font-size:17px;color:var(--dark)}.crumb{font-size:11px;color:var(--muted)}
+.content{padding:17px;overflow:auto;flex:1}
+.panel{display:none}.panel.active{display:block}
+.rightbar{width:135px;background:#203b2e;padding:9px;display:flex;flex-direction:column;gap:6px;overflow:auto}
+.fn{background:#315844;border:1px solid #5d866d;color:#fff;border-radius:6px;padding:8px;text-align:left;font-size:11px;font-weight:800}
+.fn span{display:block;color:#b9d0c0;font-weight:400;font-size:9px;margin-top:2px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:15px}
+.card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;box-shadow:var(--shadow)}
+.card .label{font-size:11px;color:var(--muted);font-weight:700}.card .value{font-size:21px;color:var(--dark);font-weight:900;margin-top:5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px}.box{background:#fff;border:1px solid var(--border);border-radius:10px;padding:15px;margin-bottom:15px}.box h3{font-size:14px;color:var(--dark);margin-bottom:12px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}.toolbar>*{max-width:220px}
+.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:8px}
+table{width:100%;border-collapse:collapse;min-width:650px}th,td{padding:9px 10px;border-bottom:1px solid #e0e6dc;text-align:left;font-size:12px}th{background:#eef3eb;color:var(--dark);font-weight:800;position:sticky;top:0;z-index:1}tr:hover td{background:#fbfdf9}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.form-grid .full{grid-column:1/-1}
+.entry-head{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.total-line{display:flex;justify-content:flex-end;gap:25px;font-weight:900;margin:12px 0;color:var(--dark)}
+.badge{padding:3px 7px;border-radius:99px;font-size:10px;font-weight:800;background:#e7efe4;color:var(--dark)}
+.badge.green{background:#def5e5;color:#146c32}.badge.red{background:#fde4e2;color:#9f241c}.badge.yellow{background:#fff0c8;color:#7a5500}
+.modal{position:fixed;inset:0;background:#0006;display:none;place-items:center;z-index:80}.modal.show{display:grid}
+.modal-card{background:#fff;width:min(650px,94vw);max-height:90vh;overflow:auto;border-radius:12px;padding:18px;box-shadow:0 25px 70px #0005}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.modal-head h3{color:var(--dark)}
+.toast{position:fixed;right:20px;bottom:20px;background:#203b2e;color:#fff;padding:11px 15px;border-radius:8px;box-shadow:var(--shadow);z-index:200;font-size:12px;display:none}.toast.show{display:block}
+.empty{text-align:center;padding:35px;color:var(--muted);font-size:13px}
+.kpi{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #e4e9e1;font-size:12px}.kpi:last-child{border:0}
+@media(max-width:1050px){.rightbar{display:none}.sidebar{width:205px}.cards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:720px){body{overflow:auto}.sidebar{display:none}.topbar{height:auto;min-height:52px}.content{padding:10px}.form-grid,.grid2{grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}.header{padding:0 10px}}
+</style>
+</head>
+<body>
+
+<!-- ═══ LICENSE SCREEN (matches EduLms) ═══ -->
+<div id="licenseScreen" class="hidden" style="display:none">
+  <div id="licActivateView" class="lic-card">
+    <div class="lbadge">Licensed Software</div>
+    <h1><i class="fa-solid fa-building-columns"></i> Tally Prime Enterprise</h1>
+    <p class="sub">Enter your license key to activate</p>
+    <div class="fp-box">
+      <div class="fp-label">Your Device Fingerprint</div>
+      <div class="fp-val" id="licFingerprint">Detecting...</div>
+    </div>
+    <input type="text" id="licKeyInput" placeholder="TALY-XXXX-XXXX-XXXX-XXXX" maxlength="23" autocomplete="off" spellcheck="false">
+    <div class="lic-status" id="licStatus"></div>
+    <button class="lic-btn" onclick="LIC.activate()">Activate License</button>
+    <div class="lic-info">
+      <strong style="color:var(--dark)">How to get a license key:</strong><br>
+      1. Copy the fingerprint shown above<br>
+      2. Send it to your administrator<br>
+      3. Admin runs: <code>python3 gen.py generate tallypro &lt;YOUR_FP&gt; 365</code><br>
+      4. Enter the key you receive back
+    </div>
+  </div>
+  <div id="licExpiredView" class="lic-card" style="display:none">
+    <div style="font-size:56px;margin-bottom:16px">&#128274;</div>
+    <h1 style="color:var(--danger)">License Expired</h1>
+    <p class="sub">Your license has expired. All accounting data has been wiped.</p>
+    <p class="sub">Contact your administrator for a new key.</p>
+    <button class="lic-btn" onclick="LIC.showActivate()" style="margin-top:20px">Enter New License Key</button>
+  </div>
+</div>
+
+<!-- ═══ EXISTING AUTH SCREEN (preserved exactly) ═══ -->
+<div id="authScreen" class="hidden">
+  <div class="auth-card">
+    <h1><i class="fa-solid fa-building-columns"></i> Tally Prime Enterprise</h1>
+    <p>Professional E-Accounting & ERP Practice Simulator</p>
+    <div class="demo">
+      <b>Demo Accounts</b><br>
+      Student: <code>student1</code> / <code>1234</code><br>
+      Instructor: <code>instructor</code> / <code>1234</code>
+    </div>
+    <form id="loginForm">
+      <div class="field"><label>Username</label><input id="loginUser" required autocomplete="username"></div>
+      <div class="field"><label>Password</label><input id="loginPass" type="password" required autocomplete="current-password"></div>
+      <div id="licStatusBar" style="margin-bottom:12px"></div>
+      <button class="btn" style="width:100%">Gateway Login</button>
+    </form>
+  </div>
+</div>
+
+<!-- ═══ EXISTING APP (preserved exactly) ═══ -->
+<div id="app" class="hidden">
+  <header class="topbar">
+    <div class="company"><i class="fa-solid fa-industry"></i> Acme Corporation · FY 2026-27</div>
+    <div class="top-actions">
+      <span id="licBarHeader"></span>
+      <span>User: <b id="topUser">Admin</b></span>
+      <button onclick="openModal('backupModal')"><i class="fa-solid fa-database"></i> Backup</button>
+      <button onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </header>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-title">Gateway of Tally</div>
+      <div id="menu" class="menu"></div>
+      <div class="box" style="padding:10px;margin:0">
+        <div style="font-size:10px;color:var(--muted)">DATA RECORDS</div>
+        <b id="recordCount">0</b> vouchers
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="header"><div><h2 id="pageTitle">Dashboard</h2><div class="crumb" id="pageCrumb">Gateway / Dashboard</div></div><div id="clock"></div></div>
+      <div class="content">
+
+        <section id="dashboard" class="panel active">
+          <div class="cards">
+            <div class="card"><div class="label">TOTAL SALES</div><div class="value" id="kSales">₹0</div></div>
+            <div class="card"><div class="label">TOTAL PURCHASE</div><div class="value" id="kPurchase">₹0</div></div>
+            <div class="card"><div class="label">INCOME</div><div class="value" id="kIncome">₹0</div></div>
+            <div class="card"><div class="label">EXPENSES</div><div class="value" id="kExpense">₹0</div></div>
+          </div>
+          <div class="grid2">
+            <div class="box"><h3>Financial Position</h3>
+              <div class="kpi"><span>Cash Balance</span><b id="kCash">₹0</b></div>
+              <div class="kpi"><span>Bank Balance</span><b id="kBank">₹0</b></div>
+              <div class="kpi"><span>Receivable</span><b id="kReceivable">₹0</b></div>
+              <div class="kpi"><span>Payable</span><b id="kPayable">₹0</b></div>
+              <div class="kpi"><span>Net Profit / Loss</span><b id="kProfit">₹0</b></div>
+            </div>
+            <div class="box"><h3>Quick Actions</h3>
+              <div class="toolbar">
+                <button class="btn" onclick="newVoucher('Receipt')">+ Receipt</button>
+                <button class="btn" onclick="newVoucher('Payment')">+ Payment</button>
+                <button class="btn" onclick="newVoucher('Sales')">+ Sales</button>
+                <button class="btn" onclick="newVoucher('Purchase')">+ Purchase</button>
+                <button class="btn secondary" onclick="showView('ledger')">Ledger</button>
+                <button class="btn secondary" onclick="showView('reports')">Reports</button>
+              </div>
+              <div id="recentBox"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="voucher" class="panel">
+          <div class="box">
+            <div class="entry-head"><h3>Accounting Voucher Entry</h3><span class="badge" id="voucherNoBadge">New Voucher</span></div>
+            <div class="form-grid">
+              <div class="field"><label>Voucher Type</label><select id="vType"></select></div>
+              <div class="field"><label>Date</label><input type="date" id="vDate"></div>
+              <div class="field"><label>Party / Ledger</label><select id="vLedger"></select></div>
+              <div class="field"><label>Amount (₹)</label><input type="number" id="vAmount" min="0.01" step="0.01" placeholder="0.00"></div>
+              <div class="field"><label>GST Rate</label><select id="vGst"><option value="0">No GST</option><option value="5">5%</option><option value="12">12%</option><option value="18">18%</option><option value="28">28%</option></select></div>
+              <div class="field"><label>Reference / Invoice No.</label><input id="vRef" placeholder="INV-001"></div>
+              <div class="field full"><label>Narration</label><textarea id="vNarration" rows="3" placeholder="Enter transaction narration..."></textarea></div>
+            </div>
+            <div class="total-line"><span>Taxable: <b id="taxablePreview">₹0</b></span><span>GST: <b id="gstPreview">₹0</b></span><span>Total: <b id="totalPreview">₹0</b></span></div>
+            <div class="toolbar">
+              <button class="btn" onclick="saveVoucher()"><i class="fa-solid fa-floppy-disk"></i> Accept & Save (Ctrl+A)</button>
+              <button class="btn secondary" onclick="clearVoucher()">Clear</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="daybook" class="panel">
+          <div class="box">
+            <h3>Day Book</h3>
+            <div class="toolbar">
+              <input id="dbSearch" placeholder="Search voucher, ledger, narration..." oninput="renderDayBook()">
+              <select id="dbType" onchange="renderDayBook()"><option value="">All Types</option></select>
+              <input type="date" id="dbFrom" onchange="renderDayBook()"><input type="date" id="dbTo" onchange="renderDayBook()">
+              <button class="btn secondary" onclick="exportCSV('daybook')">Export CSV</button>
+            </div>
+            <div class="table-wrap"><table><thead><tr><th>No.</th><th>Date</th><th>Type</th><th>Ledger</th><th>Reference</th><th>Tax</th><th>Amount</th><th>Action</th></tr></thead><tbody id="daybookBody"></tbody></table></div>
+          </div>
+        </section>
+
+        <section id="ledger" class="panel">
+          <div class="box">
+            <div class="entry-head"><h3>Ledger Accounts</h3><button class="btn" onclick="openLedgerModal()">+ Add Ledger</button></div>
+            <div class="toolbar"><input id="ledgerSearch" placeholder="Search ledger..." oninput="renderLedgers()"><select id="ledgerGroupFilter" onchange="renderLedgers()"><option value="">All Groups</option></select></div>
+            <div class="table-wrap"><table><thead><tr><th>Ledger</th><th>Group</th><th>Opening</th><th>Debit</th><th>Credit</th><th>Closing</th><th>Actions</th></tr></thead><tbody id="ledgerBody"></tbody></table></div>
+          </div>
+        </section>
+
+        <section id="trial" class="panel">
+          <div class="box"><div class="entry-head"><h3>Trial Balance</h3><button class="btn secondary" onclick="printReport('trial')">Print</button></div>
+            <div class="table-wrap"><table><thead><tr><th>Ledger</th><th>Debit (₹)</th><th>Credit (₹)</th></tr></thead><tbody id="trialBody"></tbody><tfoot><tr><th>Total</th><th id="trialDr">₹0</th><th id="trialCr">₹0</th></tr></tfoot></table></div>
+          </div>
+        </section>
+
+        <section id="pnl" class="panel">
+          <div class="box"><div class="entry-head"><h3>Profit & Loss Account</h3><button class="btn secondary" onclick="printReport('pnl')">Print</button></div>
+            <div class="grid2"><div class="box"><h3>Expenses</h3><div id="expenseList"></div></div><div class="box"><h3>Income</h3><div id="incomeList"></div></div></div>
+            <div class="total-line"><span>Net Profit / Loss: <b id="pnlNet">₹0</b></span></div>
+          </div>
+        </section>
+
+        <section id="balance" class="panel">
+          <div class="box"><div class="entry-head"><h3>Balance Sheet</h3><button class="btn secondary" onclick="printReport('balance')">Print</button></div>
+            <div class="grid2"><div class="box"><h3>Liabilities & Capital</h3><div id="liabilityList"></div></div><div class="box"><h3>Assets</h3><div id="assetList"></div></div></div>
+          </div>
+        </section>
+
+        <section id="reports" class="panel">
+          <div class="box"><h3>Reports & Utilities</h3>
+            <div class="cards">
+              <div class="card"><div class="label">CASH BOOK</div><button class="btn small" onclick="showReport('cash')">Open</button></div>
+              <div class="card"><div class="label">BANK BOOK</div><button class="btn small" onclick="showReport('bank')">Open</button></div>
+              <div class="card"><div class="label">SALES REPORT</div><button class="btn small" onclick="showReport('sales')">Open</button></div>
+              <div class="card"><div class="label">PURCHASE REPORT</div><button class="btn small" onclick="showReport('purchase')">Open</button></div>
+            </div>
+            <div id="customReport"></div>
+          </div>
+        </section>
+
+        <section id="inventory" class="panel">
+          <div class="box"><div class="entry-head"><h3>Inventory / Stock Items</h3><button class="btn" onclick="openItemModal()">+ Add Item</button></div>
+            <div class="table-wrap"><table><thead><tr><th>Item</th><th>Unit</th><th>Opening Qty</th><th>Sold</th><th>Purchased</th><th>Closing Qty</th><th>Rate</th></tr></thead><tbody id="inventoryBody"></tbody></table></div>
+          </div>
+        </section>
+
+        <section id="instructor" class="panel">
+          <div class="box"><h3>Instructor Dashboard</h3><div class="cards">
+            <div class="card"><div class="label">STUDENTS</div><div class="value">1</div></div>
+            <div class="card"><div class="label">VOUCHERS POSTED</div><div class="value" id="instVouchers">0</div></div>
+            <div class="card"><div class="label">PRACTICE SCORE</div><div class="value" id="instScore">--</div></div>
+            <div class="card"><div class="label">STATUS</div><div class="value" style="font-size:15px">Active</div></div>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>Student ID</th><th>Vouchers</th><th>Last Activity</th><th>Status</th><th>Action</th></tr></thead><tbody><tr><td>student1</td><td id="instCount">0</td><td id="instLast">—</td><td><span class="badge green">Active</span></td><td><button class="btn small" onclick="showView('daybook')">Review Ledger</button></td></tr></tbody></table></div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <aside class="rightbar">
+      <button class="fn" onclick="showView('voucher')">F2: Date<span>Change Date</span></button>
+      <button class="fn" onclick="newVoucher('Contra')">F4: Contra<span>Bank/Cash</span></button>
+      <button class="fn" onclick="newVoucher('Payment')">F5: Payment<span>Cash Out</span></button>
+      <button class="fn" onclick="newVoucher('Receipt')">F6: Receipt<span>Cash In</span></button>
+      <button class="fn" onclick="newVoucher('Journal')">F7: Journal<span>Adjustment</span></button>
+      <button class="fn" onclick="newVoucher('Sales')">F8: Sales<span>Outward</span></button>
+      <button class="fn" onclick="newVoucher('Purchase')">F9: Purchase<span>Inward</span></button>
+      <button class="fn" onclick="showView('daybook')">Day Book<span>Transactions</span></button>
+      <button class="fn" onclick="showView('trial')">Trial Balance<span>Report</span></button>
+      <button class="fn" onclick="showView('pnl')">P & L<span>Profit Report</span></button>
+    </aside>
+  </div>
+</div>
+
+<!-- ═══ EXISTING MODALS (preserved exactly) ═══ -->
+<div id="ledgerModal" class="modal"><div class="modal-card">
+  <div class="modal-head"><h3>Add Ledger</h3><button class="btn secondary" onclick="closeModal('ledgerModal')">×</button></div>
+  <div class="form-grid"><div class="field"><label>Ledger Name</label><input id="newLedgerName"></div><div class="field"><label>Group</label><select id="newLedgerGroup"></select></div><div class="field"><label>Opening Balance</label><input type="number" id="newLedgerOpening" value="0"></div><div class="field"><label>Opening Type</label><select id="newLedgerOpeningType"><option value="Dr">Debit</option><option value="Cr">Credit</option></select></div></div>
+  <div class="toolbar"><button class="btn" onclick="addLedger()">Save Ledger</button></div>
+</div></div>
+
+<div id="itemModal" class="modal"><div class="modal-card">
+  <div class="modal-head"><h3>Add Stock Item</h3><button class="btn secondary" onclick="closeModal('itemModal')">×</button></div>
+  <div class="form-grid"><div class="field"><label>Item Name</label><input id="newItemName"></div><div class="field"><label>Unit</label><input id="newItemUnit" value="Nos"></div><div class="field"><label>Opening Quantity</label><input type="number" id="newItemQty" value="0"></div><div class="field"><label>Rate</label><input type="number" id="newItemRate" value="0"></div></div>
+  <div class="toolbar"><button class="btn" onclick="addItem()">Save Item</button></div>
+</div></div>
+
+<div id="backupModal" class="modal"><div class="modal-card">
+  <div class="modal-head"><h3>Backup & Restore</h3><button class="btn secondary" onclick="closeModal('backupModal')">×</button></div>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Download your complete local accounting data or restore a previous JSON backup.</p>
+  <div class="toolbar"><button class="btn" onclick="downloadBackup()">Download Backup</button><label class="btn secondary">Restore JSON<input id="restoreFile" type="file" accept=".json" hidden onchange="restoreBackup(event)"></label><button class="btn danger" onclick="resetData()">Reset All Data</button></div>
+</div></div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   LICENSE SYSTEM — matches EduLms pattern exactly
+   Uses crypto.subtle.digest (Web Crypto API) for SHA-256
+   with fallback for file:// protocol
+   ═══════════════════════════════════════════════════════ */
+var LIC = {
+    PREFIX: 'TALY',
+    SECRET: 'TALLYPRO_SECRET_xK9$mP2v@qR7nZ4w',
+    STORAGE_KEY: 'tallypro_license_v1',
+    APP_DATA_PREFIX: 'tally_',
+    CHECK_INTERVAL: 30000,
+    periodicTimer: null,
+
+    async sha256(message) {
+        try {
+            var msgBuffer = new TextEncoder().encode(message);
+            var hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            var hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(function(b) { return b.toString(16).padStart(2, '0') }).join('');
+        } catch(e) {
+            return LIC._sha256fallback(message);
+        }
+    },
+
+    _sha256fallback: function(ascii) {
+        var maxWord = Math.pow(2, 32);
+        var result = '';
+        var words = [];
+        var asciiBitLength = ascii.length * 8;
+        var hash = [];
+        var k = [];
+        var primeCounter = 0;
+        var isComposite = {};
+        for (var candidate = 2; primeCounter < 64; candidate++) {
+            if (!isComposite[candidate]) {
+                for (var i = 0; i < 313; i += candidate) isComposite[i] = candidate;
+                hash[primeCounter] = (Math.pow(candidate, 0.5) * maxWord) | 0;
+                k[primeCounter++] = (Math.pow(candidate, 1/3) * maxWord) | 0;
+            }
+        }
+        ascii += '\x80';
+        while (ascii.length % 64 - 56) ascii += '\x00';
+        for (var i = 0; i < ascii.length; i++) {
+            var j = ascii.charCodeAt(i);
+            if (j >> 8) return;
+            words[i >> 2] |= j << ((3 - i) % 4) * 8;
+        }
+        words[words.length] = ((asciiBitLength / maxWord) | 0);
+        words[words.length] = (asciiBitLength);
+        for (var j = 0; j < words.length;) {
+            var w = words.slice(j, j += 16);
+            var oldHash = hash;
+            hash = hash.slice(0, 8);
+            for (var i = 0; i < 64; i++) {
+                var w15 = w[i - 15], w2 = w[i - 2];
+                var s0 = ((w15 << 25) | (w15 >>> 7)) ^ ((w15 << 14) | (w15 >>> 18)) ^ (w15 >>> 3);
+                var s1 = ((w2 << 15) | (w2 >>> 17)) ^ ((w2 << 13) | (w2 >>> 19)) ^ (w2 >>> 10);
+                w[i] = w[i] + (w[i - 7] || 0) + s0 + (w[i - 16] || 0) + s1;
+                var a = hash[0], e = hash[4];
+                var S0 = ((a << 30) | (a >>> 2)) ^ ((a << 19) | (a >>> 13)) ^ ((a << 10) | (a >>> 22));
+                var S1 = ((e << 26) | (e >>> 6)) ^ ((e << 21) | (e >>> 11)) ^ ((e << 7) | (e >>> 25));
+                var ch = (e & hash[5]) ^ (~e & hash[6]);
+                var maj = (a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]);
+                var t1 = hash[7] + S1 + ch + k[i] + w[i];
+                var t2 = S0 + maj;
+                hash = [(t1 + t2) | 0].concat(hash);
+                hash[4] = (hash[4] + t1) | 0;
+                hash.length = 8;
+            }
+            for (var i = 0; i < 8; i++) hash[i] = (hash[i] + oldHash[i]) | 0;
+        }
+        for (var i = 0; i < 8; i++) {
+            for (var j = 3; j + 1; j--) {
+                var b = (hash[i] >> (j * 8)) & 255;
+                result += ((b < 16) ? 0 : '') + b.toString(16);
+            }
+        }
+        return result;
+    },
+
+    async getFingerprint() {
+        var parts = [];
+        try {
+            var c = document.createElement('canvas');
+            var x = c.getContext('2d');
+            c.width = 200; c.height = 50;
+            x.textBaseline = 'top'; x.font = '14px Arial';
+            x.fillStyle = '#f60'; x.fillRect(125, 1, 62, 20);
+            x.fillStyle = '#069'; x.fillText('TallyPro-FP', 2, 15);
+            x.fillStyle = 'rgba(102,204,0,0.7)'; x.fillText('Fingerprint', 4, 35);
+            parts.push(c.toDataURL());
+        } catch(e) { parts.push('no-canvas'); }
+        parts.push(navigator.userAgent || '');
+        parts.push(navigator.language || '');
+        parts.push(navigator.platform || '');
+        parts.push(String(navigator.hardwareConcurrency || 0));
+        parts.push(String(navigator.maxTouchPoints || 0));
+        parts.push(screen.width + 'x' + screen.height);
+        parts.push(String(screen.colorDepth));
+        parts.push(String(screen.pixelDepth));
+        try { parts.push(Intl.DateTimeFormat().resolvedOptions().timeZone); } catch(e) {}
+        parts.push(String(new Date().getTimezoneOffset()));
+        try {
+            var gl = document.createElement('canvas').getContext('webgl');
+            var ext = gl.getExtension('WEBGL_debug_renderer_info');
+            if (ext) { parts.push(gl.getParameter(ext.UNMASKED_VENDOR_WEBGL)); parts.push(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)); }
+        } catch(e) {}
+        try { var ac = new (window.AudioContext || window.webkitAudioContext)(); parts.push(String(ac.sampleRate)); ac.close(); } catch(e) {}
+        var hash = await LIC.sha256(parts.join('|||'));
+        return hash.substring(0, 32).toUpperCase();
+    },
+
+    async validateKey(key, fingerprint) {
+        try {
+            key = key.trim().toUpperCase();
+            if (key.indexOf(LIC.PREFIX + '-') !== 0) return { valid: false, reason: 'Wrong prefix (expected ' + LIC.PREFIX + '-)' };
+            var parts = key.split('-');
+            if (parts.length !== 5) return { valid: false, reason: 'Invalid key format (need 5 segments)' };
+            var payload = parts.slice(1).join('');
+            if (payload.length !== 16) return { valid: false, reason: 'Invalid payload length' };
+            var edStr = payload.substring(0, 4), fp8 = payload.substring(4, 12), sig = payload.substring(12, 16);
+            var expiryDays = parseInt(edStr, 16);
+            if (isNaN(expiryDays)) return { valid: false, reason: 'Invalid expiration encoding' };
+            if (fp8 !== fingerprint.substring(0, 8).toUpperCase()) return { valid: false, reason: 'Fingerprint mismatch - this key is for a different device' };
+            var dataToSign = expiryDays + ':' + fingerprint + ':' + LIC.SECRET;
+            var sigHash = await LIC.sha256(dataToSign);
+            var expectedSig = sigHash.substring(0, 4).toUpperCase();
+            if (sig !== expectedSig) return { valid: false, reason: 'Invalid signature - key may be corrupted or forged' };
+            var expiryMs = expiryDays * 86400 * 1000;
+            if (Date.now() > expiryMs) return { valid: false, reason: 'License expired on ' + new Date(expiryMs).toISOString().split('T')[0] };
+            return { valid: true, expiryMs: expiryMs, expiryDate: new Date(expiryMs).toISOString(), daysLeft: Math.max(0, Math.floor((expiryMs - Date.now()) / 86400000)) };
+        } catch(e) { return { valid: false, reason: 'Validation error: ' + e.message }; }
+    },
+
+    storeLicense: function(key, fingerprint, result) {
+        localStorage.setItem(LIC.STORAGE_KEY, JSON.stringify({
+            key: key, fingerprint: fingerprint, expiryMs: result.expiryMs,
+            expiryDate: result.expiryDate, daysLeft: result.daysLeft,
+            activatedAt: new Date().toISOString(),
+            tamperHash: LIC.simpleHash(key + fingerprint + result.expiryMs)
+        }));
+    },
+
+    getStoredLicense: function() {
+        try { return JSON.parse(localStorage.getItem(LIC.STORAGE_KEY)); } catch(e) { return null; }
+    },
+
+    simpleHash: function(s) {
+        var h = 0;
+        for (var i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h = h & h; }
+        return h.toString(16);
+    },
+
+    checkTamper: function(stored) {
+        if (!stored.tamperHash) return true;
+        return stored.tamperHash !== LIC.simpleHash(stored.key + stored.fingerprint + stored.expiryMs);
+    },
+
+    async check() {
+        var stored = LIC.getStoredLicense();
+        if (!stored) return false;
+        if (LIC.checkTamper(stored)) { LIC.lockApplication('License data tampered'); return false; }
+        var fingerprint = await LIC.getFingerprint();
+        if (stored.fingerprint !== fingerprint) { LIC.lockApplication('Fingerprint mismatch - different machine'); return false; }
+        if (Date.now() > stored.expiryMs) { LIC.lockApplication('License expired'); return false; }
+        return true;
+    },
+
+    lockApplication: function(reason) {
+        console.warn('[LICENSE] LOCKING:', reason);
+        LIC.wipeAllData();
+        localStorage.setItem(LIC.STORAGE_KEY + '_locked', 'true');
+        localStorage.setItem(LIC.STORAGE_KEY + '_lockReason', reason);
+        document.getElementById('app').classList.add('hidden');
+        document.getElementById('authScreen').classList.add('hidden');
+        var ls = document.getElementById('licenseScreen');
+        ls.classList.remove('hidden'); ls.style.display = 'flex';
+        LIC.showExpired();
+    },
+
+    wipeAllData: function() {
+        var keysToRemove = [];
+        for (var i = 0; i < localStorage.length; i++) {
+            var key = localStorage.key(i);
+            if (key && key.indexOf(LIC.APP_DATA_PREFIX) === 0) keysToRemove.push(key);
+        }
+        keysToRemove.forEach(function(k) { localStorage.removeItem(k); });
+    },
+
+    unlockApp: function() {
+        document.getElementById('licenseScreen').classList.add('hidden');
+        document.getElementById('licenseScreen').style.display = 'none';
+        document.getElementById('authScreen').classList.remove('hidden');
+        LIC.startPeriodicCheck();
+        LIC.updateStatusBar();
+        if (typeof AppInit === 'function') AppInit();
+    },
+
+    async activate() {
+        var fpEl = document.getElementById('licFingerprint');
+        var keyEl = document.getElementById('licKeyInput');
+        var statusEl = document.getElementById('licStatus');
+        var fingerprint = fpEl.textContent;
+        var key = keyEl.value.trim();
+        if (!key) { statusEl.textContent = 'Please enter a license key.'; statusEl.className = 'lic-status error'; return; }
+        statusEl.textContent = 'Validating...'; statusEl.className = 'lic-status';
+        var result = await LIC.validateKey(key, fingerprint);
+        if (result.valid) {
+            localStorage.removeItem(LIC.STORAGE_KEY + '_locked');
+            localStorage.removeItem(LIC.STORAGE_KEY + '_lockReason');
+            LIC.storeLicense(key, fingerprint, result);
+            statusEl.textContent = 'License activated! Valid until ' + new Date(result.expiryDate).toLocaleDateString() + ' (' + result.daysLeft + ' days)';
+            statusEl.className = 'lic-status valid';
+            setTimeout(function() { LIC.unlockApp(); }, 1000);
+        } else {
+            statusEl.textContent = result.reason; statusEl.className = 'lic-status error';
+        }
+    },
+
+    deactivate: function() {
+        if (!confirm('Deactivate license? This will require re-activation.')) return;
+        localStorage.removeItem(LIC.STORAGE_KEY); location.reload();
+    },
+
+    showActivate: function() {
+        document.getElementById('licActivateView').style.display = '';
+        document.getElementById('licExpiredView').style.display = 'none';
+        document.getElementById('licStatus').textContent = '';
+    },
+
+    showExpired: function() {
+        document.getElementById('licActivateView').style.display = 'none';
+        document.getElementById('licExpiredView').style.display = '';
+    },
+
+    startPeriodicCheck: function() {
+        if (LIC.periodicTimer) clearInterval(LIC.periodicTimer);
+        LIC.periodicTimer = setInterval(async function() {
+            var ok = await LIC.check();
+            if (!ok) { clearInterval(LIC.periodicTimer); }
+            else { LIC.updateStatusBar(); }
+        }, LIC.CHECK_INTERVAL);
+    },
+
+    updateStatusBar: function() {
+        var stored = LIC.getStoredLicense();
+        if (!stored) return;
+        var msLeft = stored.expiryMs - Date.now();
+        var daysLeft = Math.ceil(msLeft / 86400000);
+        var cls = 'active', text = 'License: ' + daysLeft + 'd left';
+        if (daysLeft <= 3) { cls = 'warning'; text = 'License: ' + daysLeft + 'd left'; }
+        if (daysLeft <= 0) { cls = 'expired'; text = 'License: EXPIRED'; }
+        ['licStatusBar', 'licBarHeader'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) el.innerHTML = '<div class="lic-bar ' + cls + '" onclick="LIC.showInfo()"><span class="lic-bar-dot"></span>' + text + '</div>';
+        });
+    },
+
+    showInfo: function() {
+        var stored = LIC.getStoredLicense();
+        if (!stored) return;
+        var daysLeft = Math.ceil((stored.expiryMs - Date.now()) / 86400000);
+        alert('License Info\n\nFingerprint: ' + stored.fingerprint + '\nActivated: ' + new Date(stored.activatedAt).toLocaleString() + '\nExpires: ' + new Date(stored.expiryMs).toLocaleString() + '\nDays Remaining: ' + daysLeft);
+    }
+};
+
+/* ═══════════════════════════════════════════════════════
+   EXISTING APP CODE — preserved exactly
+   ═══════════════════════════════════════════════════════ */
+const GROUPS=['Capital Account','Current Assets','Bank Accounts','Cash-in-Hand','Sundry Debtors','Sundry Creditors','Sales Accounts','Purchase Accounts','Direct Income','Indirect Income','Direct Expenses','Indirect Expenses','Duties & Taxes','Fixed Assets'];
+const VOUCHERS=['Receipt','Payment','Contra','Journal','Sales','Purchase','Debit Note','Credit Note'];
+
+/* ═══ APP INIT (called by LIC.unlockApp) ═══ */
+function AppInit() {
+    // License is valid — show auth screen for user login
+    init();
+}
+
+let state=JSON.parse(localStorage.getItem('tally_enterprise_state')||'null')||{
+ user:null, theme:'light',
+ ledgers:[
+  {name:'Capital A/c',group:'Capital Account',opening:100000,openingType:'Cr'},
+  {name:'Cash A/c',group:'Cash-in-Hand',opening:45000,openingType:'Dr'},
+  {name:'HDFC Bank A/c',group:'Bank Accounts',opening:55000,openingType:'Dr'},
+  {name:'Sales Revenue A/c',group:'Sales Accounts',opening:0,openingType:'Cr'},
+  {name:'Purchase A/c',group:'Purchase Accounts',opening:0,openingType:'Dr'},
+  {name:'Office Rent A/c',group:'Indirect Expenses',opening:0,openingType:'Dr'},
+  {name:'Customer A/c',group:'Sundry Debtors',opening:0,openingType:'Dr'},
+  {name:'Supplier A/c',group:'Sundry Creditors',opening:0,openingType:'Cr'}
+ ],
+ vouchers:[{id:1,no:'RV-0001',date:'2026-04-01',type:'Receipt',ledger:'Capital A/c',amount:100000,gst:0,tax:0,ref:'OPENING',narration:'Initial capital introduced'}],
+ items:[{name:'General Item',unit:'Nos',openingQty:0,rate:0}]
+};
+function persist(){localStorage.setItem('tally_enterprise_state',JSON.stringify(state))}
+const $=id=>document.getElementById(id);
+const money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+function toast(msg){$('toast').textContent=msg;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2300)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function save(){persist();refreshAll()}
+function today(){return new Date().toISOString().slice(0,10)}
+function init(){
+ $('vDate').value=today();
+ $('vType').innerHTML=VOUCHERS.map(x=>`<option>${x}</option>`).join('');
+ $('dbType').innerHTML='<option value="">All Types</option>'+VOUCHERS.map(x=>`<option>${x}</option>`).join('');
+ $('newLedgerGroup').innerHTML=GROUPS.map(x=>`<option>${x}</option>`).join('');
+ $('ledgerGroupFilter').innerHTML='<option value="">All Groups</option>'+GROUPS.map(x=>`<option>${x}</option>`).join('');
+ $('vLedger').innerHTML=state.ledgers.map(x=>`<option>${esc(x.name)}</option>`).join('');
+ $('loginForm').onsubmit=e=>{e.preventDefault();login()};
+ document.addEventListener('keydown',keyboard);
+ $('vAmount').addEventListener('input',preview);
+ $('vGst').addEventListener('change',preview);
+ updateClock();setInterval(updateClock,1000);
+ if(state.user) enterApp();
+}
+function login(){
+ let u=$('loginUser').value.trim().toLowerCase(),p=$('loginPass').value;
+ if((u==='student1'||u==='instructor')&&p==='1234'){state.user={username:u,role:u==='instructor'?'instructor':'student'};persist();enterApp()}
+ else toast('Invalid credentials. Use student1 / 1234');
+}
+function enterApp(){$('authScreen').classList.add('hidden');$('app').classList.remove('hidden');$('topUser').textContent=state.user.username;buildMenu();refreshAll();showView('dashboard')}
+function logout(){state.user=null;persist();$('app').classList.add('hidden');$('authScreen').classList.remove('hidden');$('loginUser').value='';$('loginPass').value=''}
+function buildMenu(){
+ let base=[
+ ['dashboard','Dashboard','fa-chart-pie'],['voucher','Accounting Vouchers','fa-file-invoice-dollar'],['daybook','Day Book','fa-book'],
+ ['ledger','Ledgers','fa-address-book'],['trial','Trial Balance','fa-scale-balanced'],['pnl','Profit & Loss','fa-chart-line'],
+ ['balance','Balance Sheet','fa-building-columns'],['inventory','Inventory','fa-boxes-stacked'],['reports','Reports & Utilities','fa-chart-column']
+ ];
+ if(state.user.role==='instructor')base.push(['instructor','Instructor Dashboard','fa-user-tie']);
+ $('menu').innerHTML=base.map(([v,t,i])=>`<button data-view="${v}" onclick="showView('${v}')"><i class="fa-solid ${i}"></i> &nbsp;${t}</button>`).join('');
+}
+const titles={dashboard:'Dashboard',voucher:'Voucher Entry Workbench',daybook:'Day Book',ledger:'Ledger Accounts',trial:'Trial Balance',pnl:'Profit & Loss Account',balance:'Balance Sheet',inventory:'Inventory / Stock Items',reports:'Reports & Utilities',instructor:'Instructor Dashboard'};
+function showView(v){
+ document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));$(v).classList.add('active');
+ document.querySelectorAll('.menu button').forEach(x=>x.classList.toggle('active',x.dataset.view===v));
+ $('pageTitle').textContent=titles[v]||'Dashboard';$('pageCrumb').textContent='Gateway / '+(titles[v]||v);
+ if(v==='dashboard')renderDashboard(); if(v==='daybook')renderDayBook();if(v==='ledger')renderLedgers();if(v==='trial')renderTrial();if(v==='pnl')renderPnL();if(v==='balance')renderBalance();if(v==='inventory')renderInventory();if(v==='instructor')renderInstructor()
+}
+function newVoucher(type){clearVoucher();$('vType').value=type;showView('voucher');$('vAmount').focus()}
+function clearVoucher(){ $('vDate').value=today();$('vAmount').value='';$('vGst').value='0';$('vRef').value='';$('vNarration').value='';$('voucherNoBadge').textContent='New Voucher';preview()}
+function preview(){let amount=+($('vAmount').value||0),r=+($('vGst').value||0),tax=amount*r/100;$('taxablePreview').textContent=money(amount);$('gstPreview').textContent=money(tax);$('totalPreview').textContent=money(amount+tax)}
+function saveVoucher(){
+ let type=$('vType').value,date=$('vDate').value,ledger=$('vLedger').value,amount=+$('vAmount').value,gst=+$('vGst').value,ref=$('vRef').value.trim(),narration=$('vNarration').value.trim();
+ if(!date||!ledger||amount<=0)return toast('Please enter date, ledger and a valid amount.');
+ let tax=amount*gst/100,no=type.slice(0,2).toUpperCase()+'-'+String(state.vouchers.length+1).padStart(4,'0');
+ state.vouchers.push({id:Date.now(),no,date,type,ledger,amount,gst,tax,ref,narration:narration||'Transaction posted'});
+ persist();toast(`Voucher ${no} saved successfully.`);clearVoucher();refreshAll();showView('daybook')
+}
+function editVoucher(id){
+ let v=state.vouchers.find(x=>x.id===id);if(!v)return;
+ $('vType').value=v.type;$('vDate').value=v.date;$('vLedger').value=v.ledger;$('vAmount').value=v.amount;$('vGst').value=v.gst;$('vRef').value=v.ref;$('vNarration').value=v.narration;$('voucherNoBadge').textContent=v.no;showView('voucher');preview();
+ state.vouchers=state.vouchers.filter(x=>x.id!==id);persist()
+}
+function deleteVoucher(id){if(!confirm('Delete this voucher?'))return;state.vouchers=state.vouchers.filter(x=>x.id!==id);persist();toast('Voucher deleted');refreshAll()}
+function renderDayBook(){
+ let q=($('dbSearch').value||'').toLowerCase(),type=$('dbType').value,from=$('dbFrom').value,to=$('dbTo').value;
+ let rows=state.vouchers.filter(v=>(!type||v.type===type)&&(!from||v.date>=from)&&(!to||v.date<=to)&&(`${v.no} ${v.type} ${v.ledger} ${v.ref} ${v.narration}`.toLowerCase().includes(q))).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+ $('daybookBody').innerHTML=rows.length?rows.map(v=>`<tr><td>${esc(v.no)}</td><td>${v.date}</td><td><span class="badge">${esc(v.type)}</span></td><td>${esc(v.ledger)}</td><td>${esc(v.ref||'—')}</td><td>${money(v.tax)}</td><td><b>${money(v.amount+v.tax)}</b></td><td><button class="btn small secondary" onclick="editVoucher(${v.id})">Edit</button> <button class="btn small danger" onclick="deleteVoucher(${v.id})">Delete</button></td></tr>`).join(''):`<tr><td colspan="8"><div class="empty">No vouchers found.</div></td></tr>`;
+}
+function ledgerTotals(name){
+ let l=state.ledgers.find(x=>x.name===name),g=l?.group||'';
+ let dr=l?.openingType==='Dr'?+l.opening:0,cr=l?.openingType==='Cr'?+l.opening:0;
+ state.vouchers.filter(v=>v.ledger===name).forEach(v=>{
+   let a=v.amount+v.tax, creditGroup=['Capital Account','Sales Accounts','Direct Income','Indirect Income','Sundry Creditors'].includes(g);
+   if(['Sales','Receipt','Credit Note'].includes(v.type)){
+     if(creditGroup)cr+=a; else dr+=a;
+   }else if(['Purchase','Payment','Debit Note'].includes(v.type)){
+     if(creditGroup)cr+=a; else dr+=a;
+   }else if(v.type==='Contra'){dr+=a}
+   else {if(creditGroup)cr+=a;else dr+=a}
+ });
+ return {dr,cr,closing:dr-cr};
+}
+function renderLedgers(){
+ let q=($('ledgerSearch').value||'').toLowerCase(),g=$('ledgerGroupFilter').value;
+ let rows=state.ledgers.filter(l=>(!g||l.group===g)&&l.name.toLowerCase().includes(q));
+ $('ledgerBody').innerHTML=rows.map(l=>{let t=ledgerTotals(l.name);return `<tr><td><b>${esc(l.name)}</b></td><td>${esc(l.group)}</td><td>${money(l.opening)} ${l.openingType}</td><td>${money(t.dr)}</td><td>${money(t.cr)}</td><td>${money(Math.abs(t.closing))} ${t.closing>=0?'Dr':'Cr'}</td><td><button class="btn small danger" onclick="deleteLedger('${encodeURIComponent(l.name)}')">Delete</button></td></tr>`}).join('')
+}
+function renderTrial(){
+ let dr=0,cr=0;let rows=state.ledgers.map(l=>{let t=ledgerTotals(l.name),bal=t.dr-t.cr;let d=bal>0?bal:0,c=bal<0?-bal:0;dr+=d;cr+=c;return `<tr><td>${esc(l.name)}</td><td>${money(d)}</td><td>${money(c)}</td></tr>`}).join('');
+ $('trialBody').innerHTML=rows||'<tr><td colspan="3">No ledgers.</td></tr>';$('trialDr').textContent=money(dr);$('trialCr').textContent=money(cr)
+}
+function pnlData(){
+ let income={},expense={};
+ state.vouchers.forEach(v=>{
+  let l=state.ledgers.find(x=>x.name===v.ledger);if(!l)return;let a=v.amount+v.tax;
+  if(['Sales Accounts','Direct Income','Indirect Income'].includes(l.group))income[l.name]=(income[l.name]||0)+a;
+  if(['Purchase Accounts','Direct Expenses','Indirect Expenses'].includes(l.group))expense[l.name]=(expense[l.name]||0)+a;
+ });
+ return {income,expense}
+}
+function listObj(obj){let keys=Object.keys(obj);return keys.length?keys.map(k=>`<div class="kpi"><span>${esc(k)}</span><b>${money(obj[k])}</b></div>`).join(''):'<div class="empty">No transactions.</div>'}
+function renderPnL(){let p=pnlData(),inc=Object.values(p.income).reduce((a,b)=>a+b,0),exp=Object.values(p.expense).reduce((a,b)=>a+b,0);$('incomeList').innerHTML=listObj(p.income);$('expenseList').innerHTML=listObj(p.expense);$('pnlNet').textContent=money(inc-exp)}
+function renderBalance(){
+ let assets={},liab={};state.ledgers.forEach(l=>{let t=ledgerTotals(l.name),bal=t.dr-t.cr;if(Math.abs(bal)<.005)return;if(['Current Assets','Bank Accounts','Cash-in-Hand','Sundry Debtors','Fixed Assets'].includes(l.group))assets[l.name]=Math.abs(bal);else if(['Capital Account','Sundry Creditors','Duties & Taxes'].includes(l.group))liab[l.name]=Math.abs(bal)});
+ let p=pnlData(),profit=Object.values(p.income).reduce((a,b)=>a+b,0)-Object.values(p.expense).reduce((a,b)=>a+b,0);if(profit>=0)liab['Current Profit']=profit;else assets['Current Loss']=-profit;
+ $('assetList').innerHTML=listObj(assets);$('liabilityList').innerHTML=listObj(liab)
+}
+function renderDashboard(){
+ let sales=sumType('Sales'),purchase=sumType('Purchase'),income=sumIncome(),expense=sumExpense();
+ $('kSales').textContent=money(sales);$('kPurchase').textContent=money(purchase);$('kIncome').textContent=money(income);$('kExpense').textContent=money(expense);
+ let cash=accountBalance('Cash-in-Hand'),bank=accountBalance('Bank Accounts'),recv=accountBalance('Sundry Debtors'),pay=accountBalance('Sundry Creditors');
+ $('kCash').textContent=money(cash);$('kBank').textContent=money(bank);$('kReceivable').textContent=money(recv);$('kPayable').textContent=money(pay);$('kProfit').textContent=money(income-expense);
+ $('recentBox').innerHTML='<h3 style="font-size:12px;margin-top:12px">Recent Transactions</h3>'+state.vouchers.slice(-5).reverse().map(v=>`<div class="kpi"><span>${v.date} · ${esc(v.type)}</span><b>${money(v.amount+v.tax)}</b></div>`).join('')
+}
+function sumType(t){return state.vouchers.filter(v=>v.type===t).reduce((s,v)=>s+v.amount,0)}
+function sumIncome(){let p=pnlData();return Object.values(p.income).reduce((a,b)=>a+b,0)}
+function sumExpense(){let p=pnlData();return Object.values(p.expense).reduce((a,b)=>a+b,0)}
+function accountBalance(group){let total=0;state.ledgers.filter(l=>l.group===group).forEach(l=>{let t=ledgerTotals(l.name);total+=Math.abs(t.closing)});return total}
+function renderInventory(){
+ $('inventoryBody').innerHTML=state.items.map(i=>{
+   let sold=state.vouchers.filter(v=>v.type==='Sales'&&v.ledger===i.name).reduce((s,v)=>s+v.amount/(i.rate||1),0);
+   let bought=state.vouchers.filter(v=>v.type==='Purchase'&&v.ledger===i.name).reduce((s,v)=>s+v.amount/(i.rate||1),0);
+   return `<tr><td>${esc(i.name)}</td><td>${esc(i.unit)}</td><td>${i.openingQty}</td><td>${sold.toFixed(2)}</td><td>${bought.toFixed(2)}</td><td>${(i.openingQty+ bought-sold).toFixed(2)}</td><td>${money(i.rate)}</td></tr>`
+ }).join('')
+}
+function renderInstructor(){$('instVouchers').textContent=state.vouchers.length;$('instCount').textContent=state.vouchers.length;let last=state.vouchers[state.vouchers.length-1];$('instLast').textContent=last?last.date:'—';$('instScore').textContent=state.vouchers.length>3?'Pass':'Practice'}
+function refreshAll(){$('recordCount').textContent=state.vouchers.length;renderDashboard();renderDayBook();renderLedgers();renderTrial();renderPnL();renderBalance();renderInventory();renderInstructor();$('vLedger').innerHTML=state.ledgers.map(x=>`<option>${esc(x.name)}</option>`).join('')}
+function openLedgerModal(){$('ledgerModal').classList.add('show')}
+function openItemModal(){$('itemModal').classList.add('show')}
+function closeModal(id){$(id).classList.remove('show')}
+function addLedger(){
+ let name=$('newLedgerName').value.trim(),group=$('newLedgerGroup').value,opening=+$('newLedgerOpening').value||0,type=$('newLedgerOpeningType').value;
+ if(!name)return toast('Enter ledger name.');if(state.ledgers.some(l=>l.name.toLowerCase()===name.toLowerCase()))return toast('Ledger already exists.');
+ state.ledgers.push({name,group,opening,openingType:type});persist();closeModal('ledgerModal');$('newLedgerName').value='';toast('Ledger added');refreshAll()
+}
+function deleteLedger(encoded){
+ let name=decodeURIComponent(encoded);if(state.vouchers.some(v=>v.ledger===name))return toast('Cannot delete ledger with vouchers.');
+ if(state.ledgers.length<=1)return toast('At least one ledger is required.');
+ state.ledgers=state.ledgers.filter(l=>l.name!==name);persist();toast('Ledger deleted');refreshAll()
+}
+function addItem(){let name=$('newItemName').value.trim(),unit=$('newItemUnit').value.trim()||'Nos',qty=+$('newItemQty').value||0,rate=+$('newItemRate').value||0;if(!name)return toast('Enter item name.');state.items.push({name,unit,openingQty:qty,rate});persist();closeModal('itemModal');refreshAll();toast('Stock item added')}
+function showReport(type){
+ let titles={cash:'Cash Book',bank:'Bank Book',sales:'Sales Report',purchase:'Purchase Report'},rows;
+ if(type==='cash')rows=state.vouchers.filter(v=>state.ledgers.find(l=>l.name===v.ledger)?.group==='Cash-in-Hand');
+ else if(type==='bank')rows=state.vouchers.filter(v=>state.ledgers.find(l=>l.name===v.ledger)?.group==='Bank Accounts');
+ else rows=state.vouchers.filter(v=>v.type===(type==='sales'?'Sales':'Purchase'));
+ $('customReport').innerHTML=`<div class="box"><div class="entry-head"><h3>${titles[type]}</h3><button class="btn secondary" onclick="printReport('custom')">Print</button></div><div class="table-wrap"><table><thead><tr><th>No.</th><th>Date</th><th>Type</th><th>Ledger</th><th>Reference</th><th>Amount</th></tr></thead><tbody>${rows.map(v=>`<tr><td>${v.no}</td><td>${v.date}</td><td>${v.type}</td><td>${esc(v.ledger)}</td><td>${esc(v.ref||'—')}</td><td>${money(v.amount+v.tax)}</td></tr>`).join('')||'<tr><td colspan="6"><div class="empty">No records.</div></td></tr>'}</tbody></table></div></div>`
+}
+function exportCSV(type){
+ let rows=state.vouchers.map(v=>[v.no,v.date,v.type,v.ledger,v.ref,v.amount,v.tax,v.narration]);
+ let csv='Voucher No,Date,Type,Ledger,Reference,Amount,GST,Narration\n'+rows.map(r=>r.map(x=>`"${String(x??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+ let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='tally-daybook.csv';a.click();URL.revokeObjectURL(a.href)
+}
+function downloadBackup(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));a.download='tally-enterprise-backup.json';a.click();URL.revokeObjectURL(a.href)}
+function restoreBackup(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!d.ledgers||!d.vouchers)throw 0;state=d;persist();location.reload()}catch{toast('Invalid backup file.')}};r.readAsText(f)}
+function resetData(){if(confirm('This will delete all local accounting data. Continue?')){localStorage.removeItem('tally_enterprise_state');location.reload()}}
+function toggleTheme(){state.theme=state.theme==='dark'?'light':'dark';document.body.style.filter=state.theme==='dark'?'invert(.88) hue-rotate(180deg)':'none';persist()}
+function updateClock(){$('clock').textContent=new Date().toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'medium'})}
+function keyboard(e){
+ if(e.target.matches('input,textarea,select')){if(e.ctrlKey&&e.key.toLowerCase()==='a'&&e.target.id==='vAmount')saveVoucher();return}
+ if(e.key==='F2'){e.preventDefault();showView('voucher');$('vDate').focus()}
+ if(e.key==='F4'){e.preventDefault();newVoucher('Contra')}
+ if(e.key==='F5'){e.preventDefault();newVoucher('Payment')}
+ if(e.key==='F6'){e.preventDefault();newVoucher('Receipt')}
+ if(e.key==='F7'){e.preventDefault();newVoucher('Journal')}
+ if(e.key==='F8'){e.preventDefault();newVoucher('Sales')}
+ if(e.key==='F9'){e.preventDefault();newVoucher('Purchase')}
+ if(e.key==='Escape')document.querySelectorAll('.modal').forEach(m=>m.classList.remove('show'))
+}
+function printReport(type){
+ let content=document.querySelector('.panel.active').innerHTML;let w=window.open('','_blank');w.document.write(`<html><head><title>Tally Report</title><style>body{font-family:Arial;padding:25px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #999;padding:7px}th{background:#eee}</style></head><body><h2>Acme Corporation - Tally Report</h2>${content}</body></html>`);w.document.close();w.print()
+}
+
+/* ═══ BOOTSTRAP (matches EduLms exactly) ═══ */
+(async function bootstrap() {
+    var fp = await LIC.getFingerprint();
+    document.getElementById('licFingerprint').textContent = fp;
+
+    var isLocked = localStorage.getItem(LIC.STORAGE_KEY + '_locked');
+    if (isLocked === 'true') {
+        var ls = document.getElementById('licenseScreen');
+        ls.classList.remove('hidden'); ls.style.display = 'flex';
+        LIC.showExpired();
+        return;
+    }
+
+    var valid = await LIC.check();
+    if (valid) {
+        LIC.unlockApp();
+    } else {
+        var ls = document.getElementById('licenseScreen');
+        ls.classList.remove('hidden'); ls.style.display = 'flex';
+    }
+})();
+</script>
+</body>
+</html>
