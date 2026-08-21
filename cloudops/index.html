@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudOps & DevOps Mastery Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0f19;
+            --card: #1e293b;
+            --border: #334155;
+            --primary: #f97316;
+            --primary-hover: #ea580c;
+            --success: #4ade80;
+            --warning: #f59e0b;
+            --danger: #f87171;
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --terminal-bg: #030712;
+            --terminal-text: #38bdf8;
+            --surface: #151d2e;
+        }
+        [data-theme="light"] {
+            --bg: #f8fafc; --card: #ffffff; --border: #e2e8f0;
+            --primary: #ea580c; --primary-hover: #c2410c;
+            --success: #16a34a; --warning: #d97706; --danger: #dc2626;
+            --text: #0f172a; --muted: #64748b; --terminal-bg: #1e293b;
+            --terminal-text: #38bdf8; --surface: #f1f5f9;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Space Grotesk', 'Segoe UI', sans-serif; }
+        body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+
+        #auth-overlay { position: fixed; inset: 0; background: rgba(11,15,25,0.96); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .auth-card { background: var(--card); border: 1px solid var(--border); padding: 32px; border-radius: 12px; width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .auth-card h2 { color: var(--primary); margin-bottom: 8px; text-align: center; }
+        .auth-card p { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; text-align: center; }
+
+        aside { width: 260px; background: var(--card); border-right: 1px solid var(--border); display: flex; flex-direction: column; justify-content: space-between; flex-shrink: 0; }
+        .brand { padding: 20px; font-size: 1.1rem; font-weight: 700; color: var(--primary); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+        .nav-links { list-style: none; padding: 12px; flex-grow: 1; }
+        .nav-links li { padding: 10px 14px; margin-bottom: 4px; border-radius: 6px; cursor: pointer; color: var(--muted); font-size: 0.9rem; transition: all 0.2s; }
+        .nav-links li:hover, .nav-links li.active { background: rgba(249,115,22,0.1); color: var(--primary); }
+        .sidebar-footer { padding: 12px; border-top: 1px solid var(--border); }
+
+        main { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        header { padding: 14px 28px; background: var(--card); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .content-area { padding: 28px; flex-grow: 1; overflow-y: auto; }
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 8px; }
+        .card h3 { margin-bottom: 8px; color: var(--primary); font-size: 1rem; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; background: var(--card); border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+        th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        th { background: rgba(0,0,0,0.3); color: var(--primary); }
+
+        label { display: block; font-size: 0.82rem; color: var(--muted); margin-bottom: 4px; }
+        input, select, textarea { width: 100%; padding: 9px 11px; margin-bottom: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 0.9rem; font-family: inherit; }
+        textarea { resize: vertical; }
+        button { background: var(--primary); color: #0b0f19; border: none; padding: 9px 16px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: background 0.2s; font-size: 0.9rem; }
+        button:hover { background: var(--primary-hover); }
+        button.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+        button.secondary:hover { background: rgba(255,255,255,0.05); }
+        button.danger { background: var(--danger); }
+        button.warning { background: var(--warning); color: #000; }
+        button.success { background: var(--success); color: #000; }
+        .btn-sm { padding: 4px 10px; font-size: 0.78rem; }
+        .btn-xs { padding: 2px 8px; font-size: 0.72rem; }
+
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; }
+        .badge.completed { background: rgba(74,222,128,0.15); color: var(--success); }
+        .badge.in-progress { background: rgba(249,115,22,0.15); color: var(--primary); }
+        .badge.not-started { background: rgba(148,163,184,0.15); color: var(--muted); }
+
+        .terminal-container { background: var(--terminal-bg); border: 1px solid var(--border); border-radius: 8px; height: 450px; display: flex; flex-direction: column; overflow: hidden; margin-top: 12px; font-family: 'DM Mono', 'Courier New', monospace; }
+        .terminal-header { background: #111827; padding: 8px 14px; font-size: 0.8rem; color: var(--muted); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+        .terminal-body { padding: 14px; flex-grow: 1; overflow-y: auto; color: var(--terminal-text); font-size: 0.85rem; line-height: 1.5; }
+        .terminal-input-line { display: flex; align-items: center; background: #030712; padding: 0 14px 12px 14px; }
+        .prompt-symbol { color: var(--primary); margin-right: 8px; font-weight: bold; font-size: 0.85rem; }
+        .terminal-input-line input { background: transparent; border: none; outline: none; color: var(--terminal-text); font-family: 'DM Mono', monospace; font-size: 0.85rem; margin: 0; padding: 0; flex: 1; }
+
+        .quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+        .quiz-card h4 { color: var(--primary); margin-bottom: 12px; }
+        .quiz-option { display: block; padding: 10px 14px; margin-bottom: 6px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 0.88rem; }
+        .quiz-option:hover { border-color: var(--primary); background: rgba(249,115,22,0.05); }
+        .quiz-option.selected { border-color: var(--primary); background: rgba(249,115,22,0.1); }
+        .quiz-option.correct { border-color: var(--success); background: rgba(74,222,128,0.1); }
+        .quiz-option.wrong { border-color: var(--danger); background: rgba(248,113,113,0.1); }
+
+        .cert-container { background: linear-gradient(135deg, #0c1220, #1a1f3a); border: 2px solid var(--primary); border-radius: 12px; padding: 40px; text-align: center; max-width: 600px; margin: 20px auto; }
+        .cert-container h2 { color: var(--primary); font-size: 1.6rem; margin-bottom: 8px; }
+        .cert-container .cert-name { font-size: 2rem; font-weight: 700; color: var(--text); margin: 16px 0; border-bottom: 2px solid var(--primary); display: inline-block; padding-bottom: 4px; }
+
+        .badges-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+        .badge-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px; text-align: center; transition: all 0.2s; }
+        .badge-card.unlocked { border-color: var(--primary); }
+        .badge-card.locked { opacity: 0.4; }
+        .badge-icon { font-size: 1.8rem; display: block; margin-bottom: 6px; }
+        .badge-name { font-size: 0.75rem; font-weight: 600; color: var(--muted); }
+
+        .notes-area { width: 100%; min-height: 200px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.88rem; resize: vertical; }
+
+        .cmd-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: none; justify-content: center; padding-top: 15vh; }
+        .cmd-overlay.active { display: flex; }
+        .cmd-box { background: var(--card); border: 1px solid var(--border); border-radius: 10px; width: 480px; max-height: 350px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .cmd-box input { width: 100%; padding: 14px 18px; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--text); font-size: 1rem; outline: none; }
+        .cmd-results { max-height: 280px; overflow-y: auto; }
+        .cmd-item { padding: 10px 18px; cursor: pointer; font-size: 0.88rem; color: var(--muted); transition: all 0.15s; }
+        .cmd-item:hover, .cmd-item.active { background: rgba(249,115,22,0.1); color: var(--text); }
+
+        .announcement-bar { background: rgba(249,115,22,0.08); border: 1px solid rgba(249,115,22,0.2); border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
+
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 3000; display: flex; flex-direction: column; gap: 8px; }
+        .toast { padding: 12px 20px; border-radius: 8px; font-size: 0.85rem; font-weight: 500; animation: slideIn 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .toast.success { background: var(--success); color: #000; }
+        .toast.error { background: var(--danger); color: #fff; }
+        .toast.info { background: var(--primary); color: #000; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        #lic-screen { position: fixed; inset: 0; background: var(--bg); z-index: 900; display: none; justify-content: center; align-items: center; }
+        #lic-screen.active { display: flex; }
+        .lic-card { background: var(--card); border: 1px solid var(--border); padding: 32px; border-radius: 12px; width: 420px; }
+        .lic-card h2 { color: var(--primary); margin-bottom: 16px; text-align: center; }
+        .lic-field { margin-bottom: 14px; }
+        .lic-field label { font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+        .lic-field input { background: var(--bg); border: 1px solid var(--border); padding: 8px 10px; border-radius: 6px; color: var(--text); width: 100%; font-family: 'DM Mono', monospace; font-size: 0.82rem; }
+        .lic-status { text-align: center; margin-top: 12px; font-size: 0.85rem; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="cmd-overlay" id="cmdPalette">
+        <div class="cmd-box">
+            <input type="text" id="cmdInput" placeholder="Type a command..." oninput="CMD.filter()" onkeydown="CMD.key(event)">
+            <div class="cmd-results" id="cmdResults"></div>
+        </div>
+    </div>
+
+    <div id="lic-screen">
+        <div class="lic-card">
+            <h2>CloudOps Pro</h2>
+            <p style="color:var(--muted);text-align:center;margin-bottom:20px;font-size:0.85rem;">Enter your license key to activate</p>
+            <div class="lic-field"><label>Machine Fingerprint</label><input type="text" id="licFP" readonly></div>
+            <div class="lic-field"><label>License Key</label><input type="text" id="licKey" placeholder="CLOP-XXXX-XXXX-XXXX-XXXX"></div>
+            <button onclick="LIC.activate()" style="width:100%;margin-top:4px;">Activate License</button>
+            <div class="lic-status" id="licStatus"></div>
+        </div>
+    </div>
+
+    <div id="auth-overlay">
+        <div class="auth-card">
+            <h2>CloudOps & DevOps</h2>
+            <p>Select your role to access the platform</p>
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <label>Select User Role:</label>
+                <select id="login-role">
+                    <option value="student">Student Portal</option>
+                    <option value="instructor">Instructor Management Portal</option>
+                </select>
+                <label>Your Name:</label>
+                <input type="text" id="login-name" placeholder="e.g., Jordan Lee" required>
+                <label>Student ID:</label>
+                <input type="text" id="login-id" placeholder="e.g., CLD-2025-001" required>
+                <button type="submit" style="width:100%;margin-top:8px;">Enter Platform</button>
+            </form>
+        </div>
+    </div>
+
+    <aside>
+        <div>
+            <div class="brand">☁️ CloudOps Pro</div>
+            <ul class="nav-links" id="navigation-list"></ul>
+        </div>
+        <div class="sidebar-footer">
+            <div style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;">
+                <span id="roleBadge"></span>
+                <strong id="user-display-name" style="color:var(--text);">User</strong>
+            </div>
+            <div style="display:flex;gap:6px;margin-bottom:8px;">
+                <button class="secondary btn-sm" onclick="toggleTheme()" style="flex:1;">Theme</button>
+                <button class="secondary btn-sm" onclick="openCmd()" style="flex:1;">Ctrl+K</button>
+            </div>
+            <button class="secondary" onclick="logout()" style="width:100%;font-size:0.8rem;padding:6px;">Logout</button>
+        </div>
+    </aside>
+
+    <main>
+        <header>
+            <h2 id="view-title" style="font-size:1.1rem;">Dashboard</h2>
+            <div style="display:flex;gap:12px;align-items:center;">
+                <span id="header-status" style="font-size:0.82rem;color:var(--muted);">Cluster Status: Healthy</span>
+                <span id="sTime" style="font-size:0.78rem;color:var(--muted);font-family:'DM Mono',monospace;">0m</span>
+            </div>
+        </header>
+
+        <div class="content-area">
+
+            <!-- 1. Student Dashboard -->
+            <div id="view-student-dash" class="view-section">
+                <div id="announcementArea"></div>
+                <div id="welcomeBanner" style="font-size:1.2rem;font-weight:600;margin-bottom:20px;"></div>
+                <div class="card-grid">
+                    <div class="card"><h3>Overall Progress</h3><p id="sProgress" style="font-size:2rem;font-weight:bold;color:var(--primary);margin:8px 0;">0%</p><p style="color:var(--muted);font-size:0.82rem;">Modules completed</p></div>
+                    <div class="card"><h3>Quiz Score</h3><p id="sScore" style="font-size:2rem;font-weight:bold;color:var(--success);margin:8px 0;">0%</p><p style="color:var(--muted);font-size:0.82rem;">Average quiz performance</p></div>
+                    <div class="card"><h3>Study Time</h3><p id="sTimeCard" style="font-size:2rem;font-weight:bold;color:var(--warning);margin:8px 0;">0m</p><p style="color:var(--muted);font-size:0.82rem;">Total time on platform</p></div>
+                    <div class="card"><h3>Streak</h3><p id="sStreak" style="font-size:2rem;font-weight:bold;color:var(--danger);margin:8px 0;">0</p><p style="color:var(--muted);font-size:0.82rem;">Consecutive days</p></div>
+                </div>
+                <h3 style="margin-bottom:12px;">Enrolled Curriculum</h3>
+                <table><thead><tr><th>Module</th><th>Title</th><th>Status</th><th>Score</th><th>Action</th></tr></thead><tbody id="student-modules-table"></tbody></table>
+                <div id="authPrompt" style="margin-top:20px;"></div>
+            </div>
+
+            <!-- 2. Course Catalog -->
+            <div id="view-curriculum" class="view-section">
+                <h3 style="margin-bottom:6px;">CloudOps & DevOps Curriculum</h3>
+                <p style="color:var(--muted);margin-bottom:16px;font-size:0.88rem;">Master containerization, IaC, orchestration, CI/CD, and SRE practices.</p>
+                <div id="curriculum-cards-container"></div>
+            </div>
+
+            <!-- 3. Module Detail / Quiz -->
+            <div id="view-module" class="view-section">
+                <button class="secondary btn-sm" onclick="switchView('view-curriculum','Course Catalog')" style="margin-bottom:16px;">← Back to Catalog</button>
+                <div id="module-content-area"></div>
+            </div>
+
+            <!-- 4. Practice Terminal -->
+            <div id="view-terminal" class="view-section">
+                <h3>Cloud & Infrastructure Shell Simulator</h3>
+                <p style="color:var(--muted);font-size:0.85rem;margin-bottom:8px;">Commands: <code>terraform</code> <code>kubectl</code> <code>docker</code> <code>aws</code> <code>helm</code> <code>git</code> <code>ansible</code> <code>vagrant</code></p>
+                <div class="terminal-container">
+                    <div class="terminal-header"><span>bash - devops@cloud-control-plane:~</span><span>Multi-Tool Cloud Sandbox</span></div>
+                    <div class="terminal-body" id="terminal-output">Welcome to CloudOps Terminal Simulator v4.0.<br>Type <span style="color:var(--primary);">help</span> to list available commands.<br><br></div>
+                    <div class="terminal-input-line">
+                        <span class="prompt-symbol" id="terminal-prompt">devops@cluster-01:~$</span>
+                        <input type="text" id="terminal-command-input" autofocus autocomplete="off" placeholder="Type command here...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Achievements -->
+            <div id="view-achievements" class="view-section">
+                <h3 style="margin-bottom:6px;">Achievements & Badges</h3>
+                <p style="color:var(--muted);margin-bottom:16px;font-size:0.85rem;">Earn badges by completing modules and quizzes.</p>
+                <div class="badges-grid" id="badges-container"></div>
+            </div>
+
+            <!-- 6. Notes & Bookmarks -->
+            <div id="view-notes" class="view-section">
+                <h3 style="margin-bottom:6px;">My Notes</h3>
+                <p style="color:var(--muted);margin-bottom:12px;font-size:0.85rem;">Your personal study notes are saved locally.</p>
+                <textarea class="notes-area" id="notesArea" placeholder="Type your notes here..." oninput="saveNotes()"></textarea>
+                <h3 style="margin:20px 0 12px;">Bookmarked Modules</h3>
+                <div id="bookmarks-container"></div>
+            </div>
+
+            <!-- 7. Certificate -->
+            <div id="view-certificate" class="view-section">
+                <h3 style="margin-bottom:16px;">Certificate of Completion</h3>
+                <div id="cert-container"></div>
+            </div>
+
+            <!-- 8. Instructor Course Manager -->
+            <div id="view-instructor-courses" class="view-section">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <div><h3>Course & Curriculum Management</h3><p style="color:var(--muted);font-size:0.85rem;">Add or modify course modules.</p></div>
+                </div>
+                <div class="card" style="margin-bottom:20px;">
+                    <h3 style="margin-bottom:12px;">Publish New Training Module</h3>
+                    <form id="add-module-form" onsubmit="handleAddNewModule(event)">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                            <div><label>Module Title:</label><input type="text" id="new-mod-title" placeholder="e.g., Module 13: GitOps with ArgoCD" required></div>
+                            <div><label>Duration:</label><input type="text" id="new-mod-scope" placeholder="e.g., 4 Hours / 5 Labs" required></div>
+                        </div>
+                        <label>Description:</label>
+                        <textarea id="new-mod-desc" rows="2" placeholder="Learning objectives..." required></textarea>
+                        <label>Lesson Content:</label>
+                        <textarea id="new-mod-content" rows="3" placeholder="Detailed lesson text..."></textarea>
+                        <label>Practice Commands:</label>
+                        <textarea id="new-mod-code" rows="3" placeholder="Example commands..." style="font-family:'DM Mono',monospace;"></textarea>
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+                            <div><label>Difficulty</label><select id="new-mod-diff"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></div>
+                            <div><label>Time (min)</label><input type="number" id="new-mod-time" value="120"></div>
+                            <div><label>Prereq (Module #)</label><input type="number" id="new-mod-prereq" placeholder="0"></div>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin:12px 0 8px;">
+                            <label style="font-weight:600;color:var(--primary);">Quiz Questions (min 5)</label>
+                            <button type="button" class="btn-sm" onclick="addQuizQuestion()">+ Add Question</button>
+                        </div>
+                        <div id="quiz-builder" style="margin-bottom:12px;"></div>
+                        <button type="submit">Publish Module</button>
+                    </form>
+                </div>
+                <h3>Published Modules</h3>
+                <table><thead><tr><th>ID</th><th>Title</th><th>Difficulty</th><th>Action</th></tr></thead><tbody id="instructor-modules-table"></tbody></table>
+            </div>
+
+            <!-- 9. Instructor Student Manager -->
+            <div id="view-instructor-students" class="view-section">
+                <h3 style="margin-bottom:6px;">Student Roster</h3>
+                <p style="color:var(--muted);margin-bottom:16px;font-size:0.85rem;">Monitor student engagement and progress.</p>
+                <table><thead><tr><th>Student</th><th>ID</th><th>Progress</th><th>Time</th><th>Streak</th></tr></thead><tbody id="instructor-students-table"></tbody></table>
+            </div>
+
+            <!-- 10. Instructor Announcements -->
+            <div id="view-instructor-announce" class="view-section">
+                <h3 style="margin-bottom:16px;">Post Announcement</h3>
+                <div class="card">
+                    <label>Title:</label><input type="text" id="annTitle" placeholder="Announcement title">
+                    <label>Message:</label><textarea id="annBody" rows="3" placeholder="Message content..."></textarea>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <select id="annPriority" style="width:auto;margin-bottom:0;"><option value="info">Info</option><option value="warning">Warning</option><option value="urgent">Urgent</option></select>
+                        <button onclick="postAnnouncement()">Post Announcement</button>
+                    </div>
+                </div>
+                <h3 style="margin:20px 0 12px;">Previous Announcements</h3>
+                <div id="announcements-list"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    // ============================================================
+    // SECTION A: LICENSE SYSTEM
+    // ============================================================
+    const LIC = {
+        SECRET: 'CLOP_LMS_SECRET_KEY_xK9$mP2v@qR7nZ4w',
+        STORAGE_KEY: 'cloudops_license_v1',
+        INTERVAL: 30000,
+
+        async sha256(msg) {
+            try {
+                const b = new TextEncoder().encode(msg);
+                return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', b))).map(x => x.toString(16).padStart(2, '0')).join('');
+            } catch (e) { return LIC.simpleHash(msg); }
+        },
+        simpleHash(s) { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); h = h >>> 0; } return h.toString(16).toUpperCase(); },
+        async getFingerprint() {
+            const c = [];
+            c.push(navigator.userAgent || ''); c.push(navigator.language || ''); c.push(navigator.platform || '');
+            c.push(String(navigator.hardwareConcurrency || 0)); c.push(String(screen.width)); c.push(String(screen.height));
+            c.push(String(screen.colorDepth)); c.push(Intl.DateTimeFormat().resolvedOptions().timeZone || '');
+            try { const cv = document.createElement('canvas'); cv.width = 200; cv.height = 50; const x = cv.getContext('2d'); x.textBaseline = 'top'; x.font = '14px Arial'; x.fillStyle = '#f60'; x.fillRect(125, 1, 62, 20); x.fillStyle = '#069'; x.fillText('CloudOps-LMS-Fingerprint', 2, 15); x.fillStyle = 'rgba(102,204,0,0.7)'; x.fillText('Machine-ID', 4, 35); c.push(cv.toDataURL()); } catch (e) { c.push('c'); }
+            try { const gl = document.createElement('canvas').getContext('webgl'); const d = gl.getExtension('WEBGL_debug_renderer_info'); if (d) { c.push(gl.getParameter(d.UNMASKED_VENDOR_WEBGL) || ''); c.push(gl.getParameter(d.UNMASKED_RENDERER_WEBGL) || ''); } } catch (e) { c.push('g'); }
+            try { const a = new (window.AudioContext || window.webkitAudioContext)(); c.push(String(a.sampleRate)); a.close(); } catch (e) { c.push('a'); }
+            return (await LIC.sha256(c.join('|||'))).substring(0, 32).toUpperCase();
+        },
+        async generateKey(fp, days) { const ex = new Date(); ex.setDate(ex.getDate() + days); const ed = Math.floor(ex.getTime() / 86400000); const es = ed.toString(16).toUpperCase().padStart(5, '0'); const payload = 'CLOP-' + fp.substring(0, 4) + '-' + es.substring(0, 4) + '-' + fp.substring(4, 8); const sig = (await LIC.sha256(payload + LIC.SECRET)).substring(0, 8).toUpperCase(); return { key: 'CLOP-' + fp.substring(0, 4) + '-' + es.substring(0, 4) + '-' + fp.substring(4, 8) + '-' + sig, expMs: ex.getTime(), exp: ex.toISOString() }; },
+        async validateKey(key, fp) {
+            try { key = key.trim().toUpperCase(); if (!key.startsWith('CLOP-')) return { valid: false, reason: 'Invalid prefix' }; const p = key.split('-'); if (p.length !== 5) return { valid: false, reason: 'Invalid format' }; if (!fp.startsWith(p[1] + p[3])) return { valid: false, reason: 'Fingerprint mismatch' }; const exp = (await LIC.sha256(p.slice(0, 4).join('-') + LIC.SECRET)).substring(0, 8).toUpperCase(); if (p[4] !== exp) return { valid: false, reason: 'Invalid signature' }; if (Date.now() > parseInt(p[2], 16) * 86400000) return { valid: false, reason: 'Expired' }; return { valid: true, expMs: parseInt(p[2], 16) * 86400000 }; } catch (e) { return { valid: false, reason: 'Error' }; }
+        },
+        store(k, fp, v) { localStorage.setItem(LIC.STORAGE_KEY, JSON.stringify({ key: k, fp, expMs: v.expMs, exp: v.exp, ts: new Date().toISOString(), th: LIC.simpleHash(JSON.stringify({ key: k, fp, expMs: v.expMs })) })); },
+        getStored() { try { return JSON.parse(localStorage.getItem(LIC.STORAGE_KEY)); } catch (e) { return null; } },
+        checkTamper(d) { return d && d.th !== LIC.simpleHash(JSON.stringify({ key: d.key, fp: d.fp, expMs: d.expMs })); },
+        async activate() { const fp = document.getElementById('licFP').value; const key = document.getElementById('licKey').value.trim(); if (!key) { toast('Enter license key', 'error'); return; } const v = await LIC.validateKey(key, fp); if (!v.valid) { document.getElementById('licStatus').innerHTML = '<span style="color:var(--danger)">' + v.reason + '</span>'; return; } LIC.store(key, fp, v); toast('License activated!', 'success'); LIC.unlock(); },
+        unlock() { document.getElementById('lic-screen').classList.remove('active'); document.getElementById('auth-overlay').style.display = 'flex'; },
+        lock(r) { document.getElementById('lic-screen').classList.add('active'); document.getElementById('licStatus').innerHTML = '<span style="color:var(--danger)">Locked: ' + r + '</span>'; },
+        async check() { const s = LIC.getStored(); if (!s) return false; if (LIC.checkTamper(s)) { LIC.lock('Tampered'); return false; } if (s.fp !== (await LIC.getFingerprint())) { LIC.lock('Different machine'); return false; } if (Date.now() > s.expMs) { LIC.lock('Expired'); return false; } return true; },
+        timer: null, startCheck() { if (LIC.timer) clearInterval(LIC.timer); LIC.timer = setInterval(async () => { if (!(await LIC.check())) clearInterval(LIC.timer); }, LIC.INTERVAL); }
+    };
+
+    // ============================================================
+    // SECTION B: COURSE DATA (12 modules with quizzes)
+    // ============================================================
+    const DEFAULT_MODULES = [
+        { id: 1, title: "Module 1: Docker & Containerization Deep Dive", scope: "3 Hours", difficulty: "Beginner", timeLimit: 90, prerequisite: null,
+          desc: "Build optimized multi-stage container images, manage volumes, and handle networking primitives.",
+          content: "Docker packages applications into containers. Key concepts: Images (blueprint), Containers (running instance), Dockerfile (build instructions). Multi-stage builds reduce image size. Volumes persist data. Networks connect containers. Docker Compose orchestrates multi-container apps.",
+          code: "docker build -t myapp:v1 .\ndocker run -d -p 8080:80 --name web nginx\ndocker volume create appdata\ndocker network create mynet\ndocker compose up -d\ndocker ps\ndocker logs web",
+          status: "Not Started",
+          questions: [
+            { q: "Dockerfile COPY vs ADD difference?", options: ["No difference", "ADD supports URLs and tar extraction", "COPY is faster always", "ADD is deprecated"], correct: 1, explain: "ADD supports URLs and auto-extracts tar files; COPY is preferred for simple file copying." },
+            { q: "docker run -d flag means?", options: ["Debug mode", "Detached mode", "Delete mode", "Default mode"], correct: 1 },
+            { q: "Volumes are used for?", options: ["Networking", "Persistent data storage", "CPU allocation", "Image building"], correct: 1 },
+            { q: "Multi-stage build benefit?", options: ["Faster builds", "Smaller final image", "More features", "Better security"], correct: 1 },
+            { q: "docker compose vs docker-compose?", options: ["Same tool", "compose V2 is plugin", "Different tools", "compose is deprecated"], correct: 1 }
+          ]
+        },
+        { id: 2, title: "Module 2: Infrastructure as Code (Terraform)", scope: "5 Hours", difficulty: "Beginner", timeLimit: 150, prerequisite: 1,
+          desc: "Provision cloud infrastructure declaratively, manage state files, and build reusable modules.",
+          content: "Terraform by HashiCorp provisions infrastructure declaratively. Core workflow: terraform init (download providers), terraform plan (preview changes), terraform apply (create resources). State files track resource IDs. Modules enable reusability. HCL (HashiCorp Configuration Language) is the syntax.",
+          code: 'terraform init\nterraform plan -out=tfplan\nterraform apply tfplan\nterraform state list\nterraform output\nterraform destroy',
+          status: "Not Started",
+          questions: [
+            { q: "terraform init does?", options: ["Creates resources", "Downloads providers/plugins", "Destroys resources", "Shows plan"], correct: 1 },
+            { q: "State file purpose?", options: ["Store credentials", "Track real infrastructure mapping", "Log changes", "Define variables"], correct: 1 },
+            { q: "terraform plan shows?", options: ["Current state", "Proposed changes", "Past changes", "Provider versions"], correct: 1 },
+            { q: "HCL stands for?", options: ["HashiCorp Configuration Language", "High-level Cloud Language", "Hybrid Cloud Logic", "Host Config Layer"], correct: 0 },
+            { q: "terraform destroy does?", options: ["Deletes state", "Removes all managed resources", "Stops Terraform", "Removes providers"], correct: 1 }
+          ]
+        },
+        { id: 3, title: "Module 3: Kubernetes Orchestration & Helm", scope: "6 Hours", difficulty: "Intermediate", timeLimit: 180, prerequisite: 2,
+          desc: "Deploy pods, services, deployments, ingress controllers, and package charts via Helm.",
+          content: "Kubernetes (K8s) orchestrates containers at scale. Core objects: Pod (smallest unit), Deployment (manages replicas), Service (networking), Ingress (HTTP routing), ConfigMap/Secret (configuration). Helm is the K8s package manager using Charts. kubectl is the CLI tool.",
+          code: "kubectl get pods -A\nkubectl apply -f deployment.yaml\nkubectl scale deploy/web --replicas=3\nkubectl logs pod/web-abc123\nkubectl exec -it pod/web -- /bin/sh\nhelm repo add bitnami https://charts.bitnami.com/bitnami\nhelm install my-nginx bitnami/nginx",
+          status: "Not Started",
+          questions: [
+            { q: "Kubernetes Pod is?", options: ["A container", "Group of containers", "A node", "A service"], correct: 1 },
+            { q: "Service types include?", options: ["ClusterIP, NodePort, LoadBalancer", "Only ClusterIP", "TCP and UDP", "Internal and External"], correct: 0 },
+            { q: "Helm Chart contains?", options: ["Docker images", "Packaged K8s manifests", "Terraform configs", "CI/CD pipelines"], correct: 1 },
+            { q: "kubectl apply -f does?", options: ["Deletes resources", "Creates/updates from file", "Views logs", "Gets status"], correct: 1 },
+            { q: "ReplicaSet ensures?", options: ["Single pod runs", "Specified number of pod replicas", "Network access", "Storage mounted"], correct: 1 }
+          ]
+        },
+        { id: 4, title: "Module 4: CI/CD Pipelines (GitHub Actions & GitLab CI)", scope: "4 Hours", difficulty: "Intermediate", timeLimit: 120, prerequisite: 3,
+          desc: "Automate build, test, artifact publishing, and continuous deployments securely.",
+          content: "CI/CD automates software delivery. Continuous Integration: merge code, run tests automatically. Continuous Delivery: deploy to staging. Continuous Deployment: deploy to production. GitHub Actions uses YAML workflows. GitLab CI uses .gitlab-ci.yml. Pipeline stages: Build → Test → Publish → Deploy.",
+          code: "# GitHub Actions example:\n# .github/workflows/deploy.yml\n# name: CI/CD Pipeline\n# on: [push]\n# jobs:\n#   build:\n#     runs-on: ubuntu-latest\n#     steps:\n#       - uses: actions/checkout@v4\n#       - run: docker build -t app .",
+          status: "Not Started",
+          questions: [
+            { q: "CI stands for?", options: ["Cloud Integration", "Continuous Integration", "Container Image", "Code Inspection"], correct: 1 },
+            { q: "GitHub Actions uses?", options: [".gitlab-ci.yml", "YAML workflow files", "Jenkinsfile", "Makefile"], correct: 1 },
+            { q: "CD pipeline stages order?", options: ["Deploy→Test→Build", "Build→Test→Publish→Deploy", "Test→Build→Deploy", "Publish→Build→Test"], correct: 1 },
+            { q: "Artifact registry stores?", options: ["Source code", "Built packages/images", "Logs", "Configs"], correct: 1 },
+            { q: "Secrets in CI should be?", options: ["Hardcoded in YAML", "Stored in encrypted vault/variables", "Committed to git", "Shared publicly"], correct: 1 }
+          ]
+        },
+        { id: 5, title: "Module 5: Observability, Logging & SRE Practices", scope: "4 Hours", difficulty: "Intermediate", timeLimit: 120, prerequisite: 4,
+          desc: "Set up Prometheus monitoring, Grafana dashboards, and structured log aggregation.",
+          content: "Observability = Metrics + Logs + Traces. Prometheus scrapes metrics endpoints. Grafana visualizes data. ELK/EFK stack (Elasticsearch, Logstash/Fluentd, Kibana) for log aggregation. SRE practices: SLIs, SLOs, SLAs, error budgets. Alerting with PagerDuty/Opsgenie.",
+          code: "prometheus --config.file=prometheus.yml\n# Query: rate(http_requests_total[5m])\n# Grafana dashboard import ID: 1860\n\ncurl http://localhost:9090/api/v1/query?query=up\n\n# Log query in Kibana:\n# level:error AND service:api-gateway",
+          status: "Not Started",
+          questions: [
+            { q: "Three pillars of observability?", options: ["CPU, Memory, Disk", "Metrics, Logs, Traces", "Build, Test, Deploy", "Plan, Apply, Destroy"], correct: 1 },
+            { q: "Prometheus uses what model?", options: ["Push model", "Pull/scrape model", "Event-driven", "Batch processing"], correct: 1 },
+            { q: "SLO is?", options: ["Service Level Objective", "Server Load Output", "System Log Operation", "Single Line Object"], correct: 0 },
+            { q: "Grafana is used for?", options: ["Log collection", "Data visualization/dashboards", "Container orchestration", "Code deployment"], correct: 1 },
+            { q: "Error budget means?", options: ["Total errors allowed", "Acceptable downtime margin", "Error logging limit", "Bug fix budget"], correct: 1 }
+          ]
+        },
+        { id: 6, title: "Module 6: AWS Core Services", scope: "5 Hours", difficulty: "Intermediate", timeLimit: 150, prerequisite: 5,
+          desc: "Master EC2, S3, IAM, VPC, RDS, and Lambda for production cloud deployments.",
+          content: "AWS core services: EC2 (virtual servers), S3 (object storage), IAM (access management), VPC (networking), RDS (managed databases), Lambda (serverless functions). Best practices: least privilege IAM, VPC isolation, S3 encryption, CloudWatch monitoring.",
+          code: "aws ec2 describe-instances\naws s3 ls s3://my-bucket\naws s3 cp file.txt s3://my-bucket/\naws iam list-users\naws lambda invoke --function-name my-func response.json\naws rds describe-db-instances",
+          status: "Not Started",
+          questions: [
+            { q: "EC2 provides?", options: ["Object storage", "Virtual servers", "Serverless functions", "DNS"], correct: 1 },
+            { q: "S3 stands for?", options: ["Simple Storage Service", "Secure Server System", "Scalable Storage Solution", "Standard Storage Setup"], correct: 0 },
+            { q: "IAM manages?", options: ["Infrastructure", "Access and permissions", "Monitoring", "Networking"], correct: 1 },
+            { q: "Lambda is?", options: ["Virtual machine", "Serverless compute", "Database", "CDN"], correct: 1 },
+            { q: "VPC provides?", options: ["Storage", "Isolated virtual network", "Compute", "DNS"], correct: 1 }
+          ]
+        },
+        { id: 7, title: "Module 7: Networking & Load Balancing", scope: "4 Hours", difficulty: "Advanced", timeLimit: 120, prerequisite: 6,
+          desc: "Configure VPC peering, subnets, security groups, ALB/NLB, DNS routing, and CDN.",
+          content: "Cloud networking: VPC (isolated network), Subnets (public/private), Security Groups (firewall rules), NACLs (subnet-level rules), ALB (application load balancer), NLB (network load balancer), Route 53 (DNS), CloudFront (CDN). Zero-trust networking principles.",
+          code: "aws ec2 describe-subnets\naws elbv2 describe-load-balancers\naws route53 list-hosted-zones\n# VPC flow logs:\naws ec2 create-flow-logs --resource-type VPC\n# DNS dig:\ndig example.com\nnslookup api.example.com",
+          status: "Not Started",
+          questions: [
+            { q: "ALB operates at?", options: ["Layer 4", "Layer 7 (HTTP)", "Layer 3", "Layer 2"], correct: 1 },
+            { q: "Security Group is?", options: ["Stateless firewall", "Stateful firewall", "Router", "Switch"], correct: 1 },
+            { q: "Public subnet has?", options: ["No internet", "Route to Internet Gateway", "VPN only", "Private IP only"], correct: 1 },
+            { q: "Route 53 is?", options: ["Load balancer", "DNS service", "CDN", "VPN"], correct: 1 },
+            { q: "CDN purpose?", options: ["Database caching", "Content delivery closer to users", "Load balancing", "Security scanning"], correct: 1 }
+          ]
+        },
+        { id: 8, title: "Module 8: Ansible & Configuration Management", scope: "4 Hours", difficulty: "Advanced", timeLimit: 120, prerequisite: 7,
+          desc: "Automate server configuration with Ansible playbooks, roles, and inventory management.",
+          content: "Ansible is agentless configuration management. Uses SSH to connect. YAML playbooks define tasks. Inventory lists managed hosts. Roles organize reusable components. Ansible Galaxy shares community roles. Key modules: apt, yum, copy, template, service, user.",
+          code: "ansible all -m ping\nansible-playbook site.yml\nansible-inventory --list\nansible-galaxy install geerlingguy.nginx\n# Playbook: install nginx\n# - hosts: webservers\n#   tasks:\n#     - apt: name=nginx state=present\n#     - service: name=nginx state=started",
+          status: "Not Started",
+          questions: [
+            { q: "Ansible is?", options: ["Agent-based", "Agentless (uses SSH)", "Container runtime", "Cloud provider"], correct: 1 },
+            { q: "Playbook written in?", options: ["JSON", "YAML", "XML", "HCL"], correct: 1 },
+            { q: "Inventory defines?", options: ["Variables", "Target hosts/groups", "Tasks", "Roles"], correct: 1 },
+            { q: "Ansible Galaxy is?", options: ["Cloud service", "Community role repository", "Monitoring tool", "CI/CD platform"], correct: 1 },
+            { q: "Idempotent means?", options: ["Runs once only", "Same result on repeated runs", "Requires restart", "Needs internet"], correct: 1 }
+          ]
+        },
+        { id: 9, title: "Module 9: GitOps & ArgoCD", scope: "3 Hours", difficulty: "Advanced", timeLimit: 90, prerequisite: 8,
+          desc: "Implement GitOps workflow with ArgoCD for declarative Kubernetes deployments.",
+          content: "GitOps uses Git as single source of truth for infrastructure. ArgoCD syncs Git repo state to K8s cluster. Workflow: push code → CI builds image → update manifest in Git → ArgoCD detects change → deploys to cluster. Drift detection ensures cluster matches Git.",
+          code: "argocd app create myapp \\\n  --repo https://github.com/org/k8s-manifests \\\n  --path overlays/production \\\n  --dest-server https://kubernetes.default.svc\nargocd app sync myapp\nargocd app get myapp\nargocd app diff myapp",
+          status: "Not Started",
+          questions: [
+            { q: "GitOps source of truth?", options: ["CI pipeline", "Git repository", "Kubernetes cluster", "Docker registry"], correct: 1 },
+            { q: "ArgoCD detects drift by?", options: ["Polling cluster", "Comparing Git vs cluster state", "Webhooks only", "Manual checks"], correct: 1 },
+            { q: "GitOps advantage over push?", options: ["Faster builds", "Declarative, auditable deployments", "Less storage", "Simpler code"], correct: 1 },
+            { q: "argocd app sync does?", options: ["Deletes app", "Reconciles cluster to Git state", "Creates Git repo", "Builds images"], correct: 1 },
+            { q: "Drift means?", options: ["Git changes", "Cluster differs from Git", "Network latency", "Pod restart"], correct: 1 }
+          ]
+        },
+        { id: 10, title: "Module 10: Security & Compliance (DevSecOps)", scope: "5 Hours", difficulty: "Advanced", timeLimit: 150, prerequisite: 9,
+          desc: "Integrate security into pipelines: container scanning, secrets management, policy as code, and compliance automation.",
+          content: "DevSecOps shifts security left. Tools: Trivy (container scanning), HashiCorp Vault (secrets), OPA/Gatekeeper (policy as code), Falco (runtime security). CIS benchmarks for compliance. Image signing with Cosign/Notary. SAST/DAST in CI pipelines.",
+          code: "trivy image myapp:latest\nvault kv get secret/myapp\n# OPA policy: deny privileged containers\n# Falco rule: detect shell in container\n# cosign sign --key cosign.key myregistry/myapp:v1",
+          status: "Not Started",
+          questions: [
+            { q: "Shift left security means?", options: ["Move security earlier in pipeline", "Use left-side servers", "Reduce security", "Security after deployment"], correct: 0 },
+            { q: "Trivy scans?", options: ["Network traffic", "Container images for vulnerabilities", "Source code only", "Cloud configs"], correct: 1 },
+            { q: "Vault is used for?", options: ["Container runtime", "Secrets management", "Log aggregation", "CI/CD"], correct: 1 },
+            { q: "OPA provides?", options: ["Monitoring", "Policy as code", "Container building", "DNS"], correct: 1 },
+            { q: "Image signing ensures?", options: ["Faster builds", "Image integrity and authenticity", "Smaller images", "More features"], correct: 1 }
+          ]
+        },
+        { id: 11, title: "Module 11: Cloud Cost Optimization & FinOps", scope: "3 Hours", difficulty: "Advanced", timeLimit: 90, prerequisite: 10,
+          desc: "Monitor, analyze, and optimize cloud spending with tagging, rightsizing, and reserved instances.",
+          content: "FinOps = Financial Operations for cloud. Key practices: resource tagging for cost allocation, rightsizing instances, Reserved/Savings Plans, spot instances for non-critical workloads, auto-scaling policies, cost anomaly detection. Tools: AWS Cost Explorer, Kubecost, CloudHealth.",
+          code: "aws ce get-cost-and-usage --time-period Start=2025-01-01,End=2025-01-31\naws ec2 describe-instances --query 'Reservations[].Instances[].[InstanceId,InstanceType]'\n# Kubecost: kubectl port-forward deploy/kubecost-cost-analyzer 9090\n# Label resources: Environment=Production, Team=Platform",
+          status: "Not Started",
+          questions: [
+            { q: "FinOps combines?", options: ["Finance + DevOps", "Finance + Security", "Finance + HR", "Finance + Sales"], correct: 0 },
+            { q: "Resource tagging helps with?", options: ["Performance", "Cost allocation and tracking", "Security", "Networking"], correct: 1 },
+            { q: "Spot instances are?", options: ["Most expensive", "Cheapest but can be interrupted", "Reserved only", "Always available"], correct: 1 },
+            { q: "Rightsizing means?", options: ["Always scaling up", "Matching resources to actual needs", "Deleting everything", "Using largest instances"], correct: 1 },
+            { q: "Savings Plan provides?", options: ["Free resources", "Discount for commitment", "Pay-as-you-go", "Spot pricing"], correct: 1 }
+          ]
+        },
+        { id: 12, title: "Module 12: Capstone — Full DevOps Pipeline Project", scope: "8 Hours", difficulty: "Advanced", timeLimit: 240, prerequisite: 11,
+          desc: "Build a complete end-to-end DevOps pipeline: containerize app, deploy to K8s, set up CI/CD, monitoring, and GitOps.",
+          content: "Capstone: Deploy a production-grade application. Steps: 1) Dockerize application with multi-stage build. 2) Push to container registry. 3) Write K8s manifests or Helm chart. 4) Create CI/CD pipeline (GitHub Actions). 5) Set up ArgoCD for GitOps. 6) Configure Prometheus + Grafana monitoring. 7) Add Trivy security scanning. 8) Implement cost tagging.",
+          code: "# Complete pipeline:\ndocker build -t registry/myapp:v1 .\ndocker push registry/myapp:v1\nhelm install myapp ./charts\nargocd app sync myapp\n# GitHub Actions triggers on push\n# Prometheus scrapes /metrics\n# Grafana dashboard shows SLIs",
+          status: "Not Started",
+          questions: [
+            { q: "Capstone pipeline order?", options: ["Deploy→Build→Test", "Build→Push→Deploy→Monitor→Secure", "Monitor→Build→Deploy", "Test→Deploy→Build"], correct: 1 },
+            { q: "Multi-stage Docker build for?", options: ["Security", "Smaller production images", "Faster CI", "More features"], correct: 1 },
+            { q: "Helm chart in pipeline provides?", options: ["Source control", "Templated K8s deployments", "Monitoring", "Security scanning"], correct: 1 },
+            { q: "Prometheus + Grafana together provide?", options: ["CI/CD", "Metrics collection + visualization", "Container building", "Secret management"], correct: 1 },
+            { q: "Production DevOps needs?", options: ["Only CI", "Full pipeline: CI/CD + monitoring + security + cost mgmt", "Only Docker", "Only K8s"], correct: 1 }
+          ]
+        }
+    ];
+
+    // ============================================================
+    // SECTION C: APPLICATION STATE
+    // ============================================================
+    let S = { isLoggedIn: false, isInstructor: false, studentId: null, studentName: null, secondsActive: 0, theme: 'dark', progress: {}, bookmarks: {}, notes: '', streak: 0, lastLogin: null, achievements: [] };
+    let DB = { modules: JSON.parse(JSON.stringify(DEFAULT_MODULES)), students: {}, announcements: [] };
+
+    function save() { localStorage.setItem('clop_session', JSON.stringify(S)); localStorage.setItem('clop_db', JSON.stringify(DB)); }
+    function loadSession() { try { const s = JSON.parse(localStorage.getItem('clop_session')); if (s) S = { ...S, ...s }; } catch (e) {} try { const d = JSON.parse(localStorage.getItem('clop_db')); if (d) DB = { ...DB, ...d }; } catch (e) {} DB.modules.forEach(m => { if (!S.progress[m.id]) S.progress[m.id] = { completed: false, score: 'Pending', pct: null }; }); }
+
+    // ============================================================
+    // SECTION D: BADGES
+    // ============================================================
+    const BADGES = [
+        { id: 'first_login', name: 'First Login', icon: '🔐', check: () => true },
+        { id: 'docker', name: 'Docker Pro', icon: '🐳', check: () => S.progress[1]?.completed },
+        { id: 'terraform', name: 'IaC Architect', icon: '🏗️', check: () => S.progress[2]?.completed },
+        { id: 'kubernetes', name: 'K8s Operator', icon: '☸️', check: () => S.progress[3]?.completed },
+        { id: 'cicd', name: 'Pipeline Builder', icon: '🔄', check: () => S.progress[4]?.completed },
+        { id: 'sre', name: 'SRE Practitioner', icon: '📊', check: () => S.progress[5]?.completed },
+        { id: 'aws', name: 'Cloud Architect', icon: '☁️', check: () => S.progress[6]?.completed },
+        { id: 'security', name: 'DevSecOps', icon: '🛡️', check: () => S.progress[10]?.completed },
+        { id: 'all_complete', name: 'DevOps Master', icon: '🏆', check: () => DB.modules.every(m => S.progress[m.id]?.completed) },
+        { id: 'quiz_ace', name: 'Quiz Ace', icon: '⭐', check: () => Object.values(S.progress).filter(p => p.score === 'Passed').length >= 6 },
+        { id: 'streak_3', name: '3-Day Streak', icon: '🔥', check: () => S.streak >= 3 },
+        { id: 'finops', name: 'Cost Optimizer', icon: '💰', check: () => S.progress[11]?.completed }
+    ];
+
+    // ============================================================
+    // SECTION E: TOAST & THEME
+    // ============================================================
+    function toast(msg, type = 'info') { const t = document.createElement('div'); t.className = 'toast ' + type; t.textContent = msg; document.getElementById('toastContainer').appendChild(t); setTimeout(() => t.remove(), 3000); }
+    function toggleTheme() { S.theme = S.theme === 'dark' ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', S.theme); save(); }
+
+    // ============================================================
+    // SECTION F: AUTHENTICATION
+    // ============================================================
+    function handleLogin(event) {
+        event.preventDefault();
+        const role = document.getElementById('login-role').value;
+        const name = document.getElementById('login-name').value.trim();
+        const id = document.getElementById('login-id').value.trim();
+        S.isLoggedIn = true; S.isInstructor = (role === 'instructor');
+        S.studentName = name || (role === 'instructor' ? 'Lead DevOps Architect' : 'Cloud Engineer');
+        S.studentId = id || 'CLD-000';
+        if (!DB.students[S.studentId]) DB.students[S.studentId] = { name: S.studentName, progress: {}, secondsActive: 0 };
+        DB.modules.forEach(m => { if (!S.progress[m.id]) S.progress[m.id] = { completed: false, score: 'Pending', pct: null }; });
+        const today = new Date().toDateString();
+        if (S.lastLogin) { const d = Math.floor((new Date(today) - new Date(S.lastLogin)) / 86400000); S.streak = d === 1 ? S.streak + 1 : d > 1 ? 1 : S.streak; } else S.streak = 1;
+        S.lastLogin = today;
+        document.getElementById('auth-overlay').style.display = 'none';
+        document.getElementById('user-display-name').textContent = S.studentName;
+        setupNavigation(); renderAllViews(); save();
+        if (S.isInstructor) switchView('view-instructor-courses', 'Course Management');
+        else switchView('view-student-dash', 'Student Dashboard');
+        toast('Welcome, ' + S.studentName + '!', 'success');
+    }
+    function logout() { S.isLoggedIn = false; S.isInstructor = false; save(); document.getElementById('auth-overlay').style.display = 'flex'; }
+
+    // ============================================================
+    // SECTION G: NAVIGATION
+    // ============================================================
+    function setupNavigation() {
+        const nav = document.getElementById('navigation-list');
+        if (S.isInstructor) {
+            nav.innerHTML = '<li class="active" onclick="switchView(\'view-instructor-courses\',\'Course Management\')">📚 Manage Courses</li><li onclick="switchView(\'view-instructor-students\',\'Student Roster\')">👥 Student Roster</li><li onclick="switchView(\'view-instructor-announce\',\'Announcements\')">📢 Announcements</li><li onclick="switchView(\'view-terminal\',\'Cloud Terminal\')">💻 Sandbox Terminal</li>';
+        } else {
+            nav.innerHTML = '<li class="active" onclick="switchView(\'view-student-dash\',\'Student Dashboard\')">📊 My Dashboard</li><li onclick="switchView(\'view-curriculum\',\'Course Catalog\')">📚 Course Catalog</li><li onclick="switchView(\'view-terminal\',\'Cloud Terminal\')">💻 Practice Terminal</li><li onclick="switchView(\'view-achievements\',\'Achievements\')">🏆 Achievements</li><li onclick="switchView(\'view-notes\',\'Notes\')">📝 Notes</li><li onclick="switchView(\'view-certificate\',\'Certificate\')">🎓 Certificate</li>';
+        }
+        document.getElementById('roleBadge').innerHTML = S.isInstructor ? '<span class="badge" style="background:rgba(245,158,11,0.15);color:var(--warning)">Instructor</span> ' : '<span class="badge completed">Student</span> ';
+    }
+    function switchView(viewId, titleText) { document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active')); document.querySelectorAll('.nav-links li').forEach(l => l.classList.remove('active')); document.getElementById(viewId).classList.add('active'); document.getElementById('view-title').textContent = titleText; if (event && event.target && event.target.tagName === 'LI') event.target.classList.add('active'); }
+
+    // ============================================================
+    // SECTION H: RENDER VIEWS
+    // ============================================================
+    function renderAllViews() { renderStudentDashboard(); renderCurriculumCatalog(); renderInstructorCourses(); renderInstructorStudents(); renderAnnouncements(); renderAchievements(); renderNotes(); renderCertificate(); }
+
+    function renderStudentDashboard() {
+        const table = document.getElementById('student-modules-table'); table.innerHTML = '';
+        let done = 0, passed = 0, ev = 0;
+        DB.modules.forEach(mod => {
+            const p = S.progress[mod.id] || { completed: false, score: 'Pending' };
+            if (p.completed) done++; if (p.score === 'Passed') passed++; if (p.score !== 'Pending') ev++;
+            const bc = p.completed ? 'completed' : (p.score === 'In Progress' ? 'in-progress' : 'not-started');
+            table.innerHTML += `<tr><td><strong>Mod ${mod.id}</strong></td><td>${mod.title}</td><td><span class="badge ${bc}">${p.completed ? 'Completed' : p.score === 'Pending' ? 'Not Started' : p.score}</span></td><td>${p.pct !== null ? p.pct + '%' : '-'}</td><td><button class="secondary btn-sm" onclick="openModule(${mod.id})">Open</button></td></tr>`;
+        });
+        document.getElementById('sProgress').textContent = Math.round((done / DB.modules.length) * 100) + '%';
+        document.getElementById('sScore').textContent = ev ? Math.round(passed / ev * 100) + '%' : '0%';
+        document.getElementById('sTimeCard').textContent = Math.floor(S.secondsActive / 60) + 'm';
+        document.getElementById('sStreak').textContent = S.streak;
+        document.getElementById('welcomeBanner').textContent = S.isLoggedIn ? 'Welcome back, ' + S.studentName + '!' : 'Welcome to CloudOps Pro';
+        const aa = document.getElementById('announcementArea'); aa.innerHTML = '';
+        (DB.announcements || []).slice(-3).reverse().forEach(a => { aa.innerHTML += `<div class="announcement-bar"><span>📢 ${a.title}</span><span style="opacity:.7;font-size:.75rem;">${new Date(a.ts).toLocaleDateString()}</span></div>`; });
+        document.getElementById('authPrompt').innerHTML = S.isLoggedIn ? '<button class="danger btn-sm" onclick="logout()">Logout</button>' : '<button class="success" onclick="document.getElementById(\'auth-overlay\').style.display=\'flex\'">Log In</button>';
+        if (S.isLoggedIn) { BADGES.forEach(b => { if (!S.achievements.includes(b.id) && b.check()) { S.achievements.push(b.id); toast('Badge: ' + b.name, 'success'); save(); } }); }
+    }
+
+    function renderCurriculumCatalog() {
+        const c = document.getElementById('curriculum-cards-container'); c.innerHTML = '';
+        DB.modules.forEach(mod => {
+            const bm = S.bookmarks[mod.id];
+            c.innerHTML += `<div class="card" style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;align-items:center;"><h3>${mod.title}</h3><div style="display:flex;gap:8px;align-items:center;"><span style="font-size:.78rem;color:var(--muted);">${mod.difficulty} · ${mod.scope}</span><span style="cursor:pointer;font-size:1.1rem;" onclick="toggleBookmark(${mod.id})">${bm ? '⭐' : '☆'}</span></div></div><p style="color:var(--muted);margin:6px 0 12px;font-size:.88rem;">${mod.desc}</p><div style="display:flex;gap:8px;"><button class="btn-sm" onclick="openModule(${mod.id})">Open Module</button><button class="secondary btn-sm" onclick="switchView('view-terminal','Cloud Terminal')">Launch Lab</button></div></div>`;
+        });
+    }
+
+    // ============================================================
+    // SECTION I: MODULE DETAIL & QUIZ
+    // ============================================================
+    let currentQuiz = { moduleId: null, answers: [], submitted: false };
+    function openModule(id) {
+        const mod = DB.modules.find(m => m.id === id); if (!mod) return;
+        currentQuiz = { moduleId: id, answers: [], submitted: false };
+        const area = document.getElementById('module-content-area');
+        let html = `<h2 style="color:var(--primary);margin-bottom:4px;">${mod.title}</h2><p style="color:var(--muted);margin-bottom:16px;font-size:.85rem;">${mod.difficulty} · ${mod.scope} · Prereq: ${mod.prerequisite ? 'Module ' + mod.prerequisite : 'None'}</p><div class="card" style="margin-bottom:16px;"><h3 style="margin-bottom:8px;">Lesson</h3><p style="color:var(--muted);font-size:.9rem;line-height:1.6;">${mod.content}</p></div>`;
+        if (mod.code) html += `<div class="card" style="margin-bottom:16px;"><h3 style="margin-bottom:8px;">Practice Commands</h3><div style="background:var(--terminal-bg);border:1px solid var(--border);border-radius:6px;padding:14px;font-family:'DM Mono',monospace;font-size:.85rem;color:var(--terminal-text);white-space:pre-wrap;">${mod.code}</div><button class="btn-sm" style="margin-top:8px;" onclick="switchView('view-terminal','Cloud Terminal')">Open in Terminal</button></div>`;
+        html += `<h3 style="margin:20px 0 12px;">Quiz (${mod.questions.length} questions)</h3>`;
+        mod.questions.forEach((q, qi) => {
+            html += `<div class="quiz-card" id="quiz-q-${qi}"><h4>Q${qi + 1}: ${q.q}</h4>`;
+            q.options.forEach((opt, oi) => { html += `<div class="quiz-option" id="quiz-opt-${qi}-${oi}" onclick="selectQuizAnswer(${qi},${oi})">${opt}</div>`; });
+            html += `<div id="quiz-explain-${qi}" style="display:none;margin-top:8px;font-size:.82rem;color:var(--muted);"></div></div>`;
+        });
+        html += `<button id="quiz-submit-btn" onclick="submitQuiz()">Submit Quiz</button><div id="quiz-result" style="margin-top:16px;"></div>`;
+        area.innerHTML = html; switchView('view-module', mod.title);
+    }
+    function selectQuizAnswer(qi, oi) { if (currentQuiz.submitted) return; currentQuiz.answers[qi] = oi; DB.modules.find(m => m.id === currentQuiz.moduleId).questions[qi].options.forEach((_, i) => document.getElementById('quiz-opt-' + qi + '-' + i).classList.remove('selected')); document.getElementById('quiz-opt-' + qi + '-' + oi).classList.add('selected'); }
+    function submitQuiz() {
+        const mod = DB.modules.find(m => m.id === currentQuiz.moduleId); if (!mod || currentQuiz.answers.length < mod.questions.length) { toast('Answer all questions', 'error'); return; }
+        currentQuiz.submitted = true; let correct = 0;
+        mod.questions.forEach((q, qi) => { const sel = currentQuiz.answers[qi]; const ok = sel === q.correct; if (ok) correct++; document.getElementById('quiz-opt-' + qi + '-' + sel).classList.add(ok ? 'correct' : 'wrong'); if (!ok) document.getElementById('quiz-opt-' + qi + '-' + q.correct).classList.add('correct'); const e = document.getElementById('quiz-explain-' + qi); e.style.display = 'block'; e.innerHTML = (ok ? 'Correct!' : 'Wrong.') + (q.explain ? ' ' + q.explain : ''); });
+        const pct = Math.round((correct / mod.questions.length) * 100); const passed = pct >= 60;
+        S.progress[mod.id] = { completed: passed, score: passed ? 'Passed' : 'Failed', pct };
+        if (DB.students[S.studentId]) DB.students[S.studentId].progress[mod.id] = S.progress[mod.id];
+        save();
+        document.getElementById('quiz-result').innerHTML = `<div class="card" style="border-color:${passed ? 'var(--success)' : 'var(--danger)'}"><h3 style="color:${passed ? 'var(--success)' : 'var(--danger)'};">${passed ? 'Passed!' : 'Not Passed'}</h3><p style="font-size:1.4rem;font-weight:bold;margin:8px 0;">${correct}/${mod.questions.length} (${pct}%)</p>${!passed ? '<button class="btn-sm" onclick="openModule(' + mod.id + ')">Retry</button>' : ''}</div>`;
+        document.getElementById('quiz-submit-btn').style.display = 'none'; renderAllViews();
+    }
+
+    // ============================================================
+    // SECTION J: INSTRUCTOR FEATURES
+    // ============================================================
+    function handleAddNewModule(e) {
+        e.preventDefault();
+        const title = document.getElementById('new-mod-title').value.trim(), scope = document.getElementById('new-mod-scope').value.trim(), desc = document.getElementById('new-mod-desc').value.trim(), content = document.getElementById('new-mod-content').value.trim(), code = document.getElementById('new-mod-code').value.trim(), diff = document.getElementById('new-mod-diff').value, time = parseInt(document.getElementById('new-mod-time').value) || 120, prereq = document.getElementById('new-mod-prereq').value ? parseInt(document.getElementById('new-mod-prereq').value) : null;
+        const cards = document.querySelectorAll('#quiz-builder > div'); if (cards.length < 5) { toast('Min 5 questions', 'error'); return; }
+        let questions = []; for (const card of cards) { const q = card.querySelector('.qt').value.trim(); const opts = [card.querySelector('.qo0').value.trim(), card.querySelector('.qo1').value.trim(), card.querySelector('.qo2').value.trim(), card.querySelector('.qo3').value.trim()]; const c = parseInt(card.querySelector('.qc').value); if (!q || opts.some(o => !o)) { toast('Complete all fields', 'error'); return; } questions.push({ q, options: opts, correct: isNaN(c) ? 0 : Math.min(3, Math.max(0, c)) }); }
+        const mod = { id: Date.now(), title, scope, difficulty: diff, timeLimit: time, prerequisite: prereq, desc, content, code, status: 'Not Started', questions };
+        DB.modules.push(mod); Object.keys(DB.students).forEach(sid => { if (DB.students[sid].progress) DB.students[sid].progress[mod.id] = { completed: false, score: 'Pending', pct: null }; }); S.progress[mod.id] = { completed: false, score: 'Pending', pct: null };
+        save(); renderAllViews(); document.getElementById('add-module-form').reset(); document.getElementById('quiz-builder').innerHTML = ''; for (let i = 0; i < 5; i++) addQuizQuestion(); toast('Module published!', 'success');
+    }
+    function addQuizQuestion() { const c = document.getElementById('quiz-builder'); const i = c.children.length + 1; const d = document.createElement('div'); d.style.cssText = 'padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);margin-bottom:8px;'; d.innerHTML = `<div style="font-size:.75rem;font-weight:700;color:var(--primary);margin-bottom:6px;">Q${i}</div><input type="text" class="qt" placeholder="Question" style="margin-bottom:8px;"><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;"><input class="qo0" placeholder="A"><input class="qo1" placeholder="B"><input class="qo2" placeholder="C"><input class="qo3" placeholder="D"></div><div style="margin-top:6px;display:flex;gap:8px;align-items:center;"><label style="font-size:.75rem;">Correct (0-3):</label><input type="number" class="qc" min="0" max="3" value="0" style="width:50px;margin-bottom:0;"></div>`; c.appendChild(d); }
+    function deleteModule(id) { if (!confirm('Delete?')) return; DB.modules = DB.modules.filter(m => m.id !== id); save(); renderAllViews(); toast('Deleted', 'info'); }
+    function renderInstructorCourses() { const t = document.getElementById('instructor-modules-table'); t.innerHTML = ''; DB.modules.forEach(m => { t.innerHTML += `<tr><td>#${m.id}</td><td><strong>${m.title}</strong></td><td>${m.difficulty || 'Beginner'}</td><td><button class="secondary btn-sm danger" onclick="deleteModule(${m.id})">Remove</button></td></tr>`; }); }
+    function renderInstructorStudents() { const t = document.getElementById('instructor-students-table'); t.innerHTML = ''; Object.entries(DB.students).forEach(([id, stu]) => { let done = 0; if (stu.progress) Object.values(stu.progress).forEach(p => { if (p.completed) done++; }); t.innerHTML += `<tr><td><strong>${stu.name}</strong></td><td style="color:var(--muted)">${id}</td><td>${done}/${DB.modules.length}</td><td style="color:var(--primary);font-weight:bold">${Math.round(done / DB.modules.length * 100)}%</td><td>${Math.floor((stu.secondsActive || 0) / 60)}m</td></tr>`; }); if (!Object.keys(DB.students).length) t.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted)">No students yet</td></tr>'; }
+    function postAnnouncement() { const t = document.getElementById('annTitle').value.trim(), b = document.getElementById('annBody').value.trim(); if (!t || !b) { toast('Fill all fields', 'error'); return; } if (!DB.announcements) DB.announcements = []; DB.announcements.push({ title: t, body: b, priority: document.getElementById('annPriority').value, ts: Date.now() }); save(); document.getElementById('annTitle').value = ''; document.getElementById('annBody').value = ''; renderAnnouncements(); toast('Posted!', 'success'); }
+    function renderAnnouncements() { const l = document.getElementById('announcements-list'); if (!l) return; l.innerHTML = ''; (DB.announcements || []).slice().reverse().forEach(a => { l.innerHTML += `<div class="announcement-bar"><div><strong>${a.title}</strong><br><span style="font-size:.82rem;color:var(--muted)">${a.body}</span></div><span style="font-size:.75rem;color:var(--muted)">${new Date(a.ts).toLocaleDateString()}</span></div>`; }); }
+
+    // ============================================================
+    // SECTION K-L: ACHIEVEMENTS, NOTES, BOOKMARKS, CERTIFICATE
+    // ============================================================
+    function renderAchievements() { const c = document.getElementById('badges-container'); c.innerHTML = ''; BADGES.forEach(b => { const u = S.achievements.includes(b.id); c.innerHTML += `<div class="badge-card ${u ? 'unlocked' : 'locked'}"><span class="badge-icon">${b.icon}</span><div class="badge-name">${b.name}</div></div>`; }); }
+    function saveNotes() { S.notes = document.getElementById('notesArea').value; save(); }
+    function toggleBookmark(id) { S.bookmarks[id] = !S.bookmarks[id]; if (!S.bookmarks[id]) delete S.bookmarks[id]; save(); renderCurriculumCatalog(); renderNotes(); }
+    function renderNotes() { document.getElementById('notesArea').value = S.notes || ''; const bc = document.getElementById('bookmarks-container'); bc.innerHTML = ''; const bm = Object.keys(S.bookmarks).filter(k => S.bookmarks[k]); if (!bm.length) { bc.innerHTML = '<p style="color:var(--muted);font-size:.85rem">No bookmarks yet</p>'; return; } bm.forEach(id => { const m = DB.modules.find(x => x.id == id); if (m) bc.innerHTML += `<div class="card" style="margin-bottom:8px;padding:12px;cursor:pointer;" onclick="openModule(${m.id})"><strong>⭐ ${m.title}</strong></div>`; }); }
+    function renderCertificate() {
+        const c = document.getElementById('cert-container'); const done = DB.modules.filter(m => S.progress[m.id]?.completed).length; const pct = Math.round((done / DB.modules.length) * 100);
+        if (pct < 100) { c.innerHTML = `<div class="card" style="text-align:center;padding:40px;"><h3 style="color:var(--warning);margin-bottom:8px;">Not Yet Earned</h3><p style="color:var(--muted)">Complete all ${DB.modules.length} modules</p><p style="font-size:2rem;font-weight:bold;color:var(--primary);margin:16px 0;">${pct}%</p><p style="color:var(--muted);font-size:.85rem">${done}/${DB.modules.length} passed</p></div>`; }
+        else { c.innerHTML = `<div class="cert-container"><p style="color:var(--muted);font-size:.8rem;letter-spacing:2px;text-transform:uppercase;">Certificate of Completion</p><h2>CloudOps & DevOps Mastery</h2><p style="color:var(--muted);margin:8px 0;">This certifies that</p><div class="cert-name">${S.studentName}</div><p style="color:var(--muted);margin:12px 0;">has successfully completed all ${DB.modules.length} modules of the<br><strong style="color:var(--text)">CloudOps & DevOps Mastery Program</strong></p><p style="color:var(--muted);font-size:.8rem;margin-top:16px;">Date: ${new Date().toLocaleDateString()} · ID: ${S.studentId}</p><button style="margin-top:16px;" onclick="window.print()">Print</button></div>`; }
+    }
+
+    // ============================================================
+    // SECTION M: COMMAND PALETTE
+    // ============================================================
+    const CMD = {
+        cmds: [
+            { name: 'Student Dashboard', action: () => switchView('view-student-dash', 'Student Dashboard') },
+            { name: 'Course Catalog', action: () => switchView('view-curriculum', 'Course Catalog') },
+            { name: 'Cloud Terminal', action: () => switchView('view-terminal', 'Cloud Terminal') },
+            { name: 'Achievements', action: () => switchView('view-achievements', 'Achievements') },
+            { name: 'Notes', action: () => switchView('view-notes', 'Notes') },
+            { name: 'Certificate', action: () => switchView('view-certificate', 'Certificate') },
+            { name: 'Toggle Theme', action: toggleTheme },
+            { name: 'Logout', action: logout }
+        ], idx: 0,
+        open() { document.getElementById('cmdPalette').classList.add('active'); document.getElementById('cmdInput').value = ''; document.getElementById('cmdInput').focus(); CMD.idx = 0; CMD.filter(); },
+        close() { document.getElementById('cmdPalette').classList.remove('active'); },
+        filter() { const q = document.getElementById('cmdInput').value.toLowerCase(); const r = document.getElementById('cmdResults'); r.innerHTML = ''; const all = S.isInstructor ? [...CMD.cmds, { name: 'Manage Courses', action: () => switchView('view-instructor-courses', 'Course Management') }, { name: 'Student Roster', action: () => switchView('view-instructor-students', 'Student Roster') }, { name: 'Announcements', action: () => switchView('view-instructor-announce', 'Announcements') }] : CMD.cmds; const f = all.filter(c => c.name.toLowerCase().includes(q)); f.forEach((c, i) => { const d = document.createElement('div'); d.className = 'cmd-item' + (i === CMD.idx ? ' active' : ''); d.textContent = c.name; d.onclick = () => { CMD.close(); c.action(); }; r.appendChild(d); }); },
+        key(e) { if (e.key === 'Escape') CMD.close(); if (e.key === 'Enter') { const items = document.querySelectorAll('.cmd-item'); if (items[CMD.idx]) items[CMD.idx].click(); } if (e.key === 'ArrowDown') { CMD.idx = Math.min(CMD.idx + 1, document.querySelectorAll('.cmd-item').length - 1); CMD.filter(); } if (e.key === 'ArrowUp') { CMD.idx = Math.max(CMD.idx - 1, 0); CMD.filter(); } }
+    };
+    function openCmd() { CMD.open(); }
+
+    // ============================================================
+    // SECTION N: ENHANCED TERMINAL (20+ commands)
+    // ============================================================
+    const terminalOutput = document.getElementById('terminal-output');
+    const commandInput = document.getElementById('terminal-command-input');
+    commandInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') { const cmd = commandInput.value.trim(); if (!cmd) return; terminalOutput.innerHTML += `<div><span style="color:var(--primary)">devops@cluster-01:~$</span> ${cmd}</div>`; processCloudCommand(cmd); commandInput.value = ''; terminalOutput.scrollTop = terminalOutput.scrollHeight; } });
+
+    function processCloudCommand(cmdStr) {
+        const t = cmdStr.split(/\s+/), p = t[0], s = t[1], rest = t.slice(1).join(' ');
+        switch (p) {
+            case 'help': terminalOutput.innerHTML += `<div>CloudOps commands:
+  terraform [init|plan|apply|destroy|state list|output]
+  kubectl [get pods|get svc|get deploy|get nodes|describe|logs|apply|delete]
+  docker [ps|images|build|run|stop|rm|logs|exec|compose up|compose down]
+  aws [s3 ls|s3 cp|ec2 describe-instances|iam list-users|lambda list-functions|sts get-caller-identity]
+  helm [list|install|upgrade|uninstall|repo list|search]
+  ansible [ping|playbook|inventory|galaxy]
+  git [status|log|add|commit|push|pull|branch|checkout|merge|stash]
+  vagrant [up|status|ssh|halt|destroy]
+  minikube [status|start|stop|dashboard|ip]
+  clear, date, whoami, uname, uptime, echo, history</div>`; break;
+            case 'clear': terminalOutput.innerHTML = ''; break;
+            case 'date': terminalOutput.innerHTML += `<div>${new Date().toUTCString()}</div>`; break;
+            case 'whoami': terminalOutput.innerHTML += '<div>devops</div>'; break;
+            case 'uname': terminalOutput.innerHTML += (s === '-a' ? '<div>Linux cloud-control-plane 5.15.0-91-generic #101-Ubuntu SMP x86_64 GNU/Linux</div>' : '<div>Linux</div>'); break;
+            case 'uptime': terminalOutput.innerHTML += `<div> ${new Date().toUTCString()} up 127 days, 5:33, 1 user, load average: 0.42, 0.38, 0.35</div>`; break;
+            case 'echo': terminalOutput.innerHTML += `<div>${rest}</div>`; break;
+            case 'history': terminalOutput.innerHTML += '<div>  1  terraform init\n  2  terraform apply\n  3  kubectl get pods\n  4  docker ps\n  5  helm list\n  6  aws s3 ls\n  7  ansible ping</div>'; break;
+            case 'terraform':
+                if (s === 'init') terminalOutput.innerHTML += '<div>Initializing the backend...\nInitializing provider plugins...\n- Finding hashicorp/aws versions matching "5.31.0"...\n- Installing hashicorp/aws v5.31.0...\nTerraform has been successfully initialized!</div>';
+                else if (s === 'plan') terminalOutput.innerHTML += '<div>Terraform will perform the following actions:\n  # aws_vpc.main will be created\n  + resource "aws_vpc" "main" {\n      + cidr_block = "10.0.0.0/16"\n    }\n  # aws_subnet.public will be created\n  # aws_instance.web will be created\nPlan: 3 to add, 0 to change, 0 to destroy.</div>';
+                else if (s === 'apply') terminalOutput.innerHTML += '<div>aws_vpc.main: Creating...\naws_vpc.main: Creation complete after 8s [id=vpc-0a1b2c3d]\naws_subnet.public: Creating...\naws_subnet.public: Creation complete after 5s [id=subnet-0e4f5a6b]\naws_instance.web: Creating...\naws_instance.web: Creation complete after 42s [id=i-0c7d8e9f]\nApply complete! Resources: 3 added, 0 changed, 0 destroyed.\nOutputs: instance_ip = "54.210.123.45"</div>';
+                else if (s === 'destroy') terminalOutput.innerHTML += '<div>Destroy complete! Resources: 3 destroyed.</div>';
+                else if (s === 'state' && t[2] === 'list') terminalOutput.innerHTML += '<div>aws_vpc.main\naws_subnet.public\naws_instance.web</div>';
+                else if (s === 'output') terminalOutput.innerHTML += '<div>instance_ip = "54.210.123.45"\nvpc_id = "vpc-0a1b2c3d"</div>';
+                else terminalOutput.innerHTML += '<div>Usage: terraform [init|plan|apply|destroy|state list|output]</div>';
+                break;
+            case 'kubectl':
+                if (rest === 'get pods') terminalOutput.innerHTML += '<div>NAMESPACE     NAME                      READY   STATUS    RESTARTS   AGE\ndefault       frontend-798b5-x2n        1/1     Running   0          42m\ndefault       backend-api-548c-9pq      1/1     Running   1          42m\ndefault       postgres-db-0             1/1     Running   0          42m\nkube-system   coredns-5d78c9f-hjk7l    1/1     Running   0          3d</div>';
+                else if (rest === 'get svc' || rest === 'get services') terminalOutput.innerHTML += '<div>NAME         TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE\nkubernetes   ClusterIP      10.96.0.1       <none>        443/TCP        3d\nfrontend     LoadBalancer   10.100.45.12    pending       80:30880/TCP   42m\nbackend      ClusterIP      10.100.67.89    <none>        8080/TCP       42m\npostgres     ClusterIP      10.100.12.34    <none>        5432/TCP       42m</div>';
+                else if (rest === 'get deploy' || rest === 'get deployments') terminalOutput.innerHTML += '<div>NAME       READY   UP-TO-DATE   AVAILABLE   AGE\nfrontend   3/3     3            3           42m\nbackend    2/2     2            2           42m</div>';
+                else if (rest === 'get nodes') terminalOutput.innerHTML += '<div>NAME       STATUS   ROLES           AGE   VERSION\nnode-01    Ready    control-plane   3d    v1.29.2\nnode-02    Ready    <none>          3d    v1.29.2\nnode-03    Ready    <none>          3d    v1.29.2</div>';
+                else if (s === 'logs') terminalOutput.innerHTML += '<div>[2025-08-20 10:00:01] INFO  Starting application...\n[2025-08-20 10:00:02] INFO  Connected to database\n[2025-08-20 10:00:03] INFO  Listening on port 8080\n[2025-08-20 10:05:15] WARN  High memory usage detected (78%)\n[2025-08-20 10:10:30] INFO  Request: GET /api/health 200 12ms</div>';
+                else if (s === 'describe') terminalOutput.innerHTML += '<div>Name:             frontend-798b5-x2n\nNamespace:        default\nPriority:         0\nService Account:  default\nNode:             node-02/192.168.1.102\nStatus:           Running\nIP:               10.244.1.5\nContainers:\n  frontend:\n    Image:        nginx:alpine\n    Port:         80/TCP\n    CPU:          50m/100m\n    Memory:       64Mi/128Mi</div>';
+                else terminalOutput.innerHTML += '<div>Usage: kubectl [get pods|get svc|get deploy|get nodes|describe|logs|apply|delete]</div>';
+                break;
+            case 'docker':
+                if (s === 'ps') terminalOutput.innerHTML += '<div>CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                  NAMES\na1b2c3d4e5f6   nginx:alpine   "/docker-entrypoint..."   2 hours ago     Up 2 hours     0.0.0.0:80->80/tcp     web\nf6e5d4c3b2a1   postgres:16    "docker-entrypoint..."   3 hours ago     Up 3 hours     5432/tcp               db</div>';
+                else if (s === 'images') terminalOutput.innerHTML += '<div>REPOSITORY     TAG         IMAGE ID       CREATED         SIZE\nnginx          alpine      904b8f04b28d   2 weeks ago     43.2MB\nnode           20-alpine   10293482710a   3 weeks ago     178MB\npostgres       16          a3b4c5d6e7f8   1 month ago     401MB\nmyapp          v1          7f8a9b0c1d2e   5 minutes ago   156MB</div>';
+                else if (s === 'build') terminalOutput.innerHTML += '<div>Step 1/8 : FROM node:20-alpine AS builder\nStep 2/8 : WORKDIR /app\nStep 3/8 : COPY package*.json ./\nStep 4/8 : RUN npm ci --production\nStep 5/8 : FROM nginx:alpine\nStep 6/8 : COPY --from=builder /app/dist /usr/share/nginx/html\nStep 7/8 : EXPOSE 80\nStep 8/8 : CMD ["nginx", "-g", "daemon off;"]\nSuccessfully built 7f8a9b0c1d2e\nSuccessfully tagged myapp:v1</div>';
+                else if (s === 'compose' && t[2] === 'up') terminalOutput.innerHTML += '<div>Creating network "app_default" with the default driver\nCreating volume "app_db-data" with default driver\nCreating app_db_1    ... done\nCreating app_api_1   ... done\nCreating app_web_1   ... done\nAttaching to app_db_1, app_api_1, app_web_1</div>';
+                else if (s === 'compose' && t[2] === 'down') terminalOutput.innerHTML += '<div>Stopping app_web_1  ... done\nStopping app_api_1  ... done\nStopping app_db_1   ... done\nRemoving app_web_1  ... done\nRemoving app_api_1  ... done\nRemoving app_db_1   ... done\nRemoving network app_default</div>';
+                else if (s === 'logs') terminalOutput.innerHTML += '<div>web  | 172.18.0.1 - - [20/Aug/2025:10:00:01 +0000] "GET / HTTP/1.1" 200 612\nweb  | 172.18.0.1 - - [20/Aug/2025:10:00:15 +0000] "GET /api HTTP/1.1" 200 1024</div>';
+                else terminalOutput.innerHTML += '<div>Usage: docker [ps|images|build|run|stop|rm|logs|compose up|compose down]</div>';
+                break;
+            case 'aws':
+                if (rest === 's3 ls') terminalOutput.innerHTML += '<div>2025-03-12 14:20:10 enterprise-tf-state-bucket-prod\n2025-05-01 09:11:45 ci-cd-artifact-releases-bucket\n2025-06-15 16:33:22 cloudops-training-data-bucket</div>';
+                else if (s === 's3' && t[2] === 'cp') terminalOutput.innerHTML += `<div>upload: ./file.txt to s3://${t[3] || 'my-bucket'}/file.txt</div>`;
+                else if (rest === 'ec2 describe-instances') terminalOutput.innerHTML += '<div>INSTANCES\ti-0c7d8e9f\tt3.medium\t54.210.123.45\tRunning\tweb-server\nINSTANCES\ti-1d8e9f0a\tt3.large\t172.31.45.67\tRunning\tapi-server\nINSTANCES\ti-2e9f0a1b\tt3.micro\t172.31.89.01\tRunning\tbastion</div>';
+                else if (rest === 'iam list-users') terminalOutput.innerHTML += '<div>USERNAME\t\tARN\t\t\t\t\t\tCREATE DATE\ndevops-admin\t\tarn:aws:iam::123456:user/devops-admin\t2025-01-15\nci-deployer\t\tarn:aws:iam::123456:user/ci-deployer\t2025-03-20</div>';
+                else if (rest === 'lambda list-functions') terminalOutput.innerHTML += '<div>FUNCTION NAME\t\tRUNTIME\tMEMORY\tTIMEOUT\nimage-processor\t\tpython3.12\t256MB\t30s\napi-gateway-auth\tnodejs20.x\t128MB\t10s\nbackup-scheduler\tgo1.x\t\t128MB\t60s</div>';
+                else if (rest === 'sts get-caller-identity') terminalOutput.innerHTML += '<div>{\n    "UserId": "AIDACKCEVSQ6C2EXAMPLE",\n    "Account": "123456789012",\n    "Arn": "arn:aws:iam::123456789012:user/devops-admin"\n}</div>';
+                else terminalOutput.innerHTML += '<div>Usage: aws [s3 ls|s3 cp|ec2 describe-instances|iam list-users|lambda list-functions|sts get-caller-identity]</div>';
+                break;
+            case 'helm':
+                if (s === 'list') terminalOutput.innerHTML += '<div>NAME            NAMESPACE     REVISION   STATUS     CHART                  APP VERSION\ningress-nginx   ingress-ns    1          deployed   ingress-nginx-4.9.0    1.9.5\nprometheus      monitoring    3          deployed   prometheus-25.8.0      2.48.0\ngrafana         monitoring    2          deployed   grafana-7.0.0          10.2.0</div>';
+                else if (s === 'install') terminalOutput.innerHTML += `<div>NAME: ${t[2] || 'my-release'}\nSTATUS: deployed\nREVISION: 1\nTEST SUITE: None</div>`;
+                else if (s === 'repo' && t[2] === 'list') terminalOutput.innerHTML += '<div>NAME            URL\nbitnami         https://charts.bitnami.com/bitnami\ningress-nginx   https://kubernetes.github.io/ingress-nginx\nprometheus      https://prometheus-community.github.io/helm-charts</div>';
+                else if (s === 'search') terminalOutput.innerHTML += '<div>NAME                    CHART VERSION   APP VERSION   DESCRIPTION\nbitnami/nginx           15.4.4          1.25.4        NGINX Open Source is a web server\nbitnami/postgresql      13.2.36         16.1.0        PostgreSQL (Postgres) is an open source...</div>';
+                else terminalOutput.innerHTML += '<div>Usage: helm [list|install|upgrade|uninstall|repo list|search repo]</div>';
+                break;
+            case 'ansible':
+                if (rest === 'all -m ping') terminalOutput.innerHTML += '<div>web-01 | SUCCESS => {\n    "changed": false,\n    "ping": "pong"\n}\ndb-01 | SUCCESS => {\n    "changed": false,\n    "ping": "pong"\n}\napp-01 | SUCCESS => {\n    "changed": false,\n    "ping": "pong"\n}</div>';
+                else if (s === 'playbook' || s === '-playbook') terminalOutput.innerHTML += '<div>PLAY [Configure web servers] ***************************************************\nTASK [Gathering Facts] *********************************************************\nok: [web-01]\nok: [web-02]\nTASK [Install nginx] ***********************************************************\nchanged: [web-01]\nchanged: [web-02]\nTASK [Start nginx service] ****************************************************\nok: [web-01]\nok: [web-02]\nPLAY RECAP *********************************************************************\nweb-01: ok=3  changed=1  unreachable=0  failed=0\nweb-02: ok=3  changed=1  unreachable=0  failed=0</div>';
+                else if (rest === 'inventory --list') terminalOutput.innerHTML += '<div>{\n    "webservers": ["web-01", "web-02"],\n    "databases": ["db-01"],\n    "all": {"hosts": ["web-01", "web-02", "db-01"]}\n}</div>';
+                else if (s === 'galaxy') terminalOutput.innerHTML += '<div>- downloading role \'nginx\', owned by geerlingguy\n- geerlingguy.nginx (4.0.0) was installed successfully</div>';
+                else terminalOutput.innerHTML += '<div>Usage: ansible [all -m ping|playbook site.yml|inventory --list|galaxy install role]</div>';
+                break;
+            case 'git':
+                if (s === 'status') terminalOutput.innerHTML += '<div>On branch main\nYour branch is up to date with \'origin/main\'.\nChanges not staged for commit:\n  modified:   terraform/main.tf\n  modified:   k8s/deployment.yaml\nUntracked files:\n  k8s/ingress.yaml</div>';
+                else if (s === 'log') terminalOutput.innerHTML += '<div>commit a1b2c3d (HEAD -> main, origin/main)\nAuthor: DevOps Engineer <devops@company.com>\nDate:   Tue Aug 20 10:00:00 2025\n\n    feat: add ingress controller configuration\n\ncommit d4e5f6a\nAuthor: DevOps Engineer <devops@company.com>\nDate:   Mon Aug 19 15:30:00 2025\n\n    fix: update container resource limits</div>';
+                else if (s === 'branch') terminalOutput.innerHTML += '* main\n  develop\n  feature/monitoring\n  hotfix/ssl-cert';
+                else if (s === 'stash') terminalOutput.innerHTML += 'Saved working directory and index state WIP on main: a1b2c3d feat: add ingress';
+                else if (s === 'add' || s === 'commit' || s === 'push' || s === 'pull' || s === 'checkout' || s === 'merge') terminalOutput.innerHTML += `<div>git ${rest || s}: operation simulated successfully.</div>`;
+                else terminalOutput.innerHTML += '<div>Usage: git [status|log|add|commit|push|pull|branch|checkout|merge|stash]</div>';
+                break;
+            case 'vagrant':
+                if (s === 'up') terminalOutput.innerHTML += '<div>Bringing machine \'default\' up with \'virtualbox\' provider...\n==> default: Importing base box \'ubuntu/jammy64\'...\n==> default: Forwarding ports...\n==> default: Booting VM...\n==> default: Waiting for machine to boot...\nMachine started. SSH address: 127.0.0.1:2222</div>';
+                else if (s === 'status') terminalOutput.innerHTML += '<div>Current machine states:\ndefault                   running (virtualbox)</div>';
+                else if (s === 'ssh') terminalOutput.innerHTML += '<div>Welcome to Ubuntu 22.04.3 LTS (GNU/Linux 5.15.0-91-generic)\nvagrant@ubuntu-jammy:~$</div>';
+                else if (s === 'halt' || s === 'destroy') terminalOutput.innerHTML += `<div>==> default: ${s === 'halt' ? 'Halting' : 'Destroying'} VM...</div>`;
+                else terminalOutput.innerHTML += '<div>Usage: vagrant [up|status|ssh|halt|destroy]</div>';
+                break;
+            case 'minikube':
+                if (s === 'status') terminalOutput.innerHTML += '<div>minikube\nv1.32.0 on Ubuntu 22.04 (x86_64)\nUsing the virtualbox driver based on existing profile\nConfigured memory: 4096MB\nConfigured CPUs: 2\nKubernetes v1.29.2\nRunning</div>';
+                else if (s === 'start') terminalOutput.innerHTML += '<div>Starting control plane node minikube in cluster minikube\nPulling base image ...\nPreparing Kubernetes v1.29.2 on Docker ...\nVerifying Kubernetes components...\nEnabled addons: default-storageclass, storage-provisioner\ndone!</div>';
+                else if (s === 'ip') terminalOutput.innerHTML += '<div>192.168.49.2</div>';
+                else if (s === 'stop') terminalOutput.innerHTML += '<div>Stopping node "minikube" ...\n1 node stopped.</div>';
+                else if (s === 'dashboard') terminalOutput.innerHTML += '<div>Opening Kubernetes dashboard in default browser...\nhttp://127.0.0.1:60512/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/</div>';
+                else terminalOutput.innerHTML += '<div>Usage: minikube [status|start|stop|dashboard|ip]</div>';
+                break;
+            default: terminalOutput.innerHTML += `<div>zsh: command not found: ${p}. Type 'help' for available commands.</div>`;
+        }
+    }
+
+    // ============================================================
+    // SECTION O: TIMER & BOOTSTRAP
+    // ============================================================
+    setInterval(() => { if (S.isLoggedIn) { S.secondsActive++; if (S.secondsActive % 15 === 0) { if (DB.students[S.studentId]) DB.students[S.studentId].secondsActive = S.secondsActive; save(); } } const te = document.getElementById('sTime'); if (te) te.textContent = Math.floor(S.secondsActive / 60) + 'm'; }, 1000);
+    for (let i = 0; i < 5; i++) addQuizQuestion();
+    document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); CMD.open(); } if (e.key === 'Escape') CMD.close(); });
+    (async function boot() { try { const fp = await LIC.getFingerprint(); document.getElementById('licFP').value = fp; if (localStorage.getItem(LIC.STORAGE_KEY + '_lk') === '1') { loadSession(); return; } if (await LIC.check()) { loadSession(); } else { document.getElementById('lic-screen').classList.add('active'); } } catch (e) { console.error('License check failed:', e); document.getElementById('lic-screen').classList.add('active'); } })();
+    document.getElementById('cmdPalette').addEventListener('click', e => { if (e.target === document.getElementById('cmdPalette')) CMD.close(); });
+    </script>
+</body>
+</html>
