@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberGuard Academy - Institute Workstation LMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#0f172a;--card:#1e293b;--surface:#1e293b;--accent:#38bdf8;--glow:#0ea5e9;--success:#10b981;--danger:#f43f5e;--warning:#f59e0b;--text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;--border:#334155;--border2:#1e293b}
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+        .mono{font-family:'DM Mono',monospace}
+        .hidden{display:none!important}
+
+        /* License Screen */
+        #licenseScreen{position:fixed;inset:0;background:linear-gradient(135deg,#020617,#0f172a,#020617);z-index:200000;display:flex;align-items:center;justify-content:center}
+        .lic-card{background:#0f172a;border:1px solid #1e3a5f;border-radius:16px;padding:44px 38px;max-width:520px;width:92%;text-align:center;box-shadow:0 25px 80px rgba(0,0,0,.6)}
+        .lic-card .lbadge{display:inline-block;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;padding:6px 18px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:20px}
+        .lic-card h1{color:#f1f5f9;font-size:26px;margin-bottom:6px}
+        .lic-card .sub{color:#94a3b8;font-size:14px;margin-bottom:28px}
+        .lic-card .fp-box{background:#020617;border:1px solid #1e3a5f;border-radius:8px;padding:14px;margin-bottom:20px}
+        .lic-card .fp-label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+        .lic-card .fp-val{font-family:'DM Mono',monospace;font-size:15px;color:#38bdf8;letter-spacing:1px;word-break:break-all}
+        .lic-card input{width:100%;padding:14px 16px;border:1px solid #1e3a5f;border-radius:8px;background:#020617;color:#f1f5f9;font-size:15px;font-family:'DM Mono',monospace;letter-spacing:1.5px;text-align:center;outline:none}
+        .lic-card input:focus{border-color:#38bdf8}
+        .lic-card input::placeholder{color:#475569;letter-spacing:.5px}
+        .lic-status{margin-top:12px;font-size:13px;font-weight:600;min-height:20px}
+        .lic-status.error{color:#f43f5e}.lic-status.valid{color:#10b981}
+        .lic-info{margin-top:20px;font-size:12px;color:#64748b;line-height:1.6;text-align:left;background:#020617;border-radius:8px;padding:14px}
+        .lic-info code{color:#38bdf8;background:rgba(56,189,248,.15);padding:2px 6px;border-radius:4px;font-size:11px}
+        .lic-btn{width:100%;margin-top:20px;padding:14px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;transition:transform .15s}
+        .lic-btn:hover{transform:translateY(-1px)}
+        .lic-bar{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer}
+        .lic-bar.active{background:rgba(16,185,129,.1);color:#10b981}.lic-bar.warning{background:rgba(245,158,11,.1);color:#f59e0b}.lic-bar.expired{background:rgba(244,63,94,.1);color:#f43f5e}
+        .lic-bar-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+
+        /* Buttons */
+        .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+        .btn:hover{transform:translateY(-1px)}
+        .btn-cyan{background:#0ea5e9;color:#fff}.btn-cyan:hover{background:#38bdf8;box-shadow:0 4px 12px rgba(14,165,233,.3)}
+        .btn-ghost{background:transparent;color:#94a3b8;border:1px solid #334155}.btn-ghost:hover{background:#1e293b;color:#f1f5f9}
+        .btn-danger{background:#f43f5e;color:#fff}
+        .btn-sm{padding:6px 12px;font-size:12px}
+
+        /* Cards */
+        .card{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:24px;transition:all .2s}
+        .card:hover{border-color:#38bdf8;box-shadow:0 4px 20px rgba(56,189,248,.08)}
+
+        /* Badge */
+        .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+        .b-cyan{background:rgba(56,189,248,.1);color:#38bdf8}.b-green{background:rgba(16,185,129,.1);color:#10b981}.b-red{background:rgba(244,63,94,.1);color:#f43f5e}.b-amber{background:rgba(245,158,11,.1);color:#f59e0b}
+
+        /* Form */
+        .fg{margin-bottom:16px}.fg label{display:block;font-size:12px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+        .fc{width:100%;padding:10px 14px;border:1px solid #334155;border-radius:8px;font-size:14px;background:#0f172a;color:#f1f5f9;outline:none;transition:border .2s;font-family:inherit}
+        .fc:focus{border-color:#38bdf8;box-shadow:0 0 0 3px rgba(56,189,248,.1)}
+
+        /* Tabs */
+        .tab-bar{display:flex;border-bottom:2px solid #334155;gap:0;overflow-x:auto}
+        .tab-btn{padding:12px 20px;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;font-size:13px;font-weight:600;color:#64748b;cursor:pointer;white-space:nowrap;transition:all .2s}
+        .tab-btn:hover{color:#f1f5f9}.tab-btn.on{color:#38bdf8;border-bottom-color:#38bdf8}
+
+        /* Table */
+        .dtable{width:100%;border-collapse:collapse;font-size:13px}
+        .dtable th{text-align:left;padding:12px 16px;background:rgba(15,23,42,.5);color:#94a3b8;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #334155}
+        .dtable td{padding:12px 16px;border-bottom:1px solid #1e293b}
+        .dtable tr:hover td{background:rgba(30,41,59,.5)}
+
+        /* Progress bar */
+        .prog-bar{width:100%;background:#334155;border-radius:4px;height:8px;overflow:hidden}
+        .prog-fill{height:100%;background:linear-gradient(90deg,#0ea5e9,#38bdf8);border-radius:4px;transition:width .5s}
+
+        /* Quiz */
+        .quiz-opt{display:flex;align-items:center;gap:12px;padding:12px 16px;border:1.5px solid #334155;border-radius:8px;cursor:pointer;transition:all .2s;font-size:14px}
+        .quiz-opt:hover{border-color:#38bdf8;background:rgba(56,189,248,.03)}
+        .quiz-opt input{accent-color:#38bdf8}
+
+        /* Scan results */
+        .scan-box{background:#020617;border:1px solid #1e293b;border-radius:8px;padding:10px;font-family:'DM Mono',monospace;font-size:11px;color:#94a3b8;height:80px;overflow-y:auto}
+
+        @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}.anim{animation:fadeIn .4s ease forwards}
+    </style>
+</head>
+<body>
+
+<!-- ================= LICENSE SCREEN ================= -->
+<div id="licenseScreen" class="hidden" style="display:none">
+    <!-- Activate View -->
+    <div id="licActivateView" class="lic-card">
+        <div class="lbadge">Licensed Software</div>
+        <h1>CyberGuard Academy</h1>
+        <p class="sub">Enter your license key to activate</p>
+        <div class="fp-box">
+            <div class="fp-label">Your Device Fingerprint</div>
+            <div class="fp-val" id="licFingerprint">Detecting...</div>
+        </div>
+        <input type="text" id="licKeyInput" placeholder="CYGA-XXXX-XXXX-XXXX-XXXX" maxlength="23" autocomplete="off" spellcheck="false">
+        <div class="lic-status" id="licStatus"></div>
+        <button class="lic-btn" onclick="LIC.activate()">Activate License</button>
+        <div class="lic-info">
+            <strong style="color:#f1f5f9">How to get a license key:</strong><br>
+            1. Copy the fingerprint shown above<br>
+            2. Send it to your administrator<br>
+            3. Admin runs: <code>python3 gen.py generate cyberguard &lt;YOUR_FP&gt; 365</code><br>
+            4. Enter the key you receive back
+        </div>
+    </div>
+    <!-- Expired View -->
+    <div id="licExpiredView" class="lic-card" style="display:none">
+        <div style="font-size:64px;margin-bottom:16px">&#128274;</div>
+        <h1 style="color:#f43f5e">License Expired</h1>
+        <p class="sub">Your license has expired. All progress data has been wiped.</p>
+        <p class="sub">Contact your administrator for a new key.</p>
+        <button class="lic-btn" onclick="LIC.showActivate()" style="margin-top:24px">Enter New License Key</button>
+    </div>
+</div>
+
+<!-- ================= MAIN APPLICATION ================= -->
+<div id="mainApp" style="display:none">
+
+    <!-- ================= TOP NAVIGATION BAR ================= -->
+    <header class="sticky top-0 z-40" style="background:#0f172a;border-bottom:1px solid #334155">
+        <div style="max-width:1200px;margin:0 auto;padding:0 20px;height:60px;display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:12px">
+                <div style="background:rgba(56,189,248,.1);border:1px solid #38bdf8;color:#38bdf8;padding:8px;border-radius:8px;font-size:18px">&#128737;</div>
+                <span style="font-size:18px;font-weight:700;color:#fff">CyberGuard <span style="color:#38bdf8">LMS</span></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px">
+                <span id="licStatusBar"></span>
+                <div style="display:flex;align-items:center;gap:8px;border-left:1px solid #334155;padding-left:16px">
+                    <div id="user-avatar" style="width:36px;height:36px;border-radius:50%;background:rgba(56,189,248,.2);border:1px solid #38bdf8;color:#38bdf8;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">ST</div>
+                    <div>
+                        <div style="font-size:13px;font-weight:600" id="display-username">Student Name</div>
+                        <div style="font-size:11px;color:#64748b" id="display-rolldetails">Roll: 000</div>
+                    </div>
+                </div>
+                <button onclick="logoutSession()" class="btn btn-ghost btn-sm" style="color:#64748b">&#9211; Exit</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ================= LOGIN SCREEN ================= -->
+    <div id="login-screen" style="max-width:480px;margin:80px auto;padding:0 20px">
+        <div class="card anim" style="padding:40px;text-align:center">
+            <div style="display:inline-block;background:rgba(56,189,248,.1);border:1px solid #38bdf8;color:#38bdf8;padding:12px;border-radius:12px;margin-bottom:16px;font-size:24px">&#128737;</div>
+            <h1 style="font-size:22px;font-weight:700;color:#fff;margin-bottom:4px">CyberGuard Terminal</h1>
+            <p style="color:#64748b;font-size:13px;margin-bottom:28px">Computer Institute Workstation Edition</p>
+            <form onsubmit="handleStudentLogin(event)">
+                <div class="fg"><label>Student Full Name</label><input type="text" id="login-name" required class="fc" placeholder="e.g., Alex Mercer"></div>
+                <div class="fg"><label>Roll Number / Student ID</label><input type="text" id="login-roll" required class="fc" placeholder="e.g., CS-2026-042"></div>
+                <button type="submit" class="btn btn-cyan" style="width:100%;padding:14px;font-size:14px;margin-top:8px">Initialize Session &amp; Load Progress</button>
+            </form>
+            <div style="margin-top:20px;padding-top:16px;border-top:1px solid #334155">
+                <button onclick="switchToInstructorLogin()" style="background:none;border:none;color:#64748b;font-size:12px;cursor:pointer">&#128105; Switch to Instructor Terminal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= STUDENT VIEW ================= -->
+    <div id="view-student" class="hidden" style="max-width:1200px;margin:0 auto;padding:32px 20px">
+        <!-- Welcome Banner -->
+        <div class="card anim" style="background:linear-gradient(135deg,#1e293b,#0f172a);margin-bottom:28px">
+            <span class="badge b-cyan">Workstation Status: Logged In</span>
+            <h1 style="font-size:24px;font-weight:800;color:#fff;margin-top:12px" id="welcome-msg">Welcome back, Operator.</h1>
+            <p style="color:#64748b;font-size:14px;margin-top:8px">All progress on this machine is automatically saved under your Roll Number.</p>
+        </div>
+
+        <!-- Student Tabs -->
+        <div class="tab-bar" style="margin-bottom:28px">
+            <button onclick="switchStudentTab('catalog')" id="stab-catalog" class="tab-btn on">Course Catalog</button>
+            <button onclick="switchStudentTab('my-courses')" id="stab-my-courses" class="tab-btn">My Enrolled Courses (<span id="enrolled-count">0</span>)</button>
+            <button onclick="switchStudentTab('tools')" id="stab-tools" class="tab-btn">Security Toolkit</button>
+            <button onclick="switchStudentTab('lab')" id="stab-lab" class="tab-btn">Security Quiz / Lab</button>
+        </div>
+
+        <!-- Tab 1: Catalog -->
+        <div id="student-catalog">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px" id="catalog-grid"></div>
+        </div>
+
+        <!-- Tab 2: Enrolled Courses -->
+        <div id="student-my-courses" class="hidden">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px" id="my-courses-grid"></div>
+        </div>
+
+        <!-- Tab 3: Security Toolkit -->
+        <div id="student-tools" class="hidden">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px">
+                <!-- Password Analyzer -->
+                <div class="card">
+                    <div style="display:flex;align-items:center;gap:8px;color:#38bdf8;margin-bottom:12px"><span>&#128273;</span><h3 style="font-weight:700;color:#fff">Password &amp; Entropy Check</h3></div>
+                    <p style="color:#64748b;font-size:12px;margin-bottom:16px">Analyze password resilience against brute-force attacks.</p>
+                    <input type="text" id="pwd-input" oninput="analyzePassword()" placeholder="Enter test password..." class="fc" style="margin-bottom:12px">
+                    <div style="background:#020617;padding:12px;border-radius:8px;border:1px solid #1e293b;font-size:12px">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:#64748b">Strength:</span><span id="pwd-strength" style="font-weight:600;color:#f43f5e">Weak</span></div>
+                        <div style="display:flex;justify-content:space-between"><span style="color:#64748b">Est. Crack Time:</span><span id="pwd-time" style="font-weight:600;color:#f1f5f9">&lt; 1s</span></div>
+                    </div>
+                </div>
+                <!-- Base64 Tool -->
+                <div class="card">
+                    <div style="display:flex;align-items:center;gap:8px;color:#38bdf8;margin-bottom:12px"><span>&#128187;</span><h3 style="font-weight:700;color:#fff">Base64 Encoder/Decoder</h3></div>
+                    <p style="color:#64748b;font-size:12px;margin-bottom:16px">Decode obfuscated payloads or encode configuration text.</p>
+                    <textarea id="b64-input" rows="2" placeholder="Input text..." class="fc" style="margin-bottom:12px;resize:vertical"></textarea>
+                    <div style="display:flex;gap:8px;margin-bottom:12px">
+                        <button onclick="b64Action('encode')" class="btn btn-cyan btn-sm" style="flex:1">Encode</button>
+                        <button onclick="b64Action('decode')" class="btn btn-ghost btn-sm" style="flex:1">Decode</button>
+                    </div>
+                    <input type="text" id="b64-output" readonly placeholder="Result output..." class="fc mono" style="color:#38bdf8">
+                </div>
+                <!-- Port Scanner -->
+                <div class="card">
+                    <div style="display:flex;align-items:center;gap:8px;color:#38bdf8;margin-bottom:12px"><span>&#127760;</span><h3 style="font-weight:700;color:#fff">Port Scanner Simulator</h3></div>
+                    <p style="color:#64748b;font-size:12px;margin-bottom:16px">Simulate target host network probing and service identification.</p>
+                    <input type="text" id="scan-target" value="192.168.1.105" class="fc mono" style="margin-bottom:12px;font-size:12px">
+                    <button onclick="runPortScan()" class="btn btn-cyan btn-sm" style="width:100%;margin-bottom:12px">Run Probe Scan</button>
+                    <div id="scan-results" class="scan-box">Ready for target scanning...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Quiz -->
+        <div id="student-lab" class="hidden">
+            <div class="card" style="max-width:640px;margin:0 auto">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:16px;border-bottom:1px solid #334155;margin-bottom:24px">
+                    <h3 style="font-size:16px;font-weight:700;color:#fff"><span style="color:#38bdf8;margin-right:8px">&#128027;</span>Module Assessment Challenge</h3>
+                    <span class="badge b-green">Active</span>
+                </div>
+                <p style="font-weight:500;margin-bottom:20px" id="quiz-question"></p>
+                <div style="display:flex;flex-direction:column;gap:10px" id="quiz-options"></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding-top:16px;border-top:1px solid #334155;margin-top:24px">
+                    <span style="font-size:12px;color:#64748b" id="quiz-progress-text"></span>
+                    <button onclick="nextQuizQuestion()" class="btn btn-cyan btn-sm">Next Question</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= INSTRUCTOR VIEW ================= -->
+    <div id="view-instructor" class="hidden" style="max-width:1200px;margin:0 auto;padding:32px 20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px">
+            <div>
+                <h1 style="font-size:22px;font-weight:800;color:#fff">Institute Instructor Reports</h1>
+                <p style="color:#64748b;font-size:13px;margin-top:4px">Review student progress records stored on this workstation.</p>
+            </div>
+            <button onclick="logoutSession()" class="btn btn-ghost btn-sm">&#8592; Back to Login</button>
+        </div>
+        <div class="card" style="overflow:hidden">
+            <div style="padding:16px 24px;border-bottom:1px solid #334155;display:flex;align-items:center;justify-content:space-between">
+                <span style="font-weight:600;color:#fff">Registered Students Progress Logs</span>
+                <button onclick="clearAllWorkstationRecords()" style="background:none;border:none;color:#f43f5e;font-size:12px;cursor:pointer">&#128465; Clear Local DB</button>
+            </div>
+            <div style="overflow-x:auto">
+                <table class="dtable">
+                    <thead><tr><th>Roll Number</th><th>Student Name</th><th>Enrolled Courses</th><th>Avg Progress</th><th style="text-align:right">Action</th></tr></thead>
+                    <tbody id="instructor-reports-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= LICENSE INFO (Admin) ================= -->
+    <div id="view-license-info" class="hidden" style="max-width:640px;margin:40px auto;padding:0 20px">
+        <div class="card">
+            <h3 style="font-size:16px;font-weight:700;color:#fff;margin-bottom:20px">License Information</h3>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:20px">
+                <div style="background:#0f172a;border:1px solid #334155;border-radius:8px;padding:16px"><div style="font-size:11px;color:#64748b;text-transform:uppercase">Activated</div><div id="lm-act" style="font-size:16px;font-weight:600;margin-top:4px">&mdash;</div></div>
+                <div style="background:#0f172a;border:1px solid #334155;border-radius:8px;padding:16px"><div style="font-size:11px;color:#64748b;text-transform:uppercase">Expires</div><div id="lm-exp" style="font-size:16px;font-weight:600;margin-top:4px">&mdash;</div></div>
+                <div style="background:#0f172a;border:1px solid #334155;border-radius:8px;padding:16px"><div style="font-size:11px;color:#64748b;text-transform:uppercase">Days Left</div><div id="lm-days" style="font-size:20px;font-weight:700;margin-top:4px">&mdash;</div></div>
+            </div>
+            <div class="fg"><label>Fingerprint</label><div class="fc mono" style="font-size:12px" id="lm-fp">&mdash;</div></div>
+            <div class="fg"><label>Key</label><div class="fc mono" style="font-size:12px" id="lm-key">&mdash;</div></div>
+            <div style="display:flex;gap:10px;margin-top:16px">
+                <button class="btn btn-danger btn-sm" onclick="LIC.deactivate()">Deactivate</button>
+                <button class="btn btn-ghost btn-sm" onclick="LIC.copyFingerprint()">&#128203; Copy FP</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   LICENSE SYSTEM — matches EduLms pattern exactly
+   Uses crypto.subtle.digest (Web Crypto API) for SHA-256
+   with fallback for file:// protocol
+   ═══════════════════════════════════════════════════════ */
+var LIC = {
+    PREFIX: 'CYGA',
+    SECRET: 'CYBERGUARD_SECRET_xK9$mP2v@qR7nZ4w',
+    STORAGE_KEY: 'cyberguard_license_v1',
+    APP_DATA_PREFIX: 'cyber_',
+    CHECK_INTERVAL: 30000,
+    periodicTimer: null,
+
+    async sha256(message) {
+        try {
+            var msgBuffer = new TextEncoder().encode(message);
+            var hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            var hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(function(b) { return b.toString(16).padStart(2, '0') }).join('');
+        } catch(e) {
+            return LIC._sha256fallback(message);
+        }
+    },
+
+    _sha256fallback: function(ascii) {
+        var maxWord = Math.pow(2, 32);
+        var result = '';
+        var words = [];
+        var asciiBitLength = ascii.length * 8;
+        var hash = [];
+        var k = [];
+        var primeCounter = 0;
+        var isComposite = {};
+        for (var candidate = 2; primeCounter < 64; candidate++) {
+            if (!isComposite[candidate]) {
+                for (var i = 0; i < 313; i += candidate) isComposite[i] = candidate;
+                hash[primeCounter] = (Math.pow(candidate, 0.5) * maxWord) | 0;
+                k[primeCounter++] = (Math.pow(candidate, 1/3) * maxWord) | 0;
+            }
+        }
+        ascii += '\x80';
+        while (ascii.length % 64 - 56) ascii += '\x00';
+        for (var i = 0; i < ascii.length; i++) {
+            var j = ascii.charCodeAt(i);
+            if (j >> 8) return;
+            words[i >> 2] |= j << ((3 - i) % 4) * 8;
+        }
+        words[words.length] = ((asciiBitLength / maxWord) | 0);
+        words[words.length] = (asciiBitLength);
+        for (var j = 0; j < words.length;) {
+            var w = words.slice(j, j += 16);
+            var oldHash = hash;
+            hash = hash.slice(0, 8);
+            for (var i = 0; i < 64; i++) {
+                var w15 = w[i - 15], w2 = w[i - 2];
+                var s0 = ((w15 << 25) | (w15 >>> 7)) ^ ((w15 << 14) | (w15 >>> 18)) ^ (w15 >>> 3);
+                var s1 = ((w2 << 15) | (w2 >>> 17)) ^ ((w2 << 13) | (w2 >>> 19)) ^ (w2 >>> 10);
+                w[i] = w[i] + (w[i - 7] || 0) + s0 + (w[i - 16] || 0) + s1;
+                var a = hash[0], e = hash[4];
+                var S0 = ((a << 30) | (a >>> 2)) ^ ((a << 19) | (a >>> 13)) ^ ((a << 10) | (a >>> 22));
+                var S1 = ((e << 26) | (e >>> 6)) ^ ((e << 21) | (e >>> 11)) ^ ((e << 7) | (e >>> 25));
+                var ch = (e & hash[5]) ^ (~e & hash[6]);
+                var maj = (a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]);
+                var t1 = hash[7] + S1 + ch + k[i] + w[i];
+                var t2 = S0 + maj;
+                hash = [(t1 + t2) | 0].concat(hash);
+                hash[4] = (hash[4] + t1) | 0;
+                hash.length = 8;
+            }
+            for (var i = 0; i < 8; i++) hash[i] = (hash[i] + oldHash[i]) | 0;
+        }
+        for (var i = 0; i < 8; i++) {
+            for (var j = 3; j + 1; j--) {
+                var b = (hash[i] >> (j * 8)) & 255;
+                result += ((b < 16) ? 0 : '') + b.toString(16);
+            }
+        }
+        return result;
+    },
+
+    async getFingerprint() {
+        var parts = [];
+        try {
+            var c = document.createElement('canvas');
+            var x = c.getContext('2d');
+            c.width = 200; c.height = 50;
+            x.textBaseline = 'top'; x.font = '14px Arial';
+            x.fillStyle = '#f60'; x.fillRect(125, 1, 62, 20);
+            x.fillStyle = '#069'; x.fillText('CyberGuard-FP', 2, 15);
+            x.fillStyle = 'rgba(102,204,0,0.7)'; x.fillText('Fingerprint', 4, 35);
+            parts.push(c.toDataURL());
+        } catch(e) { parts.push('no-canvas'); }
+        parts.push(navigator.userAgent || '');
+        parts.push(navigator.language || '');
+        parts.push(navigator.platform || '');
+        parts.push(String(navigator.hardwareConcurrency || 0));
+        parts.push(String(navigator.maxTouchPoints || 0));
+        parts.push(screen.width + 'x' + screen.height);
+        parts.push(String(screen.colorDepth));
+        parts.push(String(screen.pixelDepth));
+        try { parts.push(Intl.DateTimeFormat().resolvedOptions().timeZone); } catch(e) {}
+        parts.push(String(new Date().getTimezoneOffset()));
+        try {
+            var gl = document.createElement('canvas').getContext('webgl');
+            var ext = gl.getExtension('WEBGL_debug_renderer_info');
+            if (ext) { parts.push(gl.getParameter(ext.UNMASKED_VENDOR_WEBGL)); parts.push(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)); }
+        } catch(e) {}
+        try { var ac = new (window.AudioContext || window.webkitAudioContext)(); parts.push(String(ac.sampleRate)); ac.close(); } catch(e) {}
+        var hash = await LIC.sha256(parts.join('|||'));
+        return hash.substring(0, 32).toUpperCase();
+    },
+
+    async validateKey(key, fingerprint) {
+        try {
+            key = key.trim().toUpperCase();
+            if (key.indexOf(LIC.PREFIX + '-') !== 0) return { valid: false, reason: 'Wrong prefix (expected ' + LIC.PREFIX + '-)' };
+            var parts = key.split('-');
+            if (parts.length !== 5) return { valid: false, reason: 'Invalid key format (need 5 segments)' };
+            var payload = parts.slice(1).join('');
+            if (payload.length !== 16) return { valid: false, reason: 'Invalid payload length' };
+            var edStr = payload.substring(0, 4), fp8 = payload.substring(4, 12), sig = payload.substring(12, 16);
+            var expiryDays = parseInt(edStr, 16);
+            if (isNaN(expiryDays)) return { valid: false, reason: 'Invalid expiration encoding' };
+            if (fp8 !== fingerprint.substring(0, 8).toUpperCase()) return { valid: false, reason: 'Fingerprint mismatch - this key is for a different device' };
+            var dataToSign = expiryDays + ':' + fingerprint + ':' + LIC.SECRET;
+            var sigHash = await LIC.sha256(dataToSign);
+            var expectedSig = sigHash.substring(0, 4).toUpperCase();
+            if (sig !== expectedSig) return { valid: false, reason: 'Invalid signature - key may be corrupted or forged' };
+            var expiryMs = expiryDays * 86400 * 1000;
+            if (Date.now() > expiryMs) return { valid: false, reason: 'License expired on ' + new Date(expiryMs).toISOString().split('T')[0] };
+            return { valid: true, expiryMs: expiryMs, expiryDate: new Date(expiryMs).toISOString(), daysLeft: Math.max(0, Math.floor((expiryMs - Date.now()) / 86400000)) };
+        } catch(e) { return { valid: false, reason: 'Validation error: ' + e.message }; }
+    },
+
+    storeLicense: function(key, fingerprint, result) {
+        localStorage.setItem(LIC.STORAGE_KEY, JSON.stringify({
+            key: key, fingerprint: fingerprint, expiryMs: result.expiryMs,
+            expiryDate: result.expiryDate, daysLeft: result.daysLeft,
+            activatedAt: new Date().toISOString(),
+            tamperHash: LIC.simpleHash(key + fingerprint + result.expiryMs)
+        }));
+    },
+
+    getStoredLicense: function() {
+        try { return JSON.parse(localStorage.getItem(LIC.STORAGE_KEY)); } catch(e) { return null; }
+    },
+
+    simpleHash: function(s) {
+        var h = 0;
+        for (var i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h = h & h; }
+        return h.toString(16);
+    },
+
+    checkTamper: function(stored) {
+        if (!stored.tamperHash) return true;
+        return stored.tamperHash !== LIC.simpleHash(stored.key + stored.fingerprint + stored.expiryMs);
+    },
+
+    async check() {
+        var stored = LIC.getStoredLicense();
+        if (!stored) return false;
+        if (LIC.checkTamper(stored)) { LIC.lockApplication('License data tampered'); return false; }
+        var fingerprint = await LIC.getFingerprint();
+        if (stored.fingerprint !== fingerprint) { LIC.lockApplication('Fingerprint mismatch - different machine'); return false; }
+        if (Date.now() > stored.expiryMs) { LIC.lockApplication('License expired'); return false; }
+        return true;
+    },
+
+    lockApplication: function(reason) {
+        console.warn('[LICENSE] LOCKING:', reason);
+        LIC.wipeAllData();
+        localStorage.setItem(LIC.STORAGE_KEY + '_locked', 'true');
+        localStorage.setItem(LIC.STORAGE_KEY + '_lockReason', reason);
+        document.getElementById('mainApp').style.display = 'none';
+        var ls = document.getElementById('licenseScreen');
+        ls.classList.remove('hidden'); ls.style.display = 'flex';
+        LIC.showExpired();
+    },
+
+    wipeAllData: function() {
+        var keysToRemove = [];
+        for (var i = 0; i < localStorage.length; i++) {
+            var key = localStorage.key(i);
+            if (key && key.indexOf(LIC.APP_DATA_PREFIX) === 0) keysToRemove.push(key);
+        }
+        keysToRemove.forEach(function(k) { localStorage.removeItem(k); });
+    },
+
+    unlockApp: function() {
+        document.getElementById('licenseScreen').classList.add('hidden');
+        document.getElementById('licenseScreen').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        LIC.startPeriodicCheck();
+        LIC.updateStatusBar();
+        if (typeof AppInit === 'function') AppInit();
+    },
+
+    async activate() {
+        var fpEl = document.getElementById('licFingerprint');
+        var keyEl = document.getElementById('licKeyInput');
+        var statusEl = document.getElementById('licStatus');
+        var fingerprint = fpEl.textContent;
+        var key = keyEl.value.trim();
+        if (!key) { statusEl.textContent = 'Please enter a license key.'; statusEl.className = 'lic-status error'; return; }
+        statusEl.textContent = 'Validating...'; statusEl.className = 'lic-status';
+        var result = await LIC.validateKey(key, fingerprint);
+        if (result.valid) {
+            localStorage.removeItem(LIC.STORAGE_KEY + '_locked');
+            localStorage.removeItem(LIC.STORAGE_KEY + '_lockReason');
+            LIC.storeLicense(key, fingerprint, result);
+            statusEl.textContent = 'License activated! Valid until ' + new Date(result.expiryDate).toLocaleDateString() + ' (' + result.daysLeft + ' days)';
+            statusEl.className = 'lic-status valid';
+            setTimeout(function() { LIC.unlockApp(); }, 1000);
+        } else {
+            statusEl.textContent = result.reason; statusEl.className = 'lic-status error';
+        }
+    },
+
+    deactivate: function() {
+        if (!confirm('Deactivate license? This will require re-activation.')) return;
+        localStorage.removeItem(LIC.STORAGE_KEY); location.reload();
+    },
+
+    async copyFingerprint() {
+        var fp = document.getElementById('licFingerprint').textContent;
+        if (navigator.clipboard) { navigator.clipboard.writeText(fp).then(function() { alert('Fingerprint copied!\n\n' + fp + '\n\nSend to admin.'); }); }
+        else { prompt('Copy fingerprint:', fp); }
+    },
+
+    showActivate: function() {
+        document.getElementById('licActivateView').style.display = '';
+        document.getElementById('licExpiredView').style.display = 'none';
+        document.getElementById('licStatus').textContent = '';
+    },
+
+    showExpired: function() {
+        document.getElementById('licActivateView').style.display = 'none';
+        document.getElementById('licExpiredView').style.display = '';
+    },
+
+    startPeriodicCheck: function() {
+        if (LIC.periodicTimer) clearInterval(LIC.periodicTimer);
+        LIC.periodicTimer = setInterval(async function() {
+            var ok = await LIC.check();
+            if (!ok) { clearInterval(LIC.periodicTimer); }
+            else { LIC.updateStatusBar(); }
+        }, LIC.CHECK_INTERVAL);
+    },
+
+    updateStatusBar: function() {
+        var stored = LIC.getStoredLicense();
+        if (!stored) return;
+        var msLeft = stored.expiryMs - Date.now();
+        var daysLeft = Math.ceil(msLeft / 86400000);
+        var cls = 'active', text = 'License: ' + daysLeft + 'd left';
+        if (daysLeft <= 3) { cls = 'warning'; text = 'License: ' + daysLeft + 'd left \u26A0'; }
+        if (daysLeft <= 0) { cls = 'expired'; text = 'License: EXPIRED'; }
+        var el = document.getElementById('licStatusBar');
+        if (el) el.innerHTML = '<div class="lic-bar ' + cls + '" onclick="LIC.showInfo()"><span class="lic-bar-dot"></span>' + text + '</div>';
+        var lmAct = document.getElementById('lm-act'), lmExp = document.getElementById('lm-exp');
+        var lmDays = document.getElementById('lm-days'), lmFp = document.getElementById('lm-fp'), lmKey = document.getElementById('lm-key');
+        if (lmAct) lmAct.textContent = new Date(stored.activatedAt).toLocaleDateString();
+        if (lmExp) lmExp.textContent = new Date(stored.expiryMs).toLocaleDateString();
+        if (lmDays) lmDays.textContent = daysLeft > 3650 ? '\u221E' : String(daysLeft);
+        if (lmFp) lmFp.textContent = stored.fingerprint;
+        if (lmKey) lmKey.textContent = stored.key;
+    },
+
+    showInfo: function() {
+        var stored = LIC.getStoredLicense();
+        if (!stored) return;
+        var daysLeft = Math.ceil((stored.expiryMs - Date.now()) / 86400000);
+        alert('License Info\n\nFingerprint: ' + stored.fingerprint + '\nActivated: ' + new Date(stored.activatedAt).toLocaleString() + '\nExpires: ' + new Date(stored.expiryMs).toLocaleString() + '\nDays Remaining: ' + daysLeft);
+    }
+};
+
+/* ═══ COURSE CATALOG ═══ */
+var defaultCourses = [
+    { id: 1, title: "Ethical Hacking & Pen Testing", category: "Offensive", difficulty: "Intermediate", description: "Master reconnaissance, vulnerability scanning, and exploitation." },
+    { id: 2, title: "Network Defense & Firewalls", category: "Defensive", difficulty: "Beginner", description: "Learn packet analysis, stateful inspection, and traffic monitoring." },
+    { id: 3, title: "Applied Cryptography & PKI", category: "Core", difficulty: "Advanced", description: "Deep dive into ciphers, hashing, digital signatures, and TLS." }
+];
+
+var currentStudent = null;
+
+/* ═══ APP INIT (called by LIC.unlockApp) ═══ */
+function AppInit() {
+    // Show login screen inside mainApp
+    document.getElementById('login-screen').style.display = 'block';
+    document.getElementById('view-student').classList.add('hidden');
+    document.getElementById('view-instructor').classList.add('hidden');
+}
+
+/* ═══ AUTHENTICATION ═══ */
+function handleStudentLogin(e) {
+    e.preventDefault();
+    var name = document.getElementById('login-name').value.trim();
+    var roll = document.getElementById('login-roll').value.trim().toUpperCase();
+    if (!name || !roll) return;
+    var allStudents = JSON.parse(localStorage.getItem(LIC.APP_DATA_PREFIX + 'institute_students') || '{}');
+    if (!allStudents[roll]) {
+        allStudents[roll] = { name: name, roll: roll, enrolledCourses: { 1: { progress: 15 } }, quizScore: 0 };
+    } else {
+        allStudents[roll].name = name;
+    }
+    localStorage.setItem(LIC.APP_DATA_PREFIX + 'institute_students', JSON.stringify(allStudents));
+    currentStudent = roll;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('view-student').classList.remove('hidden');
+    document.getElementById('display-username').textContent = name;
+    document.getElementById('display-rolldetails').textContent = 'Roll: ' + roll;
+    document.getElementById('user-avatar').textContent = name.substring(0, 2).toUpperCase();
+    document.getElementById('welcome-msg').textContent = 'Welcome back, Operator ' + name + '.';
+    switchStudentTab('catalog');
+}
+
+function switchToInstructorLogin() {
+    var pin = prompt('Enter Instructor Access PIN (Default: 1234):');
+    if (pin === '1234') {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('view-student').classList.add('hidden');
+        document.getElementById('view-instructor').classList.remove('hidden');
+        document.getElementById('display-username').textContent = 'Instructor';
+        document.getElementById('display-rolldetails').textContent = 'Admin Terminal';
+        document.getElementById('user-avatar').textContent = 'IN';
+        renderInstructorReports();
+    } else if (pin !== null) {
+        alert('Incorrect PIN.');
+    }
+}
+
+function logoutSession() {
+    currentStudent = null;
+    document.getElementById('login-screen').style.display = 'block';
+    document.getElementById('view-student').classList.add('hidden');
+    document.getElementById('view-instructor').classList.add('hidden');
+    document.getElementById('view-license-info').classList.add('hidden');
+    document.getElementById('login-name').value = '';
+    document.getElementById('login-roll').value = '';
+}
+
+/* ═══ STUDENT TABS ═══ */
+function switchStudentTab(tab) {
+    var tabs = ['catalog', 'my-courses', 'tools', 'lab'];
+    tabs.forEach(function(t) {
+        var btn = document.getElementById('stab-' + t);
+        var view = document.getElementById('student-' + t);
+        if (t === tab) { btn.className = 'tab-btn on'; view.classList.remove('hidden'); }
+        else { btn.className = 'tab-btn'; view.classList.add('hidden'); }
+    });
+    if (tab === 'catalog') renderCatalog();
+    if (tab === 'my-courses') renderMyCourses();
+    if (tab === 'lab') renderQuiz();
+}
+
+function getStudentData() {
+    var allStudents = JSON.parse(localStorage.getItem(LIC.APP_DATA_PREFIX + 'institute_students') || '{}');
+    return allStudents[currentStudent];
+}
+
+function saveStudentData(studentObj) {
+    var allStudents = JSON.parse(localStorage.getItem(LIC.APP_DATA_PREFIX + 'institute_students') || '{}');
+    allStudents[currentStudent] = studentObj;
+    localStorage.setItem(LIC.APP_DATA_PREFIX + 'institute_students', JSON.stringify(allStudents));
+}
+
+function renderCatalog() {
+    var student = getStudentData();
+    var grid = document.getElementById('catalog-grid');
+    grid.innerHTML = '';
+    defaultCourses.forEach(function(course) {
+        var isEnrolled = student.enrolledCourses[course.id] !== undefined;
+        var badge = isEnrolled ? '<span class="badge b-green">&#10003; Enrolled</span>' : '<button onclick="enrollCourse(' + course.id + ')" class="btn btn-cyan btn-sm">Enroll Now</button>';
+        grid.innerHTML += '<div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:12px"><span class="badge b-cyan">' + course.category + '</span><span style="font-size:12px;color:#64748b">' + course.difficulty + '</span></div><h3 style="font-size:16px;font-weight:700;color:#fff;margin-bottom:8px">' + course.title + '</h3><p style="color:#64748b;font-size:13px;margin-bottom:16px">' + course.description + '</p><div style="padding-top:16px;border-top:1px solid #334155;display:flex;justify-content:flex-end">' + badge + '</div></div>';
+    });
+}
+
+function renderMyCourses() {
+    var student = getStudentData();
+    var grid = document.getElementById('my-courses-grid');
+    var enrolledIds = Object.keys(student.enrolledCourses);
+    document.getElementById('enrolled-count').textContent = enrolledIds.length;
+    grid.innerHTML = '';
+    if (enrolledIds.length === 0) { grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#64748b">No active course enrollments found.</div>'; return; }
+    enrolledIds.forEach(function(id) {
+        var course = defaultCourses.find(function(c) { return c.id == id; });
+        var progress = student.enrolledCourses[id].progress;
+        grid.innerHTML += '<div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:12px"><span class="badge b-cyan">' + course.category + '</span><span style="font-size:12px;color:#10b981;font-weight:600">' + progress + '% Completed</span></div><h3 style="font-size:16px;font-weight:700;color:#fff;margin-bottom:12px">' + course.title + '</h3><div class="prog-bar" style="margin-bottom:16px"><div class="prog-fill" style="width:' + progress + '%"></div></div><button onclick="updateProgress(' + course.id + ')" class="btn btn-ghost btn-sm" style="width:100%;color:#38bdf8">Advance Training Progress (+25%)</button></div>';
+    });
+}
+
+function enrollCourse(id) {
+    var student = getStudentData();
+    student.enrolledCourses[id] = { progress: 15 };
+    saveStudentData(student);
+    renderCatalog(); renderMyCourses();
+    alert('Course successfully added to your profile!');
+}
+
+function updateProgress(id) {
+    var student = getStudentData();
+    var currentProg = student.enrolledCourses[id].progress;
+    if (currentProg < 100) {
+        student.enrolledCourses[id].progress = Math.min(100, currentProg + 25);
+        saveStudentData(student); renderMyCourses();
+    }
+}
+
+/* ═══ TOOLS ═══ */
+function analyzePassword() {
+    var val = document.getElementById('pwd-input').value;
+    var strengthEl = document.getElementById('pwd-strength'), timeEl = document.getElementById('pwd-time');
+    if (!val) { strengthEl.textContent = 'Weak'; strengthEl.style.color = '#f43f5e'; timeEl.textContent = '< 1s'; return; }
+    var score = (val.length >= 8) + (val.length >= 12) + /[A-Z]/.test(val) + /[0-9]/.test(val) + /[^A-Za-z0-9]/.test(val);
+    if (score <= 2) { strengthEl.textContent = 'Weak'; strengthEl.style.color = '#f43f5e'; timeEl.textContent = 'Instant'; }
+    else if (score <= 4) { strengthEl.textContent = 'Moderate'; strengthEl.style.color = '#f59e0b'; timeEl.textContent = '3 weeks'; }
+    else { strengthEl.textContent = 'Strong'; strengthEl.style.color = '#10b981'; timeEl.textContent = 'Centuries+'; }
+}
+
+function b64Action(type) {
+    var input = document.getElementById('b64-input').value;
+    var output = document.getElementById('b64-output');
+    try { output.value = type === 'encode' ? btoa(input) : atob(input); }
+    catch(e) { output.value = 'Error: Invalid format.'; }
+}
+
+function runPortScan() {
+    var results = document.getElementById('scan-results');
+    results.innerHTML = 'Initiating SYN scan...\n';
+    setTimeout(function() { results.innerHTML += '[+] Port 22 open (SSH)\n[+] Port 80 open (HTTP)\n[+] Port 443 open (HTTPS)\n[*] Complete.'; }, 1000);
+}
+
+/* ═══ QUIZ ═══ */
+var quizIndex = 0;
+var quizQuestions = [
+    { question: 'Which phase involves actively probing a target system for open ports?', options: ['Reconnaissance', 'Scanning', 'Access', 'Covering'], answer: 1 },
+    { question: 'What port is used for secure HTTPS web traffic?', options: ['80', '21', '443', '22'], answer: 2 }
+];
+var selectedAnswers = {};
+
+function renderQuiz() {
+    if (quizIndex >= quizQuestions.length) quizIndex = 0;
+    var q = quizQuestions[quizIndex];
+    document.getElementById('quiz-question').textContent = q.question;
+    document.getElementById('quiz-progress-text').textContent = 'Question ' + (quizIndex + 1) + ' of ' + quizQuestions.length;
+    var opts = document.getElementById('quiz-options');
+    opts.innerHTML = '';
+    q.options.forEach(function(opt, idx) {
+        opts.innerHTML += '<label class="quiz-opt"><input type="radio" name="qopt" value="' + idx + '" onchange="selectedAnswers[' + quizIndex + ']=' + idx + '"><span>' + opt + '</span></label>';
+    });
+}
+
+function nextQuizQuestion() {
+    if (quizIndex < quizQuestions.length - 1) { quizIndex++; renderQuiz(); }
+    else { alert('Quiz finished and score saved!'); quizIndex = 0; switchStudentTab('catalog'); }
+}
+
+/* ═══ INSTRUCTOR ═══ */
+function renderInstructorReports() {
+    var tbody = document.getElementById('instructor-reports-tbody');
+    tbody.innerHTML = '';
+    var allStudents = JSON.parse(localStorage.getItem(LIC.APP_DATA_PREFIX + 'institute_students') || '{}');
+    var rolls = Object.keys(allStudents);
+    if (rolls.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="padding:32px;text-align:center;color:#64748b">No student progress logs recorded on this PC yet.</td></tr>'; return; }
+    rolls.forEach(function(roll) {
+        var s = allStudents[roll];
+        var enrolledCount = Object.keys(s.enrolledCourses).length;
+        var totalProg = 0;
+        Object.values(s.enrolledCourses).forEach(function(c) { totalProg += c.progress; });
+        var avgProg = enrolledCount > 0 ? Math.round(totalProg / enrolledCount) : 0;
+        tbody.innerHTML += '<tr><td class="mono" style="color:#38bdf8;font-weight:600">' + s.roll + '</td><td style="font-weight:600;color:#fff">' + s.name + '</td><td>' + enrolledCount + ' active courses</td><td style="color:#10b981;font-weight:600">' + avgProg + '% Avg</td><td style="text-align:right"><button onclick="viewStudentDetail(\'' + s.roll + '\')" style="background:none;border:none;color:#38bdf8;font-size:12px;cursor:pointer;margin-right:12px">Details</button><button onclick="deleteStudentRecord(\'' + s.roll + '\')" style="background:none;border:none;color:#f43f5e;font-size:12px;cursor:pointer">Remove</button></td></tr>';
+    });
+}
+
+function viewStudentDetail(roll) {
+    var allStudents = JSON.parse(localStorage.getItem(LIC.APP_DATA_PREFIX + 'institute_students') || '{}');
+    var s = allStudents[roll];
+    alert('Student: ' + s.name + '\nRoll No: ' + s.roll + '\nEnrolled Courses: ' + Object.keys(s.enrolledCourses).length);
+}
+
+function deleteStudentRecord(roll) {
+    if (confirm('Remove record for roll number ' + roll + '?')) {
+        var allStudents = JSON.parse(localStorage.getItem(LIC.APP_DATA_PREFIX + 'institute_students') || '{}');
+        delete allStudents[roll];
+        localStorage.setItem(LIC.APP_DATA_PREFIX + 'institute_students', JSON.stringify(allStudents));
+        renderInstructorReports();
+    }
+}
+
+function clearAllWorkstationRecords() {
+    if (confirm('Are you sure you want to clear all student records stored on this computer?')) {
+        localStorage.removeItem(LIC.APP_DATA_PREFIX + 'institute_students');
+        renderInstructorReports();
+    }
+}
+
+/* ═══ BOOTSTRAP (matches EduLms exactly) ═══ */
+(async function bootstrap() {
+    var fp = await LIC.getFingerprint();
+    document.getElementById('licFingerprint').textContent = fp;
+
+    var isLocked = localStorage.getItem(LIC.STORAGE_KEY + '_locked');
+    if (isLocked === 'true') {
+        var ls = document.getElementById('licenseScreen');
+        ls.classList.remove('hidden'); ls.style.display = 'flex';
+        LIC.showExpired();
+        return;
+    }
+
+    var valid = await LIC.check();
+    if (valid) {
+        LIC.unlockApp();
+    } else {
+        var ls = document.getElementById('licenseScreen');
+        ls.classList.remove('hidden'); ls.style.display = 'flex';
+    }
+})();
+</script>
+</body>
+</html>
