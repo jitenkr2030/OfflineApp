@@ -3,34 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIIT MCQ Examination Portal — Licensed Edition</title>
+    <title>SIIT MCQ Examination Portal</title>
     <script src="html2pdf.bundle.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #0D9488; --primary-dark: #0F766E; --primary-light: #99F6E4;
-            --accent: #D97706; --bg: #F0F4F8; --card: #FFFFFF; --surface: #F8FAFC;
-            --text: #0F172A; --text2: #475569; --text3: #94A3B8;
-            --border: #CBD5E1; --border2: #E2E8F0;
-            --danger: #DC2626; --success: #059669; --warning: #D97706;
-            --info: #2563EB; --review: #7C3AED;
-            --shadow: 0 4px 16px rgba(0,0,0,0.08);
-        }
-        body.dark {
-            --bg: #0B1120; --card: #151D2E; --surface: #1A2332;
-            --text: #E2E8F0; --text2: #94A3B8; --text3: #64748B;
-            --border: #2D3A4D; --border2: #1E293B;
-            --shadow: 0 4px 16px rgba(0,0,0,0.3);
-        }
+        :root{--primary:#0D9488;--primary-dark:#0F766E;--primary-light:#99F6E4;--accent:#D97706;--bg:#F0F4F8;--card:#FFFFFF;--surface:#F8FAFC;--text:#0F172A;--text2:#475569;--text3:#94A3B8;--border:#CBD5E1;--border2:#E2E8F0;--danger:#DC2626;--success:#059669;--warning:#D97706;--info:#2563EB;--review:#7C3AED;--shadow:0 4px 16px rgba(0,0,0,0.08)}
+        body.dark{--bg:#0B1120;--card:#151D2E;--surface:#1A2332;--text:#E2E8F0;--text2:#94A3B8;--text3:#64748B;--border:#2D3A4D;--border2:#1E293B;--shadow:0 4px 16px rgba(0,0,0,0.3)}
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
         body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;user-select:none;-webkit-user-select:none;transition:background .3s,color .3s}
         h1,h2,h3{font-family:'Cormorant Garamond',serif;font-weight:700}
         .mono{font-family:'DM Mono',monospace}
         .hidden{display:none!important}
-
-        /* LICENSE SCREEN */
-        #lic-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0B1120,#0D2818,#0B1120);z-index:200000;display:flex;align-items:center;justify-content:center}
+        /* License Screen */
+        #licenseScreen{position:fixed;inset:0;background:linear-gradient(135deg,#0B1120,#0D2818,#0B1120);z-index:200000;display:flex;align-items:center;justify-content:center}
         .lic-card{background:#151D2E;border:1px solid #2D3A4D;border-radius:16px;padding:44px 38px;max-width:520px;width:92%;text-align:center;box-shadow:0 25px 80px rgba(0,0,0,.5)}
         .lic-card .lbadge{display:inline-block;background:linear-gradient(135deg,var(--primary),#065F46);color:#fff;padding:6px 18px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:20px}
         .lic-card h1{color:#F8FAFC;font-size:26px;margin-bottom:6px}
@@ -41,26 +27,26 @@
         .lic-card input{width:100%;padding:14px 16px;border:1px solid #2D3A4D;border-radius:8px;background:#0F172A;color:#E2E8F0;font-size:15px;font-family:'DM Mono',monospace;letter-spacing:1.5px;text-align:center;outline:none}
         .lic-card input:focus{border-color:var(--primary)}
         .lic-card input::placeholder{color:#475569;letter-spacing:.5px}
-        .lic-err{margin-top:12px;font-size:13px;color:var(--danger);font-weight:600;display:none}
-        .lic-suc{margin-top:12px;font-size:13px;color:var(--success);font-weight:600;display:none}
+        .lic-status{margin-top:12px;font-size:13px;font-weight:600;min-height:20px}
+        .lic-status.error{color:var(--danger)}.lic-status.valid{color:var(--success)}
         .lic-info{margin-top:20px;font-size:12px;color:#64748B;line-height:1.6;text-align:left;background:#0F172A;border-radius:8px;padding:14px}
         .lic-info code{color:var(--primary-light);background:rgba(13,148,136,.15);padding:2px 6px;border-radius:4px;font-size:11px}
         .lic-btn{width:100%;margin-top:20px;padding:14px;background:linear-gradient(135deg,var(--primary),#065F46);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;transition:transform .15s}
         .lic-btn:hover{transform:translateY(-1px)}
-
-        /* TOPBAR */
+        .lic-bar{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer}
+        .lic-bar.active{background:rgba(5,150,105,.1);color:var(--success)}.lic-bar.warning{background:rgba(217,119,6,.1);color:var(--warning)}.lic-bar.expired{background:rgba(220,38,38,.1);color:var(--danger)}
+        .lic-bar-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+        /* Topbar */
         .topbar{max-width:1100px;margin:16px auto 0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:0 8px}
         .topbar .brand{display:flex;align-items:center;gap:10px}
         .topbar .brand-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--primary),#065F46);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;font-family:'Cormorant Garamond',serif}
         .topbar .brand-text{font-size:14px;font-weight:600}
         .topbar .brand-sub{font-size:11px;color:var(--text3)}
-
-        /* CONTAINERS */
+        /* Container */
         .container{max-width:1100px;margin:16px auto;background:var(--card);border:1px solid var(--border2);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
         .c-header{padding:24px 32px;border-bottom:1px solid var(--border2);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
         .c-body{padding:28px 32px}
-
-        /* BUTTONS */
+        /* Buttons */
         .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
         .btn:hover{transform:translateY(-1px)}
         .btn-p{background:var(--primary);color:#fff}.btn-p:hover{background:var(--primary-dark);box-shadow:0 4px 12px rgba(13,148,136,.3)}
@@ -71,43 +57,37 @@
         .btn-sm{padding:6px 12px;font-size:12px}
         .btn-lg{padding:14px 28px;font-size:15px}
         .btn-bl{width:100%}
+        /* Badge */
         .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
         .b-ok{background:rgba(5,150,105,.1);color:var(--success)}.b-er{background:rgba(220,38,38,.1);color:var(--danger)}.b-wr{background:rgba(217,119,6,.1);color:var(--warning)}.b-if{background:rgba(37,99,235,.1);color:var(--info)}
-
-        /* FORMS */
-        .fg{margin-bottom:18px}
-        .fg label{display:block;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px}
+        /* Form */
+        .fg{margin-bottom:18px}.fg label{display:block;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px}
         .fc{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--surface);color:var(--text);outline:none;transition:border .2s;font-family:inherit}
         .fc:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(13,148,136,.1)}
         textarea.fc{resize:vertical;min-height:80px}
         .frow{display:grid;grid-template-columns:1fr 1fr;gap:16px}
         .fhint{font-size:11px;color:var(--text3);margin-top:4px}
-
-        /* STATS */
+        /* Stats */
         .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
         .stat-card{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:20px;transition:transform .2s}
         .stat-card:hover{transform:translateY(-2px)}
         .stat-card .sl{font-size:12px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.5px}
         .stat-card .sv{font-size:32px;font-weight:700;font-family:'Cormorant Garamond',serif;margin:4px 0}
         .stat-card.ok .sv{color:var(--success)}.stat-card.er .sv{color:var(--danger)}.stat-card.inf .sv{color:var(--info)}.stat-card.wrn .sv{color:var(--warning)}
-
-        /* TABLES */
+        /* Table */
         .dtable{width:100%;border-collapse:collapse;font-size:13px}
         .dtable th{text-align:left;padding:12px 14px;background:var(--surface);color:var(--text2);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--border2)}
         .dtable td{padding:12px 14px;border-bottom:1px solid var(--border2)}
         .dtable tr:hover td{background:var(--surface)}
-
-        /* TABS */
+        /* Tabs */
         .tabbar{display:flex;border-bottom:2px solid var(--border2);margin-bottom:24px;overflow-x:auto}
         .tbtn{padding:12px 20px;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;font-size:13px;font-weight:600;color:var(--text3);cursor:pointer;white-space:nowrap;transition:all .2s}
         .tbtn:hover{color:var(--text)}.tbtn.on{color:var(--primary);border-bottom-color:var(--primary)}
         .tpane{display:none}.tpane.on{display:block}
-
-        /* EXAM */
+        /* Exam */
         .exam-top{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;background:var(--surface);border-bottom:1px solid var(--border2);flex-wrap:wrap;gap:10px}
         .exam-grid{display:grid;grid-template-columns:1fr 280px;min-height:500px}
-        .exam-main{padding:24px}
-        .exam-side{border-left:1px solid var(--border2);padding:20px;background:var(--surface)}
+        .exam-main{padding:24px}.exam-side{border-left:1px solid var(--border2);padding:20px;background:var(--surface)}
         @media(max-width:860px){.exam-grid{grid-template-columns:1fr}.exam-side{border-left:none;border-top:1px solid var(--border2)}}
         .timer{font-family:'DM Mono',monospace;font-size:20px;padding:8px 18px;border-radius:8px;background:#1E293B;color:#F8FAFC;letter-spacing:1px}
         .timer.warn{background:var(--danger);animation:pulse 1s infinite}
@@ -121,19 +101,18 @@
         .opt input{display:none}
         .opt-k{width:28px;height:28px;border-radius:6px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text3);flex-shrink:0;transition:all .2s}
         .opt.sel .opt-k{background:var(--primary);color:#fff;border-color:var(--primary)}
+        /* Palette */
         .pal-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-height:320px;overflow-y:auto}
         .pal-btn{width:100%;aspect-ratio:1;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center}
         .pal-btn:hover{border-color:var(--primary)}.pal-btn.ans{background:var(--success);color:#fff;border-color:var(--success)}.pal-btn.mrk{background:var(--review);color:#fff;border-color:var(--review)}.pal-btn.cur{border:2px solid var(--primary);box-shadow:0 0 0 2px rgba(13,148,136,.2)}
         .pal-leg{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;color:var(--text3);margin-bottom:14px}
         .pli{display:flex;align-items:center;gap:5px}.pld{width:10px;height:10px;border-radius:3px}
-
-        /* RESULT */
+        /* Score */
         .score-circ{width:140px;height:140px;border-radius:50%;border:6px solid var(--border2);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 16px}
         .score-circ .sp{font-size:36px;font-weight:700;font-family:'Cormorant Garamond',serif}.score-circ .sl2{font-size:11px;color:var(--text3)}
         .score-circ.pass{border-color:var(--success)}.score-circ.pass .sp{color:var(--success)}
         .score-circ.fail{border-color:var(--danger)}.score-circ.fail .sp{color:var(--danger)}
-
-        /* CERTIFICATE */
+        /* Certificate */
         .cert{border:3px double var(--primary);border-radius:10px;padding:40px;margin:24px auto;max-width:700px;background:#fff;color:#1E293B;text-align:center;position:relative}
         .cert::before{content:'';position:absolute;inset:8px;border:1px solid #E2E8F0;border-radius:6px;pointer-events:none}
         .cert .ct{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--primary-dark);letter-spacing:3px;text-transform:uppercase}
@@ -143,27 +122,22 @@
         .cert .cf{display:flex;justify-content:space-between;align-items:flex-end;margin-top:40px;padding-top:16px;border-top:1px solid #E2E8F0;font-size:12px;color:#94A3B8}
         .cert .csig{text-align:center}.cert .csig-line{width:120px;border-top:1px solid #94A3B8;margin-bottom:4px}
         .cert .cserial{font-family:'DM Mono',monospace;font-size:10px;color:#CBD5E1;margin-top:12px}
-
-        /* WATERMARK */
+        /* Watermark */
         #wm{position:fixed;inset:0;pointer-events:none;z-index:9998;overflow:hidden;display:none}
         #wm .wt{position:absolute;font-size:18px;color:rgba(100,116,139,.07);transform:rotate(-35deg);white-space:nowrap;font-weight:600;letter-spacing:2px;font-family:'DM Mono',monospace}
-
-        /* CHEAT BLOCKER */
+        /* Cheat overlay */
         #cheat{position:fixed;inset:0;background:rgba(15,23,42,.97);z-index:100000;display:none;flex-direction:column;align-items:center;justify-content:center;color:#F8FAFC;text-align:center;padding:40px}
-
-        /* MODAL */
+        /* Modal */
         .modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);z-index:50000;display:none;align-items:center;justify-content:center;padding:20px}
         .modal-bg.show{display:flex}
         .modal-box{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:32px;max-width:500px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.12)}
-
         .empty{text-align:center;padding:60px 20px;color:var(--text3)}.empty .ei{font-size:48px;margin-bottom:12px}
-        .lic-bar{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:8px;font-size:12px;font-weight:500;margin-bottom:20px}
-        .lic-bar.ok{background:rgba(5,150,105,.1);color:var(--success)}.lic-bar.warn{background:rgba(217,119,6,.1);color:var(--warning)}.lic-bar.err{background:rgba(220,38,38,.1);color:var(--danger)}
         @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}.anim{animation:fadeIn .4s ease forwards}
     </style>
 </head>
 <body>
 
+<!-- Security Violation Overlay -->
 <div id="cheat">
     <div style="font-size:72px;margin-bottom:20px">&#128680;</div>
     <h2 style="color:var(--danger);font-size:28px;margin-bottom:10px">Security Violation Detected</h2>
@@ -171,21 +145,23 @@
     <button class="btn btn-p btn-lg" onclick="closeCheat()" style="margin-top:24px">View Results</button>
 </div>
 
+<!-- Watermark -->
 <div id="wm"></div>
 
-<div id="lic-screen">
-    <div class="lic-card">
+<!-- License Screen (matches EduLms: id="licenseScreen") -->
+<div id="licenseScreen" class="hidden" style="display:none">
+    <!-- Activate View -->
+    <div id="licActivateView" class="lic-card">
         <div class="lbadge">Licensed Software</div>
         <h1>SIIT MCQ Exam Portal</h1>
         <p class="sub">Enter your license key to activate</p>
         <div class="fp-box">
             <div class="fp-label">Your Device Fingerprint</div>
-            <div class="fp-val" id="fp-display">Generating...</div>
+            <div class="fp-val" id="licFingerprint">Detecting...</div>
         </div>
-        <input type="text" id="lic-input" placeholder="MCEX-XXXX-XXXX-XXXX-XXXX" maxlength="23" autocomplete="off" spellcheck="false">
-        <div class="lic-err" id="lic-err"></div>
-        <div class="lic-suc" id="lic-suc"></div>
-        <button class="lic-btn" onclick="activateLicense()">Activate License</button>
+        <input type="text" id="licKeyInput" placeholder="MCEX-XXXX-XXXX-XXXX-XXXX" maxlength="23" autocomplete="off" spellcheck="false">
+        <div class="lic-status" id="licStatus"></div>
+        <button class="lic-btn" onclick="LIC.activate()">Activate License</button>
         <div class="lic-info">
             <strong style="color:#E2E8F0">How to get a license key:</strong><br>
             1. Copy the fingerprint shown above<br>
@@ -194,25 +170,32 @@
             4. Enter the key you receive back
         </div>
     </div>
+    <!-- Expired View -->
+    <div id="licExpiredView" class="lic-card" style="display:none">
+        <div style="font-size:64px;margin-bottom:16px">&#128274;</div>
+        <h1 style="color:var(--danger)">License Expired</h1>
+        <p class="sub">Your license has expired. All exam data has been wiped.</p>
+        <p class="sub">Contact your administrator for a new key.</p>
+        <button class="lic-btn" onclick="LIC.showActivate()" style="margin-top:24px">Enter New License Key</button>
+    </div>
 </div>
 
-<div id="app" class="hidden">
+<!-- Main App -->
+<div id="mainApp" style="display:none">
     <div class="topbar">
         <div class="brand">
             <div class="brand-icon">S</div>
-            <div>
-                <div class="brand-text">SIIT MCQ Exam Portal</div>
-                <span class="brand-sub" id="lic-badge">Licensed Edition</span>
-            </div>
+            <div><div class="brand-text">SIIT MCQ Exam Portal</div><span class="brand-sub" id="licBarHeader"></span></div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <span id="lic-ind" class="badge b-ok" style="font-size:10px">Active</span>
+            <span id="licStatusBar"></span>
             <button class="btn btn-s btn-sm" onclick="toggleTheme()">&#127769;</button>
             <button class="btn btn-s btn-sm" id="nav-admin" onclick="showV('admin-login')">&#128274; Admin</button>
             <button class="btn btn-s btn-sm hidden" id="nav-stu" onclick="showV('login')">&#127891; Student</button>
         </div>
     </div>
 
+    <!-- Student Login -->
     <div class="container anim" id="v-login">
         <div class="c-header"><h2 style="color:var(--primary-dark)">&#127891; Student Examination Portal</h2></div>
         <div class="c-body">
@@ -220,38 +203,30 @@
             <div class="fg"><label>Candidate Full Name</label><input class="fc" id="inp-name" placeholder="e.g. Alex Johnson"></div>
             <div class="frow">
                 <div class="fg"><label>Student ID</label><input class="fc" id="inp-id" placeholder="e.g. ACC-5021"></div>
-                <div class="fg"><label>Examination Course</label>
-                    <select class="fc" id="inp-course">
-                        <option value="siit-cet">SIIT Common Entrance Test (CET)</option>
-                        <option value="e-accounting">Advanced E-Accounting &amp; Taxation</option>
-                    </select>
-                </div>
+                <div class="fg"><label>Examination Course</label><select class="fc" id="inp-course"><option value="siit-cet">SIIT Common Entrance Test (CET)</option><option value="e-accounting">Advanced E-Accounting &amp; Taxation</option></select></div>
             </div>
-            <div style="background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.2);border-radius:8px;padding:14px 16px;font-size:13px;color:var(--warning);margin-bottom:20px;line-height:1.6">
-                &#9888;&#65039; <strong>Proctored:</strong> Fullscreen enforced. Tab switching &gt;3 times = auto-submit. Right-click, copy, paste blocked. Watermark overlay active.
-            </div>
+            <div style="background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.2);border-radius:8px;padding:14px 16px;font-size:13px;color:var(--warning);margin-bottom:20px;line-height:1.6">&#9888;&#65039; <strong>Proctored:</strong> Fullscreen enforced. Tab switching &gt;3 times = auto-submit. Right-click, copy, paste blocked. Watermark overlay active.</div>
             <button class="btn btn-p btn-lg btn-bl" onclick="startExam()">Start Examination Securely</button>
         </div>
     </div>
 
+    <!-- Admin Login -->
     <div class="container anim hidden" id="v-admin-login">
         <div class="c-header"><h2 style="color:var(--primary-dark)">&#128274; Admin Authentication</h2></div>
         <div class="c-body" style="max-width:420px;margin:0 auto">
             <div class="fg"><label>Username</label><input class="fc" id="adm-user" placeholder="Enter username"></div>
             <div class="fg"><label>Password</label><input type="password" class="fc" id="adm-pass" placeholder="Enter password"></div>
-            <div id="adm-err" class="lic-err" style="margin-bottom:12px">Invalid username or password.</div>
+            <div id="adm-err" style="display:none;color:var(--danger);font-size:13px;font-weight:600;margin-bottom:12px">Invalid username or password.</div>
             <button class="btn btn-p btn-bl" onclick="adminLogin()">Login as Admin</button>
             <p class="fhint" style="text-align:center;margin-top:12px">Default: <code>admin</code> / <code>admin123</code></p>
         </div>
     </div>
 
+    <!-- Admin Dashboard -->
     <div class="container anim hidden" id="v-admin-dash">
-        <div class="c-header">
-            <h2 style="color:var(--primary-dark)">&#9881;&#65039; Instructor Dashboard</h2>
-            <button class="btn btn-s btn-sm" onclick="adminLogout()">&#128682; Logout</button>
-        </div>
+        <div class="c-header"><h2 style="color:var(--primary-dark)">&#9881;&#65039; Instructor Dashboard</h2><button class="btn btn-s btn-sm" onclick="adminLogout()">&#128682; Logout</button></div>
         <div class="c-body">
-            <div class="lic-bar ok" id="adm-lic-bar">&#10003; License Active</div>
+            <div id="adm-lic-bar"></div>
             <div class="tabbar" id="adm-tabs">
                 <button class="tbtn on" onclick="aTab('overview')">&#128202; Overview</button>
                 <button class="tbtn" onclick="aTab('questions')">&#128221; Questions</button>
@@ -259,7 +234,7 @@
                 <button class="tbtn" onclick="aTab('settings')">&#9881;&#65039; Settings</button>
                 <button class="tbtn" onclick="aTab('license')">&#128273; License</button>
             </div>
-
+            <!-- Overview -->
             <div class="tpane on" id="at-overview">
                 <div class="stat-grid">
                     <div class="stat-card inf"><div class="sl">Total Questions</div><div class="sv" id="st-q">0</div></div>
@@ -270,101 +245,60 @@
                 <h3 style="font-size:16px;margin-bottom:12px">Recent Submissions</h3>
                 <div id="recent-box"></div>
             </div>
-
+            <!-- Questions -->
             <div class="tpane" id="at-questions">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-                    <h3 style="font-size:16px">Question Bank</h3>
-                    <button class="btn btn-p btn-sm" onclick="aTab('addq')">+ Add Question</button>
-                </div>
-                <div class="frow" style="margin-bottom:16px">
-                    <div class="fg"><label>Filter Course</label><select class="fc" id="qf-course" onchange="renderQTable()"><option value="all">All</option><option value="siit-cet">CET</option><option value="e-accounting">E-Accounting</option></select></div>
-                    <div class="fg"><label>Search</label><input class="fc" id="qf-search" placeholder="Keyword..." oninput="renderQTable()"></div>
-                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px"><h3 style="font-size:16px">Question Bank</h3><button class="btn btn-p btn-sm" onclick="aTab('addq')">+ Add Question</button></div>
+                <div class="frow" style="margin-bottom:16px"><div class="fg"><label>Filter</label><select class="fc" id="qf-course" onchange="renderQTable()"><option value="all">All</option><option value="siit-cet">CET</option><option value="e-accounting">E-Acct</option></select></div><div class="fg"><label>Search</label><input class="fc" id="qf-search" placeholder="..." oninput="renderQTable()"></div></div>
                 <div style="overflow-x:auto"><table class="dtable"><thead><tr><th>#</th><th>Course</th><th>Question</th><th>Options</th><th>Ans</th><th>Del</th></tr></thead><tbody id="qt-body"></tbody></table></div>
             </div>
-
+            <!-- Add Question -->
             <div class="tpane" id="at-addq">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-                    <h3 style="font-size:16px">Add New Question</h3>
-                    <button class="btn btn-s btn-sm" onclick="aTab('questions')">&larr; Back</button>
-                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><h3 style="font-size:16px">Add New Question</h3><button class="btn btn-s btn-sm" onclick="aTab('questions')">&larr; Back</button></div>
                 <form onsubmit="addQuestion(event)" id="addq-form">
-                    <div class="frow">
-                        <div class="fg"><label>Target Course</label><select class="fc" id="aq-course" required><option value="siit-cet">CET</option><option value="e-accounting">E-Accounting</option></select></div>
-                        <div class="fg"><label>Correct Answer</label><select class="fc" id="aq-ans" required><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>
-                    </div>
-                    <div class="fg"><label>Question Text</label><textarea class="fc" id="aq-title" rows="3" required placeholder="Enter question..."></textarea></div>
-                    <div class="frow">
-                        <div class="fg"><label>Option A *</label><input class="fc" id="aq-a" required></div>
-                        <div class="fg"><label>Option B *</label><input class="fc" id="aq-b" required></div>
-                    </div>
-                    <div class="frow">
-                        <div class="fg"><label>Option C <span style="color:var(--text3)">(optional)</span></label><input class="fc" id="aq-c"></div>
-                        <div class="fg"><label>Option D <span style="color:var(--text3)">(optional)</span></label><input class="fc" id="aq-d"></div>
-                    </div>
+                    <div class="frow"><div class="fg"><label>Course</label><select class="fc" id="aq-course" required><option value="siit-cet">CET</option><option value="e-accounting">E-Acct</option></select></div><div class="fg"><label>Answer</label><select class="fc" id="aq-ans" required><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div></div>
+                    <div class="fg"><label>Question</label><textarea class="fc" id="aq-title" rows="3" required></textarea></div>
+                    <div class="frow"><div class="fg"><label>A *</label><input class="fc" id="aq-a" required></div><div class="fg"><label>B *</label><input class="fc" id="aq-b" required></div></div>
+                    <div class="frow"><div class="fg"><label>C</label><input class="fc" id="aq-c"></div><div class="fg"><label>D</label><input class="fc" id="aq-d"></div></div>
                     <button type="submit" class="btn btn-p btn-lg">Add to Bank</button>
                 </form>
             </div>
-
+            <!-- Results -->
             <div class="tpane" id="at-results">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-                    <h3 style="font-size:16px">Student Results</h3>
-                    <button class="btn btn-s btn-sm" onclick="exportAllCSV()">&#128229; Export CSV</button>
-                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="font-size:16px">Student Results</h3><button class="btn btn-s btn-sm" onclick="exportAllCSV()">&#128229; CSV</button></div>
                 <div style="overflow-x:auto"><table class="dtable"><thead><tr><th>ID</th><th>Name</th><th>Course</th><th>Score</th><th>%</th><th>Status</th><th>Date</th></tr></thead><tbody id="rt-body"></tbody></table></div>
                 <div id="rt-empty" class="empty"><div class="ei">&#128203;</div><h3 style="font-size:18px;color:var(--text2)">No results yet</h3></div>
             </div>
-
+            <!-- Settings -->
             <div class="tpane" id="at-settings">
                 <h3 style="font-size:16px;margin-bottom:20px">Exam Configuration</h3>
-                <div class="frow">
-                    <div class="fg"><label>CET Duration (min)</label><input type="number" class="fc" id="s-cet" value="60" min="10" max="180"></div>
-                    <div class="fg"><label>E-Acct Duration (min)</label><input type="number" class="fc" id="s-ea" value="45" min="10" max="180"></div>
-                </div>
-                <div class="frow">
-                    <div class="fg"><label>Pass %</label><input type="number" class="fc" id="s-pass" value="70" min="0" max="100"><div class="fhint">Min score for certificate</div></div>
-                    <div class="fg"><label>Max Tab Switches</label><input type="number" class="fc" id="s-tabs" value="3" min="1" max="10"></div>
-                </div>
-                <div class="frow">
-                    <div class="fg"><label>Randomize Questions</label><select class="fc" id="s-rand"><option value="yes">Yes</option><option value="no">No</option></select></div>
-                    <div class="fg"><label>Watermark</label><select class="fc" id="s-wm"><option value="yes">Yes</option><option value="no">No</option></select></div>
-                </div>
-                <button class="btn btn-p" onclick="saveSettings()" style="margin-top:8px">Save Settings</button>
+                <div class="frow"><div class="fg"><label>CET Duration (min)</label><input type="number" class="fc" id="s-cet" value="60"></div><div class="fg"><label>E-Acct Duration</label><input type="number" class="fc" id="s-ea" value="45"></div></div>
+                <div class="frow"><div class="fg"><label>Pass %</label><input type="number" class="fc" id="s-pass" value="70"></div><div class="fg"><label>Max Tab Switches</label><input type="number" class="fc" id="s-tabs" value="3"></div></div>
+                <div class="frow"><div class="fg"><label>Randomize</label><select class="fc" id="s-rand"><option value="yes">Yes</option><option value="no">No</option></select></div><div class="fg"><label>Watermark</label><select class="fc" id="s-wm"><option value="yes">Yes</option><option value="no">No</option></select></div></div>
+                <button class="btn btn-p" onclick="saveSettings()" style="margin-top:8px">Save</button>
             </div>
-
+            <!-- License Info -->
             <div class="tpane" id="at-license">
                 <h3 style="font-size:16px;margin-bottom:20px">License Information</h3>
                 <div class="stat-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
                     <div class="stat-card"><div class="sl">Activated</div><div class="sv" id="lm-act" style="font-size:18px">&mdash;</div></div>
                     <div class="stat-card"><div class="sl">Expires</div><div class="sv" id="lm-exp" style="font-size:18px">&mdash;</div></div>
-                    <div class="stat-card"><div class="sl">Days Remaining</div><div class="sv" id="lm-days" style="font-size:22px">&mdash;</div></div>
+                    <div class="stat-card"><div class="sl">Days Left</div><div class="sv" id="lm-days" style="font-size:22px">&mdash;</div></div>
                 </div>
-                <div class="fg" style="margin-top:16px">
-                    <label>Device Fingerprint</label>
-                    <div class="fc" style="font-family:'DM Mono',monospace;font-size:13px;cursor:text" id="lm-fp">&mdash;</div>
-                </div>
-                <div class="fg">
-                    <label>License Key</label>
-                    <div class="fc" style="font-family:'DM Mono',monospace;font-size:13px;cursor:text" id="lm-key">&mdash;</div>
-                </div>
+                <div class="fg" style="margin-top:16px"><label>Fingerprint</label><div class="fc mono" style="font-size:13px" id="lm-fp">&mdash;</div></div>
+                <div class="fg"><label>Key</label><div class="fc mono" style="font-size:13px" id="lm-key">&mdash;</div></div>
                 <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
-                    <button class="btn btn-d btn-sm" onclick="deactivateLic()">Deactivate License</button>
-                    <button class="btn btn-s btn-sm" onclick="copyFP()">&#128203; Copy Fingerprint</button>
+                    <button class="btn btn-d btn-sm" onclick="LIC.deactivate()">Deactivate</button>
+                    <button class="btn btn-s btn-sm" onclick="LIC.copyFingerprint()">&#128203; Copy FP</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Exam View -->
     <div class="container hidden" id="v-exam" style="padding:0">
         <div class="exam-top">
-            <div>
-                <div style="font-size:15px;font-weight:600" id="ex-title">Exam</div>
-                <div style="font-size:12px;color:var(--text3)" id="ex-cand">&mdash;</div>
-            </div>
-            <div style="display:flex;align-items:center;gap:12px">
-                <span id="ex-warn" class="badge b-er hidden">&#9888; 0/3</span>
-                <div class="timer" id="ex-timer">60:00</div>
-            </div>
+            <div><div style="font-size:15px;font-weight:600" id="ex-title">Exam</div><div style="font-size:12px;color:var(--text3)" id="ex-cand">&mdash;</div></div>
+            <div style="display:flex;align-items:center;gap:12px"><span id="ex-warn" class="badge b-er hidden">&#9888; 0/3</span><div class="timer" id="ex-timer">60:00</div></div>
         </div>
         <div class="exam-grid">
             <div class="exam-main">
@@ -378,13 +312,10 @@
             </div>
             <div class="exam-side">
                 <h4 style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px">Question Palette</h4>
-                <div class="pal-leg">
-                    <div class="pli"><div class="pld" style="background:var(--success)"></div> Answered</div>
-                    <div class="pli"><div class="pld" style="background:var(--review)"></div> Marked</div>
-                </div>
+                <div class="pal-leg"><div class="pli"><div class="pld" style="background:var(--success)"></div> Answered</div><div class="pli"><div class="pld" style="background:var(--review)"></div> Marked</div></div>
                 <div class="pal-grid" id="pal"></div>
                 <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border2)">
-                    <div style="font-size:12px;color:var(--text3);margin-bottom:4px">Progress</div>
+                    <div style="font-size:12px;color:var(--text3)">Progress</div>
                     <div style="font-size:14px;font-weight:600" id="ex-prog">0 / 0</div>
                     <div style="height:6px;background:var(--border2);border-radius:3px;margin-top:8px;overflow:hidden"><div id="ex-bar" style="height:100%;background:var(--success);border-radius:3px;width:0%;transition:width .3s"></div></div>
                 </div>
@@ -392,6 +323,7 @@
         </div>
     </div>
 
+    <!-- Result View -->
     <div class="container anim hidden" id="v-result">
         <div class="c-body">
             <div style="text-align:center;padding:20px 0">
@@ -428,117 +360,925 @@
     </div>
 </div>
 
+<!-- Submit Confirmation Modal -->
 <div class="modal-bg" id="modal-submit">
     <div class="modal-box">
         <h3 style="font-size:20px;margin-bottom:12px">Submit Examination?</h3>
         <p id="modal-msg" style="font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:20px"></p>
-        <div style="display:flex;gap:10px;justify-content:flex-end">
-            <button class="btn btn-s" onclick="closeModal()">Cancel</button>
-            <button class="btn btn-d" onclick="submitExam()">Yes, Submit</button>
-        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-d" onclick="submitExam()">Yes, Submit</button></div>
     </div>
 </div>
 
 <script>
-/* SHA-256 — matches Python hashlib.sha256().hexdigest() */
-function sha256(a){function r(t,e){return t>>>e|t<<32-e}var n,o,i,c,d,f,h,g=Math.pow,m=g(2,32),v="length",w="",k=[],l=8*a[v],p=sha256.h=sha256.h||[],y=sha256.k=sha256.k||[],z=y[v],A={};for(o=0;z<64;o++)if(!A[o]){for(n=0;n<313;n+=o)A[n]=o;p[z]=g(o,.5)*m|0;y[z++]=g(o,1/3)*m|0}for(a+="\x80";a[v]%64-56;)a+="\x00";for(n=0;n<a[v];n++){if(o=a.charCodeAt(n),o>>8)return;k[n>>2]|=o<<(3-n)%4*8}for(k[k[v]]=l/m|0,k[k[v]]=l,n=0;n<k[v];){var C=k.slice(n,n+=16),D=p;for(p=p.slice(0,8),o=0;o<64;o++){var E=o<16?C[o]:k[o-15],F=k[o-2],G=(r(E,7)^r(E,18)^E>>>3)+(k[o-7]|0)+(r(F,17)^r(F,19)^F>>>10)+(k[o-16]|0),H=(r(E=p[4],6)^r(E,11)^r(E,25))+(p[4]&p[5]^~p[4]&p[6])+p[7]+y[o]+G|0,I=(r(E=p[0],2)^r(E,13)^r(E,22))+(p[0]&p[1]^p[0]&p[2]^p[1]&p[2])|0;p=[H+I|0].concat(p);p[4]=p[4]+H|0}for(o=0;o<8;o++)p[o]=p[o]+D[o]|0}for(o=0;o<8;o++)for(n=3;n+1;n--){var J=p[o]>>8*n&255;w+=(16>J?0:"")+J.toString(16)}return w}
+/* ═══════════════════════════════════════════════════════
+   LICENSE SYSTEM — matches EduLms pattern exactly
+   Uses crypto.subtle.digest (Web Crypto API) for SHA-256
+   with fallback for file:// protocol
+   ═══════════════════════════════════════════════════════ */
+var LIC = {
+    PREFIX: 'MCEX',
+    SECRET: 'MCEXAM_SECRET_xK9$mP2v@qR7nZ4w',
+    STORAGE_KEY: 'mcqexam_license_v1',
+    APP_DATA_PREFIX: 'mcqexam',
+    CHECK_INTERVAL: 30000,
+    periodicTimer: null,
 
-/* LICENSE — matches gen.py algorithm exactly */
-var LIC_PREFIX = "MCEX";
-var LIC_SECRET = "MCEXAM_SECRET_xK9$mP2v@qR7nZ4w";
-var LIC_STORAGE = "mcqexam_license";
-var browserFP = "";
-var currentLic = null;
+    // SHA-256 via Web Crypto API (matches EduLms)
+    async sha256(message) {
+        try {
+            var msgBuffer = new TextEncoder().encode(message);
+            var hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            var hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(function(b) { return b.toString(16).padStart(2, '0') }).join('');
+        } catch(e) {
+            // Fallback for file:// protocol
+            return LIC._sha256fallback(message);
+        }
+    },
 
-function genBrowserFP(){var p=[];try{var c=document.createElement("canvas"),x=c.getContext("2d");c.width=200;c.height=50;x.textBaseline="top";x.font="14px Arial";x.fillStyle="#f60";x.fillRect(125,1,62,20);x.fillStyle="#069";x.fillText("SIIT-MCQ-FP",2,15);x.fillStyle="rgba(102,204,0,0.7)";x.fillText("Fingerprint",4,35);p.push(c.toDataURL())}catch(e){p.push("no-canvas")}p.push(navigator.userAgent||"");p.push(navigator.language||"");p.push(navigator.platform||"");p.push(String(navigator.hardwareConcurrency||0));p.push(String(navigator.maxTouchPoints||0));p.push(screen.width+"x"+screen.height);p.push(String(screen.colorDepth));p.push(String(screen.pixelDepth));try{p.push(Intl.DateTimeFormat().resolvedOptions().timeZone)}catch(e){}p.push(String(new Date().getTimezoneOffset()));try{var gl=document.createElement("canvas").getContext("webgl"),ext=gl.getExtension("WEBGL_debug_renderer_info");if(ext){p.push(gl.getParameter(ext.UNMASKED_VENDOR_WEBGL));p.push(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL))}}catch(e){}try{var ac=new(window.AudioContext||window.webkitAudioContext)();p.push(String(ac.sampleRate));ac.close()}catch(e){}return sha256(p.join("|||")).substring(0,32).toUpperCase()}
+    // Pure JS SHA-256 fallback
+    _sha256fallback: function(ascii) {
+        var maxWord = Math.pow(2, 32);
+        var result = '';
+        var words = [];
+        var asciiBitLength = ascii.length * 8;
+        var hash = [];
+        var k = [];
+        var primeCounter = 0;
+        var isComposite = {};
+        for (var candidate = 2; primeCounter < 64; candidate++) {
+            if (!isComposite[candidate]) {
+                for (var i = 0; i < 313; i += candidate) isComposite[i] = candidate;
+                hash[primeCounter] = (Math.pow(candidate, 0.5) * maxWord) | 0;
+                k[primeCounter++] = (Math.pow(candidate, 1/3) * maxWord) | 0;
+            }
+        }
+        ascii += '\x80';
+        while (ascii.length % 64 - 56) ascii += '\x00';
+        for (var i = 0; i < ascii.length; i++) {
+            var j = ascii.charCodeAt(i);
+            if (j >> 8) return;
+            words[i >> 2] |= j << ((3 - i) % 4) * 8;
+        }
+        words[words.length] = ((asciiBitLength / maxWord) | 0);
+        words[words.length] = (asciiBitLength);
+        for (var j = 0; j < words.length;) {
+            var w = words.slice(j, j += 16);
+            var oldHash = hash;
+            hash = hash.slice(0, 8);
+            for (var i = 0; i < 64; i++) {
+                var w15 = w[i - 15], w2 = w[i - 2];
+                var s0 = ((w15 << 25) | (w15 >>> 7)) ^ ((w15 << 14) | (w15 >>> 18)) ^ (w15 >>> 3);
+                var s1 = ((w2 << 15) | (w2 >>> 17)) ^ ((w2 << 13) | (w2 >>> 19)) ^ (w2 >>> 10);
+                w[i] = w[i] + (w[i - 7] || 0) + s0 + (w[i - 16] || 0) + s1;
+                var a = hash[0], e = hash[4];
+                var S0 = ((a << 30) | (a >>> 2)) ^ ((a << 19) | (a >>> 13)) ^ ((a << 10) | (a >>> 22));
+                var S1 = ((e << 26) | (e >>> 6)) ^ ((e << 21) | (e >>> 11)) ^ ((e << 7) | (e >>> 25));
+                var ch = (e & hash[5]) ^ (~e & hash[6]);
+                var maj = (a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]);
+                var t1 = hash[7] + S1 + ch + k[i] + w[i];
+                var t2 = S0 + maj;
+                hash = [(t1 + t2) | 0].concat(hash);
+                hash[4] = (hash[4] + t1) | 0;
+                hash.length = 8;
+            }
+            for (var i = 0; i < 8; i++) hash[i] = (hash[i] + oldHash[i]) | 0;
+        }
+        for (var i = 0; i < 8; i++) {
+            for (var j = 3; j + 1; j--) {
+                var b = (hash[i] >> (j * 8)) & 255;
+                result += ((b < 16) ? 0 : '') + b.toString(16);
+            }
+        }
+        return result;
+    },
 
-function validateKey(key){key=key.trim().toUpperCase();if(key.indexOf(LIC_PREFIX+"-")!==0)return{valid:false,reason:"Wrong prefix (expected "+LIC_PREFIX+"-)"};var parts=key.split("-");if(parts.length!==5)return{valid:false,reason:"Invalid key format (need 5 segments)"};var payload=parts.slice(1).join("");if(payload.length!==16)return{valid:false,reason:"Invalid payload length"};var edStr=payload.substring(0,4),fp8=payload.substring(4,12),sig=payload.substring(12,16);var expDay=parseInt(edStr,16);if(isNaN(expDay))return{valid:false,reason:"Invalid expiration encoding"};if(fp8!==browserFP.substring(0,8).toUpperCase())return{valid:false,reason:"Fingerprint mismatch - this key is for a different device"};var expectedSig=sha256(expDay+":"+browserFP+":"+LIC_SECRET).substring(0,4).toUpperCase();if(sig!==expectedSig)return{valid:false,reason:"Invalid signature - key may be corrupted or forged"};var expMs=expDay*86400*1000,nowMs=Date.now();if(nowMs>expMs)return{valid:false,reason:"License expired on "+new Date(expMs).toISOString().split("T")[0]};return{valid:true,expDate:new Date(expMs).toISOString(),daysLeft:Math.max(0,Math.floor((expMs-nowMs)/86400000))}}
+    // Browser fingerprint (matches EduLms pattern)
+    async getFingerprint() {
+        var parts = [];
+        try {
+            var c = document.createElement('canvas');
+            var x = c.getContext('2d');
+            c.width = 200; c.height = 50;
+            x.textBaseline = 'top';
+            x.font = '14px Arial';
+            x.fillStyle = '#f60';
+            x.fillRect(125, 1, 62, 20);
+            x.fillStyle = '#069';
+            x.fillText('SIIT-MCQ-FP', 2, 15);
+            x.fillStyle = 'rgba(102,204,0,0.7)';
+            x.fillText('Fingerprint', 4, 35);
+            parts.push(c.toDataURL());
+        } catch(e) { parts.push('no-canvas'); }
+        parts.push(navigator.userAgent || '');
+        parts.push(navigator.language || '');
+        parts.push(navigator.platform || '');
+        parts.push(String(navigator.hardwareConcurrency || 0));
+        parts.push(String(navigator.maxTouchPoints || 0));
+        parts.push(screen.width + 'x' + screen.height);
+        parts.push(String(screen.colorDepth));
+        parts.push(String(screen.pixelDepth));
+        try { parts.push(Intl.DateTimeFormat().resolvedOptions().timeZone); } catch(e) {}
+        parts.push(String(new Date().getTimezoneOffset()));
+        try {
+            var gl = document.createElement('canvas').getContext('webgl');
+            var ext = gl.getExtension('WEBGL_debug_renderer_info');
+            if (ext) {
+                parts.push(gl.getParameter(ext.UNMASKED_VENDOR_WEBGL));
+                parts.push(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL));
+            }
+        } catch(e) {}
+        try {
+            var ac = new (window.AudioContext || window.webkitAudioContext)();
+            parts.push(String(ac.sampleRate));
+            ac.close();
+        } catch(e) {}
+        var hash = await LIC.sha256(parts.join('|||'));
+        return hash.substring(0, 32).toUpperCase();
+    },
 
-function activateLicense(){var key=document.getElementById("lic-input").value;var errEl=document.getElementById("lic-err"),sucEl=document.getElementById("lic-suc");errEl.style.display="none";sucEl.style.display="none";if(!key.trim()){errEl.textContent="Please enter a license key.";errEl.style.display="block";return}var result=validateKey(key);if(!result.valid){errEl.textContent=result.reason;errEl.style.display="block";return}var licData={key:key.trim().toUpperCase(),activated:new Date().toISOString(),expDate:result.expDate,daysLeft:result.daysLeft,fingerprint:browserFP,active:true};localStorage.setItem(LIC_STORAGE,JSON.stringify(licData));sucEl.textContent="License activated! ("+result.daysLeft+" days remaining)";sucEl.style.display="block";setTimeout(function(){document.getElementById("lic-screen").style.display="none";document.getElementById("app").classList.remove("hidden");currentLic=licData;initApp()},800)}
+    // Validate key (matches gen.py algorithm: sha256(expDay:fp:SECRET)[:4])
+    async validateKey(key, fingerprint) {
+        try {
+            key = key.trim().toUpperCase();
+            if (key.indexOf(LIC.PREFIX + '-') !== 0) return { valid: false, reason: 'Wrong prefix (expected ' + LIC.PREFIX + '-)' };
+            var parts = key.split('-');
+            if (parts.length !== 5) return { valid: false, reason: 'Invalid key format (need 5 segments)' };
+            var payload = parts.slice(1).join('');
+            if (payload.length !== 16) return { valid: false, reason: 'Invalid payload length' };
+            var edStr = payload.substring(0, 4);
+            var fp8 = payload.substring(4, 12);
+            var sig = payload.substring(12, 16);
+            var expiryDays = parseInt(edStr, 16);
+            if (isNaN(expiryDays)) return { valid: false, reason: 'Invalid expiration encoding' };
+            if (fp8 !== fingerprint.substring(0, 8).toUpperCase()) return { valid: false, reason: 'Fingerprint mismatch - this key is for a different device' };
+            var dataToSign = expiryDays + ':' + fingerprint + ':' + LIC.SECRET;
+            var sigHash = await LIC.sha256(dataToSign);
+            var expectedSig = sigHash.substring(0, 4).toUpperCase();
+            if (sig !== expectedSig) return { valid: false, reason: 'Invalid signature - key may be corrupted or forged' };
+            var expiryMs = expiryDays * 86400 * 1000;
+            var nowMs = Date.now();
+            if (nowMs > expiryMs) return { valid: false, reason: 'License expired on ' + new Date(expiryMs).toISOString().split('T')[0] };
+            var daysLeft = Math.max(0, Math.floor((expiryMs - nowMs) / 86400000));
+            return { valid: true, expiryMs: expiryMs, expiryDate: new Date(expiryMs).toISOString(), daysLeft: daysLeft };
+        } catch(e) { return { valid: false, reason: 'Validation error: ' + e.message }; }
+    },
 
-function checkLicense(){var stored=localStorage.getItem(LIC_STORAGE);if(!stored)return false;try{var lic=JSON.parse(stored);if(!lic.active)return false;var result=validateKey(lic.key);if(!result.valid){localStorage.removeItem(LIC_STORAGE);return false}currentLic=lic;currentLic.daysLeft=result.daysLeft;return true}catch(e){return false}}
+    // Store license (matches EduLms storeLicense)
+    storeLicense: function(key, fingerprint, result) {
+        var data = {
+            key: key,
+            fingerprint: fingerprint,
+            expiryMs: result.expiryMs,
+            expiryDate: result.expiryDate,
+            daysLeft: result.daysLeft,
+            activatedAt: new Date().toISOString(),
+            tamperHash: LIC.simpleHash(key + fingerprint + result.expiryMs)
+        };
+        localStorage.setItem(LIC.STORAGE_KEY, JSON.stringify(data));
+    },
 
-function updateLicUI(){if(!currentLic)return;var d=currentLic.daysLeft||0;var ind=document.getElementById("lic-ind"),badge=document.getElementById("lic-badge");if(d<=7){ind.className="badge b-er";ind.textContent="Expiring Soon"}else if(d<=30){ind.className="badge b-wr";ind.textContent=d+"d left"}else{ind.className="badge b-ok";ind.textContent="Active"}badge.textContent="Licensed - "+(d>3650?"Lifetime":d+" days remaining");document.getElementById("lm-act").textContent=new Date(currentLic.activated).toLocaleDateString();document.getElementById("lm-exp").textContent=new Date(currentLic.expDate).toLocaleDateString();document.getElementById("lm-days").textContent=d>3650?"&#8734;":String(d);document.getElementById("lm-fp").textContent=currentLic.fingerprint;document.getElementById("lm-key").textContent=currentLic.key;var bar=document.getElementById("adm-lic-bar");if(d<=7){bar.className="lic-bar err";bar.innerHTML="&#9888; License expiring in "+d+" day(s)"}else if(d<=30){bar.className="lic-bar warn";bar.innerHTML="&#9203; License active - "+d+" days remaining"}else{bar.className="lic-bar ok";bar.innerHTML="&#10003; License Active - "+(d>3650?"Lifetime":d+" days remaining")}}
+    // Get stored license (matches EduLms getStoredLicense)
+    getStoredLicense: function() {
+        try { return JSON.parse(localStorage.getItem(LIC.STORAGE_KEY)); } catch(e) { return null; }
+    },
 
-function deactivateLic(){if(!confirm("Deactivate license? You will need to re-enter a key."))return;localStorage.removeItem(LIC_STORAGE);currentLic=null;document.getElementById("app").classList.add("hidden");document.getElementById("lic-screen").style.display="flex";document.getElementById("lic-input").value="";document.getElementById("lic-err").style.display="none";document.getElementById("lic-suc").style.display="none"}
+    // Simple hash for tamper detection
+    simpleHash: function(s) {
+        var h = 0;
+        for (var i = 0; i < s.length; i++) {
+            h = ((h << 5) - h) + s.charCodeAt(i);
+            h = h & h;
+        }
+        return h.toString(16);
+    },
 
-function copyFP(){if(navigator.clipboard){navigator.clipboard.writeText(browserFP).then(function(){alert("Fingerprint copied!\n\n"+browserFP+"\n\nSend this to your admin.")})}else{prompt("Copy this fingerprint:",browserFP)}}
+    // Check tamper (matches EduLms checkTamper)
+    checkTamper: function(stored) {
+        if (!stored.tamperHash) return true;
+        var expected = LIC.simpleHash(stored.key + stored.fingerprint + stored.expiryMs);
+        return stored.tamperHash !== expected;
+    },
 
-/* QUESTION BANKS */
-var QB={"siit-cet":{title:"SIIT Common Entrance Test (CET) - 50 MCQs",certName:"SIIT CERTIFICATE OF EXCELLENCE",duration:60,questions:[
-{id:"q1",t:"Brain of computer?",o:{A:"RAM",B:"CPU",C:"SSD",D:"Monitor"},a:"B"},{id:"q2",t:"Volatile memory?",o:{A:"ROM",B:"HDD",C:"RAM",D:"DVD"},a:"C"},{id:"q3",t:"Printer used for?",o:{A:"Scan",B:"Print",C:"Audio",D:"Video"},a:"B"},{id:"q4",t:"Fastest storage?",o:{A:"HDD",B:"SSD",C:"DVD",D:"Pen Drive"},a:"B"},{id:"q5",t:"UPS purpose?",o:{A:"Internet",B:"Backup power",C:"Graphics",D:"Scan"},a:"B"},{id:"q6",t:"Windows 11 is?",o:{A:"App",B:"OS",C:"Browser",D:"Editor"},a:"B"},{id:"q7",t:"Lock PC shortcut?",o:{A:"Win+L",B:"Ctrl+L",C:"Alt+L",D:"Shift+L"},a:"A"},{id:"q8",t:"Google mobile OS?",o:{A:"Linux",B:"Android",C:"Ubuntu",D:"DOS"},a:"B"},{id:"q9",t:"Multiple programs?",o:{A:"Format",B:"Multitasking",C:"Compress",D:"Defrag"},a:"B"},{id:"q10",t:"Start menu key?",o:{A:"Esc",B:"Windows",C:"Alt",D:"Tab"},a:"B"},{id:"q11",t:"LAN device?",o:{A:"Scanner",B:"Switch",C:"Printer",D:"Projector"},a:"B"},{id:"q12",t:"Wi-Fi stands for?",o:{A:"Wireless Fidelity",B:"Wide File",C:"Wireless File",D:"Web Finder"},a:"A"},{id:"q13",t:"Ethernet connector?",o:{A:"HDMI",B:"USB",C:"RJ45",D:"VGA"},a:"C"},{id:"q14",t:"LAN full form?",o:{A:"Local Area Network",B:"Long Access Network",C:"Limited Area Node",D:"Link Access Network"},a:"A"},{id:"q15",t:"Home internet device?",o:{A:"Modem/Router",B:"Monitor",C:"Keyboard",D:"Scanner"},a:"A"},{id:"q16",t:"Windows developer?",o:{A:"Apple",B:"Microsoft",C:"Google",D:"IBM"},a:"B"},{id:"q17",t:"Photoshop developer?",o:{A:"Adobe",B:"Oracle",C:"Dell",D:"Intel"},a:"A"},{id:"q18",t:"Ryzen by?",o:{A:"Intel",B:"AMD",C:"HP",D:"Lenovo"},a:"B"},{id:"q19",t:"Gmail by?",o:{A:"Yahoo",B:"Google",C:"Apple",D:"Meta"},a:"B"},{id:"q20",t:"iPhone maker?",o:{A:"Samsung",B:"Nokia",C:"Apple",D:"Sony"},a:"C"},{id:"q21",t:"GST full form?",o:{A:"Goods and Service Tax",B:"General Sales Tax",C:"Government Service Tax",D:"Goods Sales Transfer"},a:"A"},{id:"q22",t:"Sales document?",o:{A:"Voucher",B:"Invoice",C:"Ledger",D:"Balance Sheet"},a:"B"},{id:"q23",t:"Accounting software?",o:{A:"Photoshop",B:"TallyPrime",C:"AutoCAD",D:"Premiere"},a:"B"},{id:"q24",t:"Business transactions book?",o:{A:"Ledger",B:"Browser",C:"Folder",D:"Registry"},a:"A"},{id:"q25",t:"PAN used for?",o:{A:"Internet",B:"Income Tax ID",C:"Printing",D:"Network"},a:"B"},{id:"q26",t:"Transparency format?",o:{A:"JPG",B:"PNG",C:"BMP",D:"TIFF"},a:"B"},{id:"q27",t:"Vector software?",o:{A:"Illustrator",B:"VLC",C:"Chrome",D:"Notepad"},a:"A"},{id:"q28",t:"RGB used for?",o:{A:"Print",B:"Screens",C:"Books",D:"Newspapers"},a:"B"},{id:"q29",t:"Print format?",o:{A:"PDF",B:"MP3",C:"AVI",D:"TXT"},a:"A"},{id:"q30",t:"Remove image part?",o:{A:"Crop",B:"Brush",C:"Zoom",D:"Fill"},a:"A"},{id:"q31",t:"SEO?",o:{A:"Search Engine Optimization",B:"Social Engine Operation",C:"Search Entry Option",D:"Site Engine Order"},a:"A"},{id:"q32",t:"Professional network?",o:{A:"Instagram",B:"LinkedIn",C:"Snapchat",D:"Telegram"},a:"B"},{id:"q33",t:"Click metric?",o:{A:"CTR",B:"CPU",C:"DPI",D:"RAM"},a:"A"},{id:"q34",t:"Email service?",o:{A:"Gmail",B:"VLC",C:"Paint",D:"Excel"},a:"A"},{id:"q35",t:"Meta platform?",o:{A:"YouTube",B:"Facebook",C:"X",D:"Pinterest"},a:"B"},{id:"q36",t:"O Level by?",o:{A:"NIELIT",B:"CBSE",C:"AICTE",D:"NCERT"},a:"A"},{id:"q37",t:"Presentation software?",o:{A:"PowerPoint",B:"Paint",C:"VLC",D:"Notepad"},a:"A"},{id:"q38",t:"Spreadsheet software?",o:{A:"Word",B:"Excel",C:"Paint",D:"Access"},a:"B"},{id:"q39",t:"Database software?",o:{A:"Access",B:"Chrome",C:"Photoshop",D:"VLC"},a:"A"},{id:"q40",t:"Refresh key?",o:{A:"F2",B:"F5",C:"F8",D:"F12"},a:"B"},{id:"q41",t:"SSD faster than HDD.",o:{A:"True",B:"False"},a:"A"},{id:"q42",t:"Chrome is an OS.",o:{A:"True",B:"False"},a:"B"},{id:"q43",t:"Modem used for internet.",o:{A:"True",B:"False"},a:"A"},{id:"q44",t:"Excel used for spreadsheets.",o:{A:"True",B:"False"},a:"A"},{id:"q45",t:"SEO is paid advertising.",o:{A:"True",B:"False"},a:"B"},{id:"q46",t:"Copy shortcut?",o:{A:"Ctrl+C",B:"Ctrl+X",C:"Ctrl+V",D:"Ctrl+Z"},a:"A"},{id:"q47",t:"Paste shortcut?",o:{A:"Ctrl+C",B:"Ctrl+V",C:"Ctrl+X",D:"Ctrl+A"},a:"B"},{id:"q48",t:"Microsoft cloud?",o:{A:"Google Drive",B:"OneDrive",C:"Dropbox",D:"iCloud"},a:"B"},{id:"q49",t:"PDF extension?",o:{A:".docx",B:".pdf",C:".xlsx",D:".pptx"},a:"B"},{id:"q50",t:"AI example?",o:{A:"ChatGPT",B:"Calculator",C:"Paint",D:"Notepad"},a:"A"}
-]},"e-accounting":{title:"Advanced E-Accounting & Taxation Exam",certName:"CERTIFICATE OF PROFESSIONAL E-ACCOUNTING",duration:45,questions:[
-{id:"q1",t:"Which financial statement reports assets, liabilities, and equity?",o:{A:"Balance Sheet",B:"Income Statement",C:"Cash Flow Statement",D:"Trial Balance"},a:"A"},{id:"q2",t:"In double-entry bookkeeping, what must always equal total debits?",o:{A:"Total Revenue",B:"Total Credits",C:"Operating Expenses",D:"Net Income"},a:"B"},{id:"q3",t:"Which accounting ratio measures short-term liquidity?",o:{A:"Current Ratio",B:"Debt-to-Equity Ratio",C:"Quick Ratio (Acid-Test)",D:"Return on Investment"},a:"C"},{id:"q4",t:"What does GST stand for?",o:{A:"General Sales Tax",B:"Government Service Tariff",C:"Gross Standard Tax",D:"Goods and Services Tax"},a:"D"},{id:"q5",t:"Which module tracks vendor bills and accounts payable?",o:{A:"Accounts Payable Module",B:"Accounts Receivable Module",C:"Payroll Ledger",D:"Asset Management"},a:"A"}
-]}};
+    // Check license validity (matches EduLms check)
+    async check() {
+        var stored = LIC.getStoredLicense();
+        if (!stored) return false;
+        if (LIC.checkTamper(stored)) {
+            LIC.lockApplication('License data tampered');
+            return false;
+        }
+        var fingerprint = await LIC.getFingerprint();
+        if (stored.fingerprint !== fingerprint) {
+            LIC.lockApplication('Fingerprint mismatch - different machine');
+            return false;
+        }
+        if (Date.now() > stored.expiryMs) {
+            LIC.lockApplication('License expired');
+            return false;
+        }
+        return true;
+    },
 
-/* STATE */
-var isAdmin=false,curView="login",curCourse="",curBank=null,stuName="",stuId="",qIdx=0,answers={},marked={},timerIV=null,fScore=0,fPct=0,eStatus="",tabWarn=0,allResults=[];
-var cfg={cet:60,ea:45,pass:70,maxTabs:3,rand:"yes",wm:"yes"};
+    // Lock application (matches EduLms lockApplication)
+    lockApplication: function(reason) {
+        console.warn('[LICENSE] LOCKING:', reason);
+        LIC.wipeAllData();
+        localStorage.setItem(LIC.STORAGE_KEY + '_locked', 'true');
+        localStorage.setItem(LIC.STORAGE_KEY + '_lockReason', reason);
+        document.getElementById('mainApp').style.display = 'none';
+        var ls = document.getElementById('licenseScreen');
+        ls.classList.remove('hidden');
+        ls.style.display = 'flex';
+        LIC.showExpired();
+    },
 
-function initApp(){loadCfg();loadResults();updateLicUI();updateStats()}
-function loadCfg(){var s=localStorage.getItem("mcqexam_cfg");if(s)try{Object.assign(cfg,JSON.parse(s))}catch(e){}document.getElementById("s-cet").value=cfg.cet;document.getElementById("s-ea").value=cfg.ea;document.getElementById("s-pass").value=cfg.pass;document.getElementById("s-tabs").value=cfg.maxTabs;document.getElementById("s-rand").value=cfg.rand;document.getElementById("s-wm").value=cfg.wm;QB["siit-cet"].duration=cfg.cet;QB["e-accounting"].duration=cfg.ea}
-function saveSettings(){cfg.cet=parseInt(document.getElementById("s-cet").value)||60;cfg.ea=parseInt(document.getElementById("s-ea").value)||45;cfg.pass=parseInt(document.getElementById("s-pass").value)||70;cfg.maxTabs=parseInt(document.getElementById("s-tabs").value)||3;cfg.rand=document.getElementById("s-rand").value;cfg.wm=document.getElementById("s-wm").value;QB["siit-cet"].duration=cfg.cet;QB["e-accounting"].duration=cfg.ea;localStorage.setItem("mcqexam_cfg",JSON.stringify(cfg));alert("Settings saved.")}
-function loadResults(){var r=localStorage.getItem("mcqexam_results");if(r)try{allResults=JSON.parse(r)}catch(e){allResults=[]}}
-function saveResults(){localStorage.setItem("mcqexam_results",JSON.stringify(allResults))}
+    // Wipe all app data (matches EduLms wipeAllData)
+    wipeAllData: function() {
+        var keysToRemove = [];
+        for (var i = 0; i < localStorage.length; i++) {
+            var key = localStorage.key(i);
+            if (key && key.indexOf(LIC.APP_DATA_PREFIX) === 0) {
+                keysToRemove.push(key);
+            }
+        }
+        keysToRemove.forEach(function(k) { localStorage.removeItem(k); });
+    },
 
-function showV(v){["v-login","v-admin-login","v-admin-dash","v-exam","v-result"].forEach(function(id){document.getElementById(id).classList.add("hidden")});curView=v;document.getElementById("v-"+v).classList.remove("hidden");document.getElementById("nav-admin").classList.toggle("hidden",v.indexOf("admin")===0);document.getElementById("nav-stu").classList.toggle("hidden",v.indexOf("admin")!==0);if(v==="admin-dash"){updateStats();renderQTable();renderRTable();renderRecent()}}
-function toggleTheme(){document.body.classList.toggle("dark")}
+    // Unlock app (matches EduLms unlockApp)
+    unlockApp: function() {
+        document.getElementById('licenseScreen').classList.add('hidden');
+        document.getElementById('licenseScreen').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'flex';
+        LIC.startPeriodicCheck();
+        LIC.updateStatusBar();
+        if (typeof AppInit === 'function') AppInit();
+    },
 
-function adminLogin(){var u=document.getElementById("adm-user").value.trim(),p=document.getElementById("adm-pass").value.trim();if(u==="admin"&&p==="admin123"){isAdmin=true;document.getElementById("adm-err").style.display="none";showV("admin-dash")}else{document.getElementById("adm-err").style.display="block"}}
-function adminLogout(){isAdmin=false;showV("login")}
+    // Activate (matches EduLms activate)
+    async activate() {
+        var fpEl = document.getElementById('licFingerprint');
+        var keyEl = document.getElementById('licKeyInput');
+        var statusEl = document.getElementById('licStatus');
+        var fingerprint = fpEl.textContent;
+        var key = keyEl.value.trim();
+        if (!key) {
+            statusEl.textContent = 'Please enter a license key.';
+            statusEl.className = 'lic-status error';
+            return;
+        }
+        statusEl.textContent = 'Validating...';
+        statusEl.className = 'lic-status';
+        var result = await LIC.validateKey(key, fingerprint);
+        if (result.valid) {
+            // Clear lock flag
+            localStorage.removeItem(LIC.STORAGE_KEY + '_locked');
+            localStorage.removeItem(LIC.STORAGE_KEY + '_lockReason');
+            LIC.storeLicense(key, fingerprint, result);
+            statusEl.textContent = 'License activated! Valid until ' + new Date(result.expiryDate).toLocaleDateString() + ' (' + result.daysLeft + ' days)';
+            statusEl.className = 'lic-status valid';
+            setTimeout(function() { LIC.unlockApp(); }, 1000);
+        } else {
+            statusEl.textContent = result.reason;
+            statusEl.className = 'lic-status error';
+        }
+    },
 
-function aTab(name){document.querySelectorAll("#adm-tabs .tbtn").forEach(function(b){b.classList.remove("on")});document.querySelectorAll("#v-admin-dash .tpane").forEach(function(p){p.classList.remove("on")});var pane=document.getElementById("at-"+name);if(pane)pane.classList.add("on");var btns=document.querySelectorAll("#adm-tabs .tbtn");for(var i=0;i<btns.length;i++){if(btns[i].getAttribute("onclick").indexOf(name)!==-1){btns[i].classList.add("on");break}}if(name==="questions")renderQTable();if(name==="results")renderRTable();if(name==="overview"){updateStats();renderRecent()}}
+    // Deactivate
+    deactivate: function() {
+        if (!confirm('Deactivate license? This will require re-activation.')) return;
+        localStorage.removeItem(LIC.STORAGE_KEY);
+        location.reload();
+    },
 
-function addQuestion(e){e.preventDefault();var course=document.getElementById("aq-course").value,opts={A:document.getElementById("aq-a").value.trim(),B:document.getElementById("aq-b").value.trim()},c=document.getElementById("aq-c").value.trim(),d=document.getElementById("aq-d").value.trim();if(c)opts.C=c;if(d)opts.D=d;QB[course].questions.push({id:"q_"+Date.now(),t:document.getElementById("aq-title").value.trim(),o:opts,a:document.getElementById("aq-ans").value});alert("Question added!");document.getElementById("addq-form").reset();aTab("questions")}
+    // Copy fingerprint
+    async copyFingerprint() {
+        var fp = document.getElementById('licFingerprint').textContent;
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(fp).then(function() { alert('Fingerprint copied!\n\n' + fp + '\n\nSend to admin.'); });
+        } else {
+            prompt('Copy fingerprint:', fp);
+        }
+    },
 
-function renderQTable(){var fc=document.getElementById("qf-course").value,fs=document.getElementById("qf-search").value.toLowerCase(),tb=document.getElementById("qt-body");tb.innerHTML="";var n=0;Object.keys(QB).forEach(function(bk){if(fc!=="all"&&fc!==bk)return;QB[bk].questions.forEach(function(q){if(fs&&q.t.toLowerCase().indexOf(fs)===-1)return;n++;var cl=bk==="siit-cet"?"CET":"E-Acct",ot=Object.keys(q.o).map(function(k){return k+": "+q.o[k]}).join(" | ");tb.innerHTML+="<tr><td>"+n+"</td><td><span class='badge b-if'>"+cl+"</span></td><td style='max-width:240px'>"+q.t+"</td><td style='font-size:12px;max-width:240px'>"+ot+"</td><td><strong>"+q.a+"</strong></td><td><button class='btn btn-d btn-sm' onclick=\"delQ('"+bk+"','"+q.id+"')\">Del</button></td></tr>"})})}
+    // Show activate view
+    showActivate: function() {
+        document.getElementById('licActivateView').style.display = '';
+        document.getElementById('licExpiredView').style.display = 'none';
+        document.getElementById('licStatus').textContent = '';
+    },
 
-function delQ(bk,id){if(!confirm("Delete?"))return;QB[bk].questions=QB[bk].questions.filter(function(q){return q.id!==id});renderQTable();updateStats()}
+    // Show expired view
+    showExpired: function() {
+        document.getElementById('licActivateView').style.display = 'none';
+        document.getElementById('licExpiredView').style.display = '';
+    },
 
-function updateStats(){var tq=0;Object.keys(QB).forEach(function(k){tq+=QB[k].questions.length});document.getElementById("st-q").textContent=tq;document.getElementById("st-ex").textContent=allResults.length;if(allResults.length>0){var avg=allResults.reduce(function(s,r){return s+r.pct},0)/allResults.length;document.getElementById("st-avg").textContent=avg.toFixed(1)+"%"}else document.getElementById("st-avg").textContent="&mdash;";document.getElementById("st-viol").textContent=allResults.reduce(function(s,r){return s+(r.viol||0)},0)}
+    // Periodic check (matches EduLms startPeriodicCheck)
+    startPeriodicCheck: function() {
+        if (LIC.periodicTimer) clearInterval(LIC.periodicTimer);
+        LIC.periodicTimer = setInterval(async function() {
+            var ok = await LIC.check();
+            if (!ok) {
+                clearInterval(LIC.periodicTimer);
+            } else {
+                LIC.updateStatusBar();
+            }
+        }, LIC.CHECK_INTERVAL);
+    },
 
-function renderRTable(){var tb=document.getElementById("rt-body");tb.innerHTML="";if(!allResults.length){document.getElementById("rt-empty").classList.remove("hidden");return}document.getElementById("rt-empty").classList.add("hidden");allResults.forEach(function(r){var b=r.status==="PASSED"?'<span class="badge b-ok">PASSED</span>':'<span class="badge b-er">FAILED</span>';tb.innerHTML+='<tr><td class="mono">'+r.sid+'</td><td>'+r.name+'</td><td>'+r.course+'</td><td>'+r.score+'/'+r.total+'</td><td><strong>'+r.pct.toFixed(1)+'%</strong></td><td>'+b+'</td><td style="font-size:12px">'+new Date(r.ts).toLocaleString()+'</td></tr>'})}
+    // Update status bar (matches EduLms updateStatusBar)
+    updateStatusBar: function() {
+        var stored = LIC.getStoredLicense();
+        if (!stored) return;
+        var msLeft = stored.expiryMs - Date.now();
+        var daysLeft = Math.ceil(msLeft / 86400000);
+        var cls = 'active';
+        var text = 'License: ' + daysLeft + 'd left';
+        if (daysLeft <= 3) { cls = 'warning'; text = 'License: ' + daysLeft + 'd left \u26A0\uFE0F'; }
+        if (daysLeft <= 0) { cls = 'expired'; text = 'License: EXPIRED'; }
+        var bars = ['licStatusBar', 'licBarHeader'];
+        bars.forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) {
+                el.innerHTML = '<div class="lic-bar ' + cls + '" onclick="LIC.showInfo()"><span class="lic-bar-dot"></span>' + text + '</div>';
+            }
+        });
+        // Update admin license tab
+        var lmAct = document.getElementById('lm-act');
+        var lmExp = document.getElementById('lm-exp');
+        var lmDays = document.getElementById('lm-days');
+        var lmFp = document.getElementById('lm-fp');
+        var lmKey = document.getElementById('lm-key');
+        if (lmAct) lmAct.textContent = new Date(stored.activatedAt).toLocaleDateString();
+        if (lmExp) lmExp.textContent = new Date(stored.expiryMs).toLocaleDateString();
+        if (lmDays) lmDays.textContent = daysLeft > 3650 ? '\u221E' : String(daysLeft);
+        if (lmFp) lmFp.textContent = stored.fingerprint;
+        if (lmKey) lmKey.textContent = stored.key;
+        // Update admin license bar
+        var admBar = document.getElementById('adm-lic-bar');
+        if (admBar) {
+            if (daysLeft <= 7) { admBar.innerHTML = '<div class="lic-bar expired"><span class="lic-bar-dot"></span>Expiring in ' + daysLeft + ' days</div>'; }
+            else if (daysLeft <= 30) { admBar.innerHTML = '<div class="lic-bar warning"><span class="lic-bar-dot"></span>' + daysLeft + ' days remaining</div>'; }
+            else { admBar.innerHTML = '<div class="lic-bar active"><span class="lic-bar-dot"></span>Active - ' + (daysLeft > 3650 ? 'Lifetime' : daysLeft + ' days') + '</div>'; }
+        }
+    },
 
-function renderRecent(){var box=document.getElementById("recent-box");if(!allResults.length){box.innerHTML='<div class="empty"><div class="ei">&#128233;</div><h3 style="font-size:18px;color:var(--text2)">No submissions yet</h3></div>';return}var recent=allResults.slice(-5).reverse(),h='<table class="dtable"><thead><tr><th>Student</th><th>Course</th><th>Score</th><th>Status</th><th>Time</th></tr></thead><tbody>';recent.forEach(function(r){var b=r.status==="PASSED"?'<span class="badge b-ok">PASS</span>':'<span class="badge b-er">FAIL</span>';h+='<tr><td>'+r.name+' ('+r.sid+')</td><td>'+r.course+'</td><td>'+r.pct.toFixed(1)+'%</td><td>'+b+'</td><td style="font-size:12px">'+new Date(r.ts).toLocaleString()+'</td></tr>'});box.innerHTML=h+'</tbody></table>'}
+    // Show license info
+    showInfo: function() {
+        var stored = LIC.getStoredLicense();
+        if (!stored) return;
+        var daysLeft = Math.ceil((stored.expiryMs - Date.now()) / 86400000);
+        alert('License Info\n\nFingerprint: ' + stored.fingerprint + '\nActivated: ' + new Date(stored.activatedAt).toLocaleString() + '\nExpires: ' + new Date(stored.expiryMs).toLocaleString() + '\nDays Remaining: ' + daysLeft);
+    }
+};
 
-function exportAllCSV(){if(!allResults.length){alert("No results.");return}var csv="Student ID,Name,Course,Score,Total,Percentage,Status,Date\n";allResults.forEach(function(r){csv+=r.sid+',"'+r.name+'","'+r.course+'",'+r.score+','+r.total+','+r.pct.toFixed(1)+'%,'+r.status+','+new Date(r.ts).toLocaleString()+'\n'});dlStr(csv,"SIIT_All_Results.csv")}
+/* ═══ QUESTION BANKS ═══ */
+var QB = {
+    "siit-cet": {
+        title: "SIIT Common Entrance Test (CET) - 50 MCQs",
+        certName: "SIIT CERTIFICATE OF EXCELLENCE",
+        duration: 60,
+        questions: [
+            {id:"q1",t:"Brain of computer?",o:{A:"RAM",B:"CPU",C:"SSD",D:"Monitor"},a:"B"},
+            {id:"q2",t:"Volatile memory?",o:{A:"ROM",B:"HDD",C:"RAM",D:"DVD"},a:"C"},
+            {id:"q3",t:"Printer used for?",o:{A:"Scan",B:"Print",C:"Audio",D:"Video"},a:"B"},
+            {id:"q4",t:"Fastest storage?",o:{A:"HDD",B:"SSD",C:"DVD",D:"Pen Drive"},a:"B"},
+            {id:"q5",t:"UPS purpose?",o:{A:"Internet",B:"Backup power",C:"Graphics",D:"Scan"},a:"B"},
+            {id:"q6",t:"Windows 11 is?",o:{A:"App",B:"OS",C:"Browser",D:"Editor"},a:"B"},
+            {id:"q7",t:"Lock PC shortcut?",o:{A:"Win+L",B:"Ctrl+L",C:"Alt+L",D:"Shift+L"},a:"A"},
+            {id:"q8",t:"Google mobile OS?",o:{A:"Linux",B:"Android",C:"Ubuntu",D:"DOS"},a:"B"},
+            {id:"q9",t:"Multiple programs?",o:{A:"Format",B:"Multitasking",C:"Compress",D:"Defrag"},a:"B"},
+            {id:"q10",t:"Start menu key?",o:{A:"Esc",B:"Windows",C:"Alt",D:"Tab"},a:"B"},
+            {id:"q11",t:"LAN device?",o:{A:"Scanner",B:"Switch",C:"Printer",D:"Projector"},a:"B"},
+            {id:"q12",t:"Wi-Fi stands for?",o:{A:"Wireless Fidelity",B:"Wide File",C:"Wireless File",D:"Web Finder"},a:"A"},
+            {id:"q13",t:"Ethernet connector?",o:{A:"HDMI",B:"USB",C:"RJ45",D:"VGA"},a:"C"},
+            {id:"q14",t:"LAN full form?",o:{A:"Local Area Network",B:"Long Access Network",C:"Limited Area Node",D:"Link Access Network"},a:"A"},
+            {id:"q15",t:"Home internet device?",o:{A:"Modem/Router",B:"Monitor",C:"Keyboard",D:"Scanner"},a:"A"},
+            {id:"q16",t:"Windows developer?",o:{A:"Apple",B:"Microsoft",C:"Google",D:"IBM"},a:"B"},
+            {id:"q17",t:"Photoshop developer?",o:{A:"Adobe",B:"Oracle",C:"Dell",D:"Intel"},a:"A"},
+            {id:"q18",t:"Ryzen by?",o:{A:"Intel",B:"AMD",C:"HP",D:"Lenovo"},a:"B"},
+            {id:"q19",t:"Gmail by?",o:{A:"Yahoo",B:"Google",C:"Apple",D:"Meta"},a:"B"},
+            {id:"q20",t:"iPhone maker?",o:{A:"Samsung",B:"Nokia",C:"Apple",D:"Sony"},a:"C"},
+            {id:"q21",t:"GST full form?",o:{A:"Goods and Service Tax",B:"General Sales Tax",C:"Government Service Tax",D:"Goods Sales Transfer"},a:"A"},
+            {id:"q22",t:"Sales document?",o:{A:"Voucher",B:"Invoice",C:"Ledger",D:"Balance Sheet"},a:"B"},
+            {id:"q23",t:"Accounting software?",o:{A:"Photoshop",B:"TallyPrime",C:"AutoCAD",D:"Premiere"},a:"B"},
+            {id:"q24",t:"Business transactions book?",o:{A:"Ledger",B:"Browser",C:"Folder",D:"Registry"},a:"A"},
+            {id:"q25",t:"PAN used for?",o:{A:"Internet",B:"Income Tax ID",C:"Printing",D:"Network"},a:"B"},
+            {id:"q26",t:"Transparency format?",o:{A:"JPG",B:"PNG",C:"BMP",D:"TIFF"},a:"B"},
+            {id:"q27",t:"Vector software?",o:{A:"Illustrator",B:"VLC",C:"Chrome",D:"Notepad"},a:"A"},
+            {id:"q28",t:"RGB used for?",o:{A:"Print",B:"Screens",C:"Books",D:"Newspapers"},a:"B"},
+            {id:"q29",t:"Print format?",o:{A:"PDF",B:"MP3",C:"AVI",D:"TXT"},a:"A"},
+            {id:"q30",t:"Remove image part?",o:{A:"Crop",B:"Brush",C:"Zoom",D:"Fill"},a:"A"},
+            {id:"q31",t:"SEO?",o:{A:"Search Engine Optimization",B:"Social Engine Operation",C:"Search Entry Option",D:"Site Engine Order"},a:"A"},
+            {id:"q32",t:"Professional network?",o:{A:"Instagram",B:"LinkedIn",C:"Snapchat",D:"Telegram"},a:"B"},
+            {id:"q33",t:"Click metric?",o:{A:"CTR",B:"CPU",C:"DPI",D:"RAM"},a:"A"},
+            {id:"q34",t:"Email service?",o:{A:"Gmail",B:"VLC",C:"Paint",D:"Excel"},a:"A"},
+            {id:"q35",t:"Meta platform?",o:{A:"YouTube",B:"Facebook",C:"X",D:"Pinterest"},a:"B"},
+            {id:"q36",t:"O Level by?",o:{A:"NIELIT",B:"CBSE",C:"AICTE",D:"NCERT"},a:"A"},
+            {id:"q37",t:"Presentation software?",o:{A:"PowerPoint",B:"Paint",C:"VLC",D:"Notepad"},a:"A"},
+            {id:"q38",t:"Spreadsheet software?",o:{A:"Word",B:"Excel",C:"Paint",D:"Access"},a:"B"},
+            {id:"q39",t:"Database software?",o:{A:"Access",B:"Chrome",C:"Photoshop",D:"VLC"},a:"A"},
+            {id:"q40",t:"Refresh key?",o:{A:"F2",B:"F5",C:"F8",D:"F12"},a:"B"},
+            {id:"q41",t:"SSD faster than HDD.",o:{A:"True",B:"False"},a:"A"},
+            {id:"q42",t:"Chrome is an OS.",o:{A:"True",B:"False"},a:"B"},
+            {id:"q43",t:"Modem used for internet.",o:{A:"True",B:"False"},a:"A"},
+            {id:"q44",t:"Excel used for spreadsheets.",o:{A:"True",B:"False"},a:"A"},
+            {id:"q45",t:"SEO is paid advertising.",o:{A:"True",B:"False"},a:"B"},
+            {id:"q46",t:"Copy shortcut?",o:{A:"Ctrl+C",B:"Ctrl+X",C:"Ctrl+V",D:"Ctrl+Z"},a:"A"},
+            {id:"q47",t:"Paste shortcut?",o:{A:"Ctrl+C",B:"Ctrl+V",C:"Ctrl+X",D:"Ctrl+A"},a:"B"},
+            {id:"q48",t:"Microsoft cloud?",o:{A:"Google Drive",B:"OneDrive",C:"Dropbox",D:"iCloud"},a:"B"},
+            {id:"q49",t:"PDF extension?",o:{A:".docx",B:".pdf",C:".xlsx",D:".pptx"},a:"B"},
+            {id:"q50",t:"AI example?",o:{A:"ChatGPT",B:"Calculator",C:"Paint",D:"Notepad"},a:"A"}
+        ]
+    },
+    "e-accounting": {
+        title: "Advanced E-Accounting & Taxation Exam",
+        certName: "CERTIFICATE OF PROFESSIONAL E-ACCOUNTING",
+        duration: 45,
+        questions: [
+            {id:"q1",t:"Which financial statement reports assets, liabilities, and equity?",o:{A:"Balance Sheet",B:"Income Statement",C:"Cash Flow Statement",D:"Trial Balance"},a:"A"},
+            {id:"q2",t:"In double-entry bookkeeping, what must always equal total debits?",o:{A:"Total Revenue",B:"Total Credits",C:"Operating Expenses",D:"Net Income"},a:"B"},
+            {id:"q3",t:"Which accounting ratio measures short-term liquidity?",o:{A:"Current Ratio",B:"Debt-to-Equity Ratio",C:"Quick Ratio (Acid-Test)",D:"Return on Investment"},a:"C"},
+            {id:"q4",t:"What does GST stand for?",o:{A:"General Sales Tax",B:"Government Service Tariff",C:"Gross Standard Tax",D:"Goods and Services Tax"},a:"D"},
+            {id:"q5",t:"Which module tracks vendor bills and accounts payable?",o:{A:"Accounts Payable Module",B:"Accounts Receivable Module",C:"Payroll Ledger",D:"Asset Management"},a:"A"}
+        ]
+    }
+};
 
-/* SECURITY */
-function initSecurity(){document.addEventListener("contextmenu",function(e){if(curView==="exam")e.preventDefault()});["copy","cut","paste"].forEach(function(ev){document.addEventListener(ev,function(e){if(curView==="exam")e.preventDefault()})});document.addEventListener("keydown",function(e){if(curView!=="exam")return;if(e.key==="F12")e.preventDefault();if(e.ctrlKey&&e.shiftKey&&(e.key==="I"||e.key==="i"||e.key==="J"||e.key==="j"))e.preventDefault();if(e.ctrlKey&&(e.key==="u"||e.key==="U"))e.preventDefault();if(e.key==="PrintScreen")e.preventDefault()});document.addEventListener("visibilitychange",function(){if(document.hidden&&curView==="exam"){tabWarn++;updateWarn();if(tabWarn>=cfg.maxTabs){alert("Security Violation: Max tab switches exceeded. Auto-submitting.");submitExam();showCheat("You exceeded maximum tab switches. Exam auto-submitted.")}else{alert("Warning: Tab switch detected! ("+tabWarn+"/"+cfg.maxTabs+")")}}})}
+/* ═══ STATE ═══ */
+var isAdmin = false, curView = 'login', curCourse = '', curBank = null;
+var stuName = '', stuId = '', qIdx = 0, answers = {}, marked = {};
+var timerIV = null, fScore = 0, fPct = 0, eStatus = '', tabWarn = 0;
+var allResults = [];
+var cfg = { cet: 60, ea: 45, pass: 70, maxTabs: 3, rand: 'yes', wm: 'yes' };
 
-function showCheat(msg){document.getElementById("cheat-msg").textContent=msg;document.getElementById("cheat").style.display="flex"}
-function closeCheat(){document.getElementById("cheat").style.display="none";showV("result")}
+/* ═══ APP INIT (called by LIC.unlockApp) ═══ */
+function AppInit() {
+    loadCfg();
+    loadResults();
+    updateStats();
+}
 
-function genWatermark(){var wm=document.getElementById("wm");wm.innerHTML="";if(cfg.wm!=="yes"){wm.style.display="none";return}wm.style.display="block";var text=stuName+" | "+stuId+" | "+new Date().toISOString().slice(0,10);for(var r=0;r<Math.ceil(window.innerHeight/120);r++){for(var c=0;c<Math.ceil(window.innerWidth/320);c++){var s=document.createElement("div");s.className="wt";s.textContent=text;s.style.top=(r*120+20)+"px";s.style.left=(c*320-60)+"px";wm.appendChild(s)}}}
+function loadCfg() {
+    var s = localStorage.getItem(LIC.APP_DATA_PREFIX + '_cfg');
+    if (s) try { Object.assign(cfg, JSON.parse(s)); } catch(e) {}
+    document.getElementById('s-cet').value = cfg.cet;
+    document.getElementById('s-ea').value = cfg.ea;
+    document.getElementById('s-pass').value = cfg.pass;
+    document.getElementById('s-tabs').value = cfg.maxTabs;
+    document.getElementById('s-rand').value = cfg.rand;
+    document.getElementById('s-wm').value = cfg.wm;
+    QB['siit-cet'].duration = cfg.cet;
+    QB['e-accounting'].duration = cfg.ea;
+}
 
-/* EXAM ENGINE */
-function shuffle(a){var b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=b[i];b[i]=b[j];b[j]=t}return b}
+function saveSettings() {
+    cfg.cet = parseInt(document.getElementById('s-cet').value) || 60;
+    cfg.ea = parseInt(document.getElementById('s-ea').value) || 45;
+    cfg.pass = parseInt(document.getElementById('s-pass').value) || 70;
+    cfg.maxTabs = parseInt(document.getElementById('s-tabs').value) || 3;
+    cfg.rand = document.getElementById('s-rand').value;
+    cfg.wm = document.getElementById('s-wm').value;
+    QB['siit-cet'].duration = cfg.cet;
+    QB['e-accounting'].duration = cfg.ea;
+    localStorage.setItem(LIC.APP_DATA_PREFIX + '_cfg', JSON.stringify(cfg));
+    alert('Settings saved!');
+}
 
-function startExam(){stuName=document.getElementById("inp-name").value.trim();stuId=document.getElementById("inp-id").value.trim();curCourse=document.getElementById("inp-course").value;if(!stuName||!stuId){alert("Enter name and ID.");return}curBank=JSON.parse(JSON.stringify(QB[curCourse]));curBank.duration=curCourse==="siit-cet"?cfg.cet:cfg.ea;if(cfg.rand==="yes"){curBank.questions=shuffle(curBank.questions);curBank.questions.forEach(function(q){var keys=shuffle(Object.keys(q.o)),no={},na=q.a;keys.forEach(function(sk,i){var nk=String.fromCharCode(65+i);no[nk]=q.o[sk];if(sk===q.a)na=nk});q.o=no;q.a=na})}qIdx=0;answers={};marked={};tabWarn=0;try{document.documentElement.requestFullscreen()}catch(e){}curView="exam";document.getElementById("v-login").classList.add("hidden");document.getElementById("v-admin-login").classList.add("hidden");document.getElementById("v-admin-dash").classList.add("hidden");document.getElementById("v-result").classList.add("hidden");document.getElementById("v-exam").classList.remove("hidden");document.getElementById("ex-title").textContent=curBank.title;document.getElementById("ex-cand").textContent="Candidate: "+stuName+" ("+stuId+")";updateWarn();genWatermark();buildPal();renderQ(0);startTimer(curBank.duration*60)}
+function loadResults() {
+    var r = localStorage.getItem(LIC.APP_DATA_PREFIX + '_results');
+    if (r) try { allResults = JSON.parse(r); } catch(e) { allResults = []; }
+}
 
-function buildPal(){var g=document.getElementById("pal");g.innerHTML="";curBank.questions.forEach(function(q,i){var b=document.createElement("button");b.className="pal-btn";b.textContent=i+1;b.id="pb-"+i;b.onclick=function(){renderQ(i)};g.appendChild(b)});refreshPal()}
-function refreshPal(){var ac=0;curBank.questions.forEach(function(q,i){var b=document.getElementById("pb-"+i);b.className="pal-btn";if(marked[q.id])b.classList.add("mrk");else if(answers[q.id]){b.classList.add("ans");ac++}if(i===qIdx)b.classList.add("cur")});var t=curBank.questions.length;document.getElementById("ex-prog").textContent=ac+" / "+t;document.getElementById("ex-bar").style.width=((ac/t)*100)+"%"}
-function renderQ(idx){qIdx=idx;var q=curBank.questions[idx];var h='<div class="qn">Question '+(idx+1)+" of "+curBank.questions.length+'</div><div class="qt">'+q.t+'</div><div class="opts">';Object.keys(q.o).forEach(function(k){var sel=answers[q.id]===k?" sel":"";h+='<label class="opt'+sel+'" onclick="selOpt(\''+q.id+"','"+k+"',this)\"><input type='radio'"+(sel?" checked":"")+'><span class="opt-k">'+k+'</span><span>'+q.o[k]+"</span></label>"});document.getElementById("q-box").innerHTML=h+"</div>";refreshPal()}
-function selOpt(qid,val,el){answers[qid]=val;delete marked[qid];document.querySelectorAll("#q-box .opt").forEach(function(o){o.classList.remove("sel")});el.classList.add("sel");refreshPal()}
-function exPrev(){if(qIdx>0)renderQ(qIdx-1)}
-function exNext(){if(qIdx<curBank.questions.length-1)renderQ(qIdx+1)}
-function exMark(){marked[curBank.questions[qIdx].id]=true;exNext()}
-function updateWarn(){var el=document.getElementById("ex-warn");if(tabWarn>0){el.classList.remove("hidden");el.textContent="&#9888; "+tabWarn+"/"+cfg.maxTabs}else el.classList.add("hidden")}
-function startTimer(dur){var s=dur,el=document.getElementById("ex-timer");if(timerIV)clearInterval(timerIV);timerIV=setInterval(function(){var m=Math.floor(s/60),sc=s%60;el.textContent=String(m).padStart(2,"0")+":"+String(sc).padStart(2,"0");if(s<=300)el.classList.add("warn");else el.classList.remove("warn");if(s<=0){clearInterval(timerIV);alert("Time up!");submitExam()}s--},1000)}
-function confirmSubmit(){var un=curBank.questions.length-Object.keys(answers).length;document.getElementById("modal-msg").textContent=un>0?"You have "+un+" unanswered question(s). Submit anyway?":"All questions answered. Submit?";document.getElementById("modal-submit").classList.add("show")}
-function closeModal(){document.getElementById("modal-submit").classList.remove("show")}
+function saveResults() {
+    localStorage.setItem(LIC.APP_DATA_PREFIX + '_results', JSON.stringify(allResults));
+}
 
-function submitExam(){closeModal();if(timerIV)clearInterval(timerIV);try{document.exitFullscreen()}catch(e){}document.getElementById("wm").style.display="none";var score=0,total=curBank.questions.length;curBank.questions.forEach(function(q){if(answers[q.id]===q.a)score++});fScore=score;fPct=(score/total)*100;eStatus=fPct>=cfg.pass?"PASSED":"FAILED";var result={name:stuName,sid:stuId,courseKey:curCourse,course:curBank.title,certName:curBank.certName,score:score,total:total,pct:fPct,status:eStatus,viol:tabWarn,ts:new Date().toISOString(),answers:Object.assign({},answers),correct:curBank.questions.map(function(q){return{id:q.id,a:q.a}})};allResults.push(result);saveResults();curView="result";document.getElementById("v-exam").classList.add("hidden");document.getElementById("v-result").classList.remove("hidden");renderResult(result)}
+/* ═══ VIEWS ═══ */
+function showV(v) {
+    ['v-login', 'v-admin-login', 'v-admin-dash', 'v-exam', 'v-result'].forEach(function(id) {
+        document.getElementById(id).classList.add('hidden');
+    });
+    curView = v;
+    document.getElementById('v-' + v).classList.remove('hidden');
+    document.getElementById('nav-admin').classList.toggle('hidden', v.indexOf('admin') === 0);
+    document.getElementById('nav-stu').classList.toggle('hidden', v.indexOf('admin') !== 0);
+    if (v === 'admin-dash') { updateStats(); renderQTable(); renderRTable(); renderRecent(); LIC.updateStatusBar(); }
+}
 
-function renderResult(r){document.getElementById("r-name").textContent=r.name;document.getElementById("r-id").textContent=r.sid;document.getElementById("r-course").textContent=r.course;document.getElementById("r-pct").textContent=r.pct.toFixed(1)+"%";document.getElementById("r-sl").textContent=r.score+" / "+r.total;document.getElementById("r-circ").className="score-circ "+(r.status==="PASSED"?"pass":"fail");if(r.status==="PASSED"){document.getElementById("r-status").innerHTML='<span style="color:var(--success)">&#10003; PASSED - Congratulations!</span>';document.getElementById("cert-box").classList.remove("hidden");document.getElementById("cert-title").textContent=r.certName;document.getElementById("cert-name").textContent=r.name;document.getElementById("cert-desc").textContent="For successfully passing the "+r.course+" examination with a score of "+r.pct.toFixed(1)+"%.";document.getElementById("cert-date").textContent=new Date(r.ts).toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});document.getElementById("cert-serial").textContent="Serial: SIIT-"+Date.now().toString(36).toUpperCase()+"-"+r.sid}else{document.getElementById("r-status").innerHTML='<span style="color:var(--danger)">&#10007; FAILED - Review answers below</span>';document.getElementById("cert-box").classList.add("hidden")}var tb=document.getElementById("sol-body");tb.innerHTML="";curBank.questions.forEach(function(q,i){var ua=answers[q.id]||"Unanswered",ok=ua===q.a;tb.innerHTML+="<tr><td>"+(i+1)+"</td><td>"+q.t+"</td><td style='color:"+(ok?"var(--success)":"var(--danger)")+";font-weight:600'>"+ua+"</td><td><strong>"+q.a+"</strong></td><td>"+(ok?'<span class="badge b-ok">&#10003;</span>':'<span class="badge b-er">&#10007;</span>')+"</td></tr>"});document.getElementById("sol-box").classList.add("hidden")}
-function toggleSol(){document.getElementById("sol-box").classList.toggle("hidden")}
+function toggleTheme() { document.body.classList.toggle('dark'); }
 
-function dlCert(){if(fPct<cfg.pass){alert("Certificate requires "+cfg.pass+"%+.");return}html2pdf().from(document.getElementById("cert-el")).set({margin:10,filename:"SIIT_Certificate_"+stuName.replace(/\s+/g,"_")+".pdf",image:{type:"jpeg",quality:0.98},html2canvas:{scale:2},jsPDF:{unit:"mm",format:"a4",orientation:"landscape"}}).save()}
-function dlCSV(){var r=allResults[allResults.length-1];if(!r)return;var csv="Field,Details\nCandidate Name,"+r.name+"\nStudent ID,"+r.sid+"\nCourse,"+r.course+"\nScore,"+r.score+"/"+r.total+"\nPercentage,"+r.pct.toFixed(1)+"%\nStatus,"+r.status+"\nViolations,"+r.viol+"\n\nQ_No,Your_Answer,Correct,Result\n";curBank.questions.forEach(function(q,i){var u=answers[q.id]||"Unanswered";csv+=(i+1)+","+u+","+q.a+","+(u===q.a?"Correct":"Incorrect")+"\n"});dlStr(csv,"Exam_Result_"+stuName.replace(/\s+/g,"_")+".csv")}
-function dlStr(csv,fn){var b=new Blob([csv],{type:"text/csv;charset=utf-8;"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=fn;document.body.appendChild(a);a.click();document.body.removeChild(a)}
+/* ═══ ADMIN ═══ */
+function adminLogin() {
+    var u = document.getElementById('adm-user').value.trim();
+    var p = document.getElementById('adm-pass').value.trim();
+    if (u === 'admin' && p === 'admin123') {
+        isAdmin = true;
+        document.getElementById('adm-err').style.display = 'none';
+        showV('admin-dash');
+    } else {
+        document.getElementById('adm-err').style.display = 'block';
+    }
+}
 
-/* BOOT */
-document.addEventListener("DOMContentLoaded",function(){initSecurity();browserFP=genBrowserFP();document.getElementById("fp-display").textContent=browserFP;if(checkLicense()){document.getElementById("lic-screen").style.display="none";document.getElementById("app").classList.remove("hidden");initApp()}});
+function adminLogout() { isAdmin = false; showV('login'); }
+
+function aTab(name) {
+    document.querySelectorAll('#adm-tabs .tbtn').forEach(function(b) { b.classList.remove('on'); });
+    document.querySelectorAll('#v-admin-dash .tpane').forEach(function(p) { p.classList.remove('on'); });
+    var pane = document.getElementById('at-' + name);
+    if (pane) pane.classList.add('on');
+    var btns = document.querySelectorAll('#adm-tabs .tbtn');
+    for (var i = 0; i < btns.length; i++) {
+        if (btns[i].getAttribute('onclick').indexOf(name) !== -1) { btns[i].classList.add('on'); break; }
+    }
+    if (name === 'questions') renderQTable();
+    if (name === 'results') renderRTable();
+    if (name === 'overview') { updateStats(); renderRecent(); }
+    if (name === 'license') LIC.updateStatusBar();
+}
+
+function addQuestion(e) {
+    e.preventDefault();
+    var course = document.getElementById('aq-course').value;
+    var opts = { A: document.getElementById('aq-a').value.trim(), B: document.getElementById('aq-b').value.trim() };
+    var c = document.getElementById('aq-c').value.trim(), d = document.getElementById('aq-d').value.trim();
+    if (c) opts.C = c; if (d) opts.D = d;
+    QB[course].questions.push({ id: 'q_' + Date.now(), t: document.getElementById('aq-title').value.trim(), o: opts, a: document.getElementById('aq-ans').value });
+    alert('Question added!');
+    document.getElementById('addq-form').reset();
+    aTab('questions');
+}
+
+function renderQTable() {
+    var fc = document.getElementById('qf-course').value;
+    var fs = document.getElementById('qf-search').value.toLowerCase();
+    var tb = document.getElementById('qt-body');
+    tb.innerHTML = '';
+    var n = 0;
+    Object.keys(QB).forEach(function(bk) {
+        if (fc !== 'all' && fc !== bk) return;
+        QB[bk].questions.forEach(function(q) {
+            if (fs && q.t.toLowerCase().indexOf(fs) === -1) return;
+            n++;
+            var cl = bk === 'siit-cet' ? 'CET' : 'E-Acct';
+            var ot = Object.keys(q.o).map(function(k) { return k + ': ' + q.o[k]; }).join(' | ');
+            tb.innerHTML += '<tr><td>' + n + '</td><td><span class="badge b-if">' + cl + '</span></td><td>' + q.t + '</td><td style="font-size:12px">' + ot + '</td><td><strong>' + q.a + '</strong></td><td><button class="btn btn-d btn-sm" onclick="delQ(\'' + bk + '\',\'' + q.id + '\')">Del</button></td></tr>';
+        });
+    });
+}
+
+function delQ(bk, id) {
+    if (!confirm('Delete this question?')) return;
+    QB[bk].questions = QB[bk].questions.filter(function(q) { return q.id !== id; });
+    renderQTable();
+    updateStats();
+}
+
+function updateStats() {
+    var tq = 0;
+    Object.keys(QB).forEach(function(k) { tq += QB[k].questions.length; });
+    document.getElementById('st-q').textContent = tq;
+    document.getElementById('st-ex').textContent = allResults.length;
+    if (allResults.length > 0) {
+        var avg = allResults.reduce(function(s, r) { return s + r.pct; }, 0) / allResults.length;
+        document.getElementById('st-avg').textContent = avg.toFixed(1) + '%';
+    } else {
+        document.getElementById('st-avg').textContent = '\u2014';
+    }
+    document.getElementById('st-viol').textContent = allResults.reduce(function(s, r) { return s + (r.viol || 0); }, 0);
+}
+
+function renderRTable() {
+    var tb = document.getElementById('rt-body');
+    tb.innerHTML = '';
+    if (!allResults.length) { document.getElementById('rt-empty').classList.remove('hidden'); return; }
+    document.getElementById('rt-empty').classList.add('hidden');
+    allResults.forEach(function(r) {
+        var b = r.status === 'PASSED' ? '<span class="badge b-ok">PASSED</span>' : '<span class="badge b-er">FAILED</span>';
+        tb.innerHTML += '<tr><td class="mono">' + r.sid + '</td><td>' + r.name + '</td><td>' + r.course + '</td><td>' + r.score + '/' + r.total + '</td><td><strong>' + r.pct.toFixed(1) + '%</strong></td><td>' + b + '</td><td style="font-size:12px">' + new Date(r.ts).toLocaleString() + '</td></tr>';
+    });
+}
+
+function renderRecent() {
+    var box = document.getElementById('recent-box');
+    if (!allResults.length) { box.innerHTML = '<div class="empty"><div class="ei">&#128233;</div><h3 style="font-size:18px;color:var(--text2)">No submissions yet</h3></div>'; return; }
+    var recent = allResults.slice(-5).reverse();
+    var h = '<table class="dtable"><thead><tr><th>Student</th><th>Course</th><th>Score</th><th>Status</th><th>Time</th></tr></thead><tbody>';
+    recent.forEach(function(r) {
+        var b = r.status === 'PASSED' ? '<span class="badge b-ok">PASS</span>' : '<span class="badge b-er">FAIL</span>';
+        h += '<tr><td>' + r.name + ' (' + r.sid + ')</td><td>' + r.course + '</td><td>' + r.pct.toFixed(1) + '%</td><td>' + b + '</td><td style="font-size:12px">' + new Date(r.ts).toLocaleString() + '</td></tr>';
+    });
+    box.innerHTML = h + '</tbody></table>';
+}
+
+function exportAllCSV() {
+    if (!allResults.length) { alert('No results to export.'); return; }
+    var csv = 'Student ID,Name,Course,Score,Total,Percentage,Status,Date\n';
+    allResults.forEach(function(r) {
+        csv += r.sid + ',"' + r.name + '","' + r.course + '",' + r.score + ',' + r.total + ',' + r.pct.toFixed(1) + '%,' + r.status + ',' + new Date(r.ts).toLocaleString() + '\n';
+    });
+    dlStr(csv, 'SIIT_All_Results.csv');
+}
+
+/* ═══ SECURITY ═══ */
+function initSecurity() {
+    document.addEventListener('contextmenu', function(e) { if (curView === 'exam') e.preventDefault(); });
+    ['copy', 'cut', 'paste'].forEach(function(ev) {
+        document.addEventListener(ev, function(e) { if (curView === 'exam') e.preventDefault(); });
+    });
+    document.addEventListener('keydown', function(e) {
+        if (curView !== 'exam') return;
+        if (e.key === 'F12') e.preventDefault();
+        if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j')) e.preventDefault();
+        if (e.ctrlKey && (e.key === 'u' || e.key === 'U')) e.preventDefault();
+    });
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden && curView === 'exam') {
+            tabWarn++;
+            updateWarn();
+            if (tabWarn >= cfg.maxTabs) {
+                alert('Max tab switches exceeded. Auto-submitting.');
+                submitExam();
+                showCheat('Exceeded max tab switches. Exam auto-submitted.');
+            } else {
+                alert('Warning: Tab switch detected (' + tabWarn + '/' + cfg.maxTabs + ')');
+            }
+        }
+    });
+}
+
+function showCheat(msg) {
+    document.getElementById('cheat-msg').textContent = msg;
+    document.getElementById('cheat').style.display = 'flex';
+}
+
+function closeCheat() {
+    document.getElementById('cheat').style.display = 'none';
+    showV('result');
+}
+
+function genWatermark() {
+    var wm = document.getElementById('wm');
+    wm.innerHTML = '';
+    if (cfg.wm !== 'yes') { wm.style.display = 'none'; return; }
+    wm.style.display = 'block';
+    var text = stuName + ' | ' + stuId + ' | ' + new Date().toISOString().slice(0, 10);
+    for (var r = 0; r < Math.ceil(window.innerHeight / 120); r++) {
+        for (var c = 0; c < Math.ceil(window.innerWidth / 320); c++) {
+            var s = document.createElement('div');
+            s.className = 'wt';
+            s.textContent = text;
+            s.style.top = (r * 120 + 20) + 'px';
+            s.style.left = (c * 320 - 60) + 'px';
+            wm.appendChild(s);
+        }
+    }
+}
+
+/* ═══ EXAM ENGINE ═══ */
+function shuffle(a) {
+    var b = a.slice();
+    for (var i = b.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = b[i]; b[i] = b[j]; b[j] = t;
+    }
+    return b;
+}
+
+function startExam() {
+    stuName = document.getElementById('inp-name').value.trim();
+    stuId = document.getElementById('inp-id').value.trim();
+    curCourse = document.getElementById('inp-course').value;
+    if (!stuName || !stuId) { alert('Please enter your name and student ID.'); return; }
+    curBank = JSON.parse(JSON.stringify(QB[curCourse]));
+    curBank.duration = curCourse === 'siit-cet' ? cfg.cet : cfg.ea;
+    if (cfg.rand === 'yes') {
+        curBank.questions = shuffle(curBank.questions);
+        curBank.questions.forEach(function(q) {
+            var keys = shuffle(Object.keys(q.o));
+            var no = {}, na = q.a;
+            keys.forEach(function(sk, i) {
+                var nk = String.fromCharCode(65 + i);
+                no[nk] = q.o[sk];
+                if (sk === q.a) na = nk;
+            });
+            q.o = no; q.a = na;
+        });
+    }
+    qIdx = 0; answers = {}; marked = {}; tabWarn = 0;
+    try { document.documentElement.requestFullscreen(); } catch(e) {}
+    curView = 'exam';
+    ['v-login', 'v-admin-login', 'v-admin-dash', 'v-result'].forEach(function(id) { document.getElementById(id).classList.add('hidden'); });
+    document.getElementById('v-exam').classList.remove('hidden');
+    document.getElementById('ex-title').textContent = curBank.title;
+    document.getElementById('ex-cand').textContent = 'Candidate: ' + stuName + ' (' + stuId + ')';
+    updateWarn();
+    genWatermark();
+    buildPal();
+    renderQ(0);
+    startTimer(curBank.duration * 60);
+}
+
+function buildPal() {
+    var g = document.getElementById('pal');
+    g.innerHTML = '';
+    curBank.questions.forEach(function(q, i) {
+        var b = document.createElement('button');
+        b.className = 'pal-btn';
+        b.textContent = i + 1;
+        b.id = 'pb-' + i;
+        b.onclick = function() { renderQ(i); };
+        g.appendChild(b);
+    });
+    refreshPal();
+}
+
+function refreshPal() {
+    var ac = 0;
+    curBank.questions.forEach(function(q, i) {
+        var b = document.getElementById('pb-' + i);
+        b.className = 'pal-btn';
+        if (marked[q.id]) b.classList.add('mrk');
+        else if (answers[q.id]) { b.classList.add('ans'); ac++; }
+        if (i === qIdx) b.classList.add('cur');
+    });
+    var t = curBank.questions.length;
+    document.getElementById('ex-prog').textContent = ac + ' / ' + t;
+    document.getElementById('ex-bar').style.width = ((ac / t) * 100) + '%';
+}
+
+function renderQ(idx) {
+    qIdx = idx;
+    var q = curBank.questions[idx];
+    var h = '<div class="qn">Question ' + (idx + 1) + ' of ' + curBank.questions.length + '</div>';
+    h += '<div class="qt">' + q.t + '</div><div class="opts">';
+    Object.keys(q.o).forEach(function(k) {
+        var sel = answers[q.id] === k ? ' sel' : '';
+        h += '<label class="opt' + sel + '" onclick="selOpt(\'' + q.id + "','" + k + '\',this)">';
+        h += '<input type="radio"' + (sel ? ' checked' : '') + '>';
+        h += '<span class="opt-k">' + k + '</span><span>' + q.o[k] + '</span></label>';
+    });
+    document.getElementById('q-box').innerHTML = h + '</div>';
+    refreshPal();
+}
+
+function selOpt(qid, val, el) {
+    answers[qid] = val;
+    delete marked[qid];
+    document.querySelectorAll('#q-box .opt').forEach(function(o) { o.classList.remove('sel'); });
+    el.classList.add('sel');
+    refreshPal();
+}
+
+function exPrev() { if (qIdx > 0) renderQ(qIdx - 1); }
+function exNext() { if (qIdx < curBank.questions.length - 1) renderQ(qIdx + 1); }
+function exMark() { marked[curBank.questions[qIdx].id] = true; exNext(); }
+
+function updateWarn() {
+    var el = document.getElementById('ex-warn');
+    if (tabWarn > 0) { el.classList.remove('hidden'); el.textContent = '\u26A0 ' + tabWarn + '/' + cfg.maxTabs; }
+    else el.classList.add('hidden');
+}
+
+function startTimer(dur) {
+    var s = dur, el = document.getElementById('ex-timer');
+    if (timerIV) clearInterval(timerIV);
+    timerIV = setInterval(function() {
+        var m = Math.floor(s / 60), sc = s % 60;
+        el.textContent = String(m).padStart(2, '0') + ':' + String(sc).padStart(2, '0');
+        if (s <= 300) el.classList.add('warn'); else el.classList.remove('warn');
+        if (s <= 0) { clearInterval(timerIV); alert('Time is up!'); submitExam(); }
+        s--;
+    }, 1000);
+}
+
+function confirmSubmit() {
+    var un = curBank.questions.length - Object.keys(answers).length;
+    document.getElementById('modal-msg').textContent = un > 0 ? 'You have ' + un + ' unanswered question(s). Submit anyway?' : 'All questions answered. Submit exam?';
+    document.getElementById('modal-submit').classList.add('show');
+}
+
+function closeModal() { document.getElementById('modal-submit').classList.remove('show'); }
+
+function submitExam() {
+    closeModal();
+    if (timerIV) clearInterval(timerIV);
+    try { document.exitFullscreen(); } catch(e) {}
+    document.getElementById('wm').style.display = 'none';
+    var score = 0, total = curBank.questions.length;
+    curBank.questions.forEach(function(q) { if (answers[q.id] === q.a) score++; });
+    fScore = score;
+    fPct = (score / total) * 100;
+    eStatus = fPct >= cfg.pass ? 'PASSED' : 'FAILED';
+    var result = {
+        name: stuName, sid: stuId, courseKey: curCourse, course: curBank.title,
+        certName: curBank.certName, score: score, total: total, pct: fPct,
+        status: eStatus, viol: tabWarn, ts: new Date().toISOString(),
+        answers: Object.assign({}, answers)
+    };
+    allResults.push(result);
+    saveResults();
+    curView = 'result';
+    document.getElementById('v-exam').classList.add('hidden');
+    document.getElementById('v-result').classList.remove('hidden');
+    renderResult(result);
+}
+
+function renderResult(r) {
+    document.getElementById('r-name').textContent = r.name;
+    document.getElementById('r-id').textContent = r.sid;
+    document.getElementById('r-course').textContent = r.course;
+    document.getElementById('r-pct').textContent = r.pct.toFixed(1) + '%';
+    document.getElementById('r-sl').textContent = r.score + ' / ' + r.total;
+    document.getElementById('r-circ').className = 'score-circ ' + (r.status === 'PASSED' ? 'pass' : 'fail');
+    if (r.status === 'PASSED') {
+        document.getElementById('r-status').innerHTML = '<span style="color:var(--success)">&#10003; PASSED</span>';
+        document.getElementById('cert-box').classList.remove('hidden');
+        document.getElementById('cert-title').textContent = r.certName;
+        document.getElementById('cert-name').textContent = r.name;
+        document.getElementById('cert-desc').textContent = 'For successfully passing ' + r.course + ' with a score of ' + r.pct.toFixed(1) + '%.';
+        document.getElementById('cert-date').textContent = new Date(r.ts).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('cert-serial').textContent = 'Serial: SIIT-' + Date.now().toString(36).toUpperCase() + '-' + r.sid;
+    } else {
+        document.getElementById('r-status').innerHTML = '<span style="color:var(--danger)">&#10007; FAILED</span>';
+        document.getElementById('cert-box').classList.add('hidden');
+    }
+    var tb = document.getElementById('sol-body');
+    tb.innerHTML = '';
+    curBank.questions.forEach(function(q, i) {
+        var ua = answers[q.id] || 'Unanswered';
+        var ok = ua === q.a;
+        tb.innerHTML += '<tr><td>' + (i + 1) + '</td><td>' + q.t + '</td><td style="color:' + (ok ? 'var(--success)' : 'var(--danger)') + ';font-weight:600">' + ua + '</td><td><strong>' + q.a + '</strong></td><td>' + (ok ? '<span class="badge b-ok">&#10003;</span>' : '<span class="badge b-er">&#10007;</span>') + '</td></tr>';
+    });
+    document.getElementById('sol-box').classList.add('hidden');
+}
+
+function toggleSol() { document.getElementById('sol-box').classList.toggle('hidden'); }
+
+function dlCert() {
+    if (fPct < cfg.pass) { alert('Certificate requires ' + cfg.pass + '% or higher.'); return; }
+    html2pdf().from(document.getElementById('cert-el')).set({
+        margin: 10,
+        filename: 'SIIT_Certificate_' + stuName.replace(/\s+/g, '_') + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+    }).save();
+}
+
+function dlCSV() {
+    var r = allResults[allResults.length - 1];
+    if (!r) return;
+    var csv = 'Field,Details\nName,' + r.name + '\nID,' + r.sid + '\nCourse,' + r.course + '\nScore,' + r.score + '/' + r.total + '\nPercentage,' + r.pct.toFixed(1) + '%\nStatus,' + r.status + '\n\nQuestion,Your Answer,Correct Answer,Result\n';
+    curBank.questions.forEach(function(q, i) {
+        var u = answers[q.id] || 'Unanswered';
+        csv += (i + 1) + ',' + u + ',' + q.a + ',' + (u === q.a ? 'Correct' : 'Incorrect') + '\n';
+    });
+    dlStr(csv, 'Exam_Result_' + stuName.replace(/\s+/g, '_') + '.csv');
+}
+
+function dlStr(csv, fn) {
+    var b = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(b);
+    a.download = fn;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+/* ═══ BOOTSTRAP (matches EduLms exactly) ═══ */
+(async function bootstrap() {
+    // Initialize security listeners
+    initSecurity();
+
+    // Show fingerprint on license screen
+    var fp = await LIC.getFingerprint();
+    document.getElementById('licFingerprint').textContent = fp;
+
+    // Check if locked (previously expired)
+    var isLocked = localStorage.getItem(LIC.STORAGE_KEY + '_locked');
+    if (isLocked === 'true') {
+        var ls = document.getElementById('licenseScreen');
+        ls.classList.remove('hidden');
+        ls.style.display = 'flex';
+        LIC.showExpired();
+        return; // Don't proceed
+    }
+
+    // Check existing license
+    var valid = await LIC.check();
+    if (valid) {
+        LIC.unlockApp();
+    } else {
+        // No valid license — show activation screen
+        var ls = document.getElementById('licenseScreen');
+        ls.classList.remove('hidden');
+        ls.style.display = 'flex';
+    }
+})();
 </script>
 </body>
 </html>
